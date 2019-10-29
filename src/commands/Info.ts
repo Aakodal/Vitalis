@@ -1,7 +1,7 @@
 import { Command } from "../lib/Command";
 import { Discord, infos } from "../requires";
 import { Client } from "../lib/Client";
-import { COLORS } from "../lib/functions";
+import { COLORS } from "../lib/constants";
 
 export default class Info extends Command {
     constructor() {

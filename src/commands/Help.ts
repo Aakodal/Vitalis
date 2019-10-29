@@ -1,7 +1,8 @@
 import { Command } from "../lib/Command";
 import { Discord, config } from "../requires";
 import { Client } from "../lib/Client";
-import { getValueFromDB, COLORS, sendError } from "../lib/functions.js";
+import { getValueFromDB, sendError, fromArrayToLone } from "../lib/functions";
+import { COLORS } from "../lib/constants";
 
 export default class Help extends Command {
     constructor() {
@@ -106,7 +107,7 @@ export default class Help extends Command {
                 : 0;
             
             const botMessage = await message.channel.send(stockEmbeds[currentPage]);
-            const embedMessage = Array.isArray(botMessage) ? botMessage[0] : botMessage;
+            const embedMessage = fromArrayToLone(botMessage);
             await updateReactions(embedMessage, currentPage);
 
             client.on("messageReactionAdd", async (reaction, user) => {

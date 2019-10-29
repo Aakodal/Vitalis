@@ -1,7 +1,8 @@
 import { Command } from "../lib/Command";
 import { Discord } from "../requires";
 import { Client } from "../lib/Client";
-import { COLORS } from "../lib/functions";
+import { COLORS } from "../lib/constants";
+import { fromArrayToLone } from "../lib/functions";
 
 export default class EmbedBuilder extends Command {
     constructor() {
@@ -14,18 +15,12 @@ export default class EmbedBuilder extends Command {
     }
 
     async run(message: Discord.Message, args: string[], client: Client) {
-        const reactDefaultEmojis = async (message: Discord.Message) => {
-            await message.react("👤");
-            await message.react("👁");
-            await message.react("📲");
-            await message.react("🔵");
-            await message.react("📌");
-            await message.react("📝");
-            await message.react("📑");
-            await message.react("📷");
-            await message.react("🖼");
-            await message.react("📅");
-            await message.react("✅");
+        const MAX_HEXADECIMAL_INTEGER: number = 16777215;
+
+        const react = async (emojis: string, message: Discord.Message) => {
+            for(const emoji of emojis) {
+                await message.react(emoji);
+            }
         }
 
         let author: string = "Default author";
@@ -38,6 +33,88 @@ export default class EmbedBuilder extends Command {
         let footerIcon: string = client.user.avatarURL;
         let thumbnail: string = "";
         let timestamp: boolean = false;
+
+        const editValue = async (valueType: string, botMessage: Discord.Message, currentEmbed: Discord.RichEmbed) => {
+            let edited: boolean = false;
+            botMessage.clearReactions();
+            botMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
+            client.on("message", async (reply) => {
+
+                if(message.author.id !== reply.author.id
+                    || edited) return;
+
+                const newValue = reply.content === "${clear}"
+                    ? ""
+                    : reply.content;
+
+                switch(valueType) {
+                    case "author":
+                        author = newValue;
+                        botMessage.edit(currentEmbed.setDescription(`Current author: ${author}`));
+                        break;
+                    case "authorIcon":
+                        authorIcon = newValue;
+                        botMessage.edit(currentEmbed.setDescription(`Current author icon: ${authorIcon}`));
+                        break;
+                    case "authorURL":
+                        authorURL = newValue;
+                        botMessage.edit(currentEmbed.setDescription(`Current author URL: ${authorURL}`));
+                        break;
+                    case "color":
+                        const content = reply.content;
+                        if((!isNaN(+content) && (+content >= 0 && +content <= MAX_HEXADECIMAL_INTEGER))) {
+                            color = content;
+                            embedBuilder.setColor(color);
+                        } else if(Object.keys(COLORS).includes(content.toLowerCase())) {
+                            color = content.toLowerCase();
+                            embedBuilder.setColor(COLORS[color]);
+                        } else if(content === "${clear}") {
+                            color = "";
+                            embedBuilder.setColor("");
+                        } else {
+                            const response = await botMessage.channel.send(`${reply.author} : please insert a hex literal value (\`0x000000\` to \`0xFFFFFF\`)`);
+                            const responseMessage = fromArrayToLone(response);
+                            responseMessage.delete(5*1000);
+                        }
+                        botMessage.edit(currentEmbed
+                            .setDescription(`Current color: ${color}`)
+                            .setColor(COLORS[color] || color));
+                        break;
+                    case "title":
+                        title = newValue;
+                        botMessage.edit(currentEmbed.setDescription(`Current title: ${title}`));
+                        break;
+                    case "description":
+                        description = newValue;
+                        botMessage.edit(currentEmbed.setDescription(`Current description: ${description}`));
+                        break;
+                    case "footer":
+                        footer = newValue;
+                        botMessage.edit(currentEmbed.setDescription(`Current footer: ${footer}`));
+                        break;
+                    case "footerIcon":
+                        footerIcon = newValue;
+                        botMessage.edit(currentEmbed.setDescription(`Current footer icon: ${footerIcon}`));
+                        break;
+                    case "thumbnail":
+                        thumbnail = newValue;
+                        botMessage.edit(currentEmbed.setDescription(`Current thumbnail: ${thumbnail}`));
+                        break;
+                }
+
+                reply.delete();
+                edited = true;
+
+                await react("✏🚪", botMessage);
+
+            });
+
+            setTimeout(async () => {
+                if(edited) return;
+                botMessage.edit(currentEmbed);
+                await react("✏🚪", botMessage);
+            }, 30*1000);
+        }
 
         const embedBuilder = new Discord.RichEmbed()
             .setAuthor("Embed builder", message.guild.iconURL)
@@ -57,16 +134,20 @@ export default class EmbedBuilder extends Command {
             .addField("✅ Send", "Send your embed");
 
         const botMessage = await message.channel.send(embedBuilder);
-        const sentMessage = Array.isArray(botMessage) ? botMessage[0] : botMessage;
-        await reactDefaultEmojis(sentMessage);
+        const sentMessage = fromArrayToLone(botMessage);
+        await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
         
         client.on("messageReactionAdd", (reaction, user) => {
-            if(reaction.message.id !== sentMessage.id || user.bot || user.id !== message.author.id || '👤👁📲🔵📌📝📑📷🖼📅✅'.indexOf(reaction.emoji.name) < 0) return;
+            if(reaction.message.id !== sentMessage.id
+                || user.bot
+                || user.id !== message.author.id
+                || '👤👁📲🔵📌📝📑📷🖼📅✅'.indexOf(reaction.emoji.name) < 0) return;
 
             const reactions: object = {
                 "👤" : async () => {
                     let authorEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const authorEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -76,39 +157,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(authorEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !authorEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !authorEditing) return;
 
                         const authorReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    author = reply.content === "${clear}" ? "" : reply.content;
-                                    reply.delete();
-                                    edited = true;
-
-                                    botAuthorMessage.edit(authorEmbed.setDescription(`Current author: ${author}`));
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    botAuthorMessage.edit(authorEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("author", botAuthorMessage, authorEmbed);
                             },
                             "🚪": async () => {
                                 authorEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -118,6 +184,7 @@ export default class EmbedBuilder extends Command {
                 "👁" : async () => {
                     let authorIconEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const authorIconEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -127,39 +194,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(authorIconEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !authorIconEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !authorIconEditing) return;
 
                         const authorIconReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    authorIcon = reply.content === "${clear}" ? "" : reply.content;
-                                    reply.delete();
-                                    edited = true;
-
-                                    botAuthorMessage.edit(authorIconEmbed.setDescription(`Current author icon: ${authorIcon}`));
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    botAuthorMessage.edit(authorIconEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("authorIcon", botAuthorMessage, authorIconEmbed);
                             },
                             "🚪": async () => {
                                 authorIconEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -169,6 +221,7 @@ export default class EmbedBuilder extends Command {
                 "📲" : async () => {
                     let authorURLEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const authorURLEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -178,39 +231,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(authorURLEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !authorURLEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !authorURLEditing) return;
 
                         const authorURLReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    authorURL = reply.content === "${clear}" ? "" : reply.content;
-                                    reply.delete();
-                                    edited = true;
-
-                                    botAuthorMessage.edit(authorURLEmbed.setDescription(`Current author URL: ${authorURL}`));
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    botAuthorMessage.edit(authorURLEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("authorURL", botAuthorMessage, authorURLEmbed);
                             },
                             "🚪": async () => {
                                 authorURLEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -229,57 +267,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(colorEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !colorEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !colorEditing) return;
 
                         const colorReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    const content: any = reply.content;
-                                    if((!isNaN(+content) && (+content >= 0 && +content <= 16777215))) {
-                                        color = content;
-                                        embedBuilder.setColor(color);
-                                    } else if(COLORS[content.toLowerCase()]) {
-                                        color = content.toLowerCase();
-                                        embedBuilder.setColor(COLORS[color]);
-                                    } else if(content === "${clear}") {
-                                        color = "";
-                                        embedBuilder.setColor("");
-                                    } else {
-                                        const response = await botAuthorMessage.channel.send(`${reply.author} : please insert a hex literal value (\`0x000000\` to \`0xFFFFFF\`)`);
-                                        const responseMessage = Array.isArray(response) ? response[0] : response;
-                                        responseMessage.delete(5000);
-                                    }
-                                    reply.delete();
-                                    edited = true;
-
-                                    botAuthorMessage.edit(colorEmbed
-                                        .setDescription(`Current color: ${color}`)
-                                        .setColor(COLORS[color] || color)
-                                    );
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    edited = true;
-                                    botAuthorMessage.edit(colorEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("color", botAuthorMessage, colorEmbed);
                             },
                             "🚪": async () => {
                                 colorEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -289,6 +294,7 @@ export default class EmbedBuilder extends Command {
                 "📌": async () => {
                     let titleEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const titleEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -298,39 +304,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(titleEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !titleEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !titleEditing) return;
 
                         const titleReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    title = reply.content === "${clear}" ? "" : reply.content;
-                                    reply.delete();
-                                    edited = true;
-
-                                    botAuthorMessage.edit(titleEmbed.setDescription(`Current title: ${title}`));
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    botAuthorMessage.edit(titleEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("title", botAuthorMessage, titleEmbed);
                             },
                             "🚪": async () => {
                                 titleEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -340,6 +331,7 @@ export default class EmbedBuilder extends Command {
                 "📝": async () => {
                     let descriptionEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const descriptionEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -349,39 +341,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(descriptionEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !descriptionEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !descriptionEditing) return;
 
                         const descriptionReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    description = reply.content === "${clear}" ? "" : reply.content;
-                                    reply.delete();
-                                    edited = true;
-
-                                    botAuthorMessage.edit(descriptionEmbed.setDescription(`Current description: ${description}`));
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    botAuthorMessage.edit(descriptionEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("description", botAuthorMessage, descriptionEmbed);
                             },
                             "🚪": async () => {
                                 descriptionEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -391,6 +368,7 @@ export default class EmbedBuilder extends Command {
                 "📑": async () => {
                     let footerEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const footerEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -400,39 +378,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(footerEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !footerEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !footerEditing) return;
 
                         const footerReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    footer = reply.content === "${clear}" ? "" : reply.content;
-                                    reply.delete();
-                                    edited = true;
-
-                                    botAuthorMessage.edit(footerEmbed.setDescription(`Current footer: ${footer}`));
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    botAuthorMessage.edit(footerEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("footer", botAuthorMessage, footerEmbed);
                             },
                             "🚪": async () => {
                                 footerEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -442,6 +405,7 @@ export default class EmbedBuilder extends Command {
                 "📷": async () => {
                     let footerIconEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const footerIconEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -451,39 +415,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(footerIconEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !footerIconEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !footerIconEditing) return;
 
                         const footerIconReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    footerIcon = reply.content === "${clear}" ? "" : reply.content;
-                                    reply.delete();
-                                    edited = true;
-
-                                    botAuthorMessage.edit(footerIconEmbed.setDescription(`Current footer icon: ${footerIcon}`));
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    botAuthorMessage.edit(footerIconEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("footerIcon", botAuthorMessage, footerIconEmbed);
                             },
                             "🚪": async () => {
                                 footerIconEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -493,6 +442,7 @@ export default class EmbedBuilder extends Command {
                 "🖼": async () => {
                     let thumbnailEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const thumbnailEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -502,39 +452,24 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(thumbnailEmbed);
 
-                    await botAuthorMessage.react("✏");
-                    await botAuthorMessage.react("🚪");
+                    await react("✏🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '✏🚪'.indexOf(reaction.emoji.name) < 0 || !thumbnailEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '✏🚪'.indexOf(reaction.emoji.name) < 0
+                            || !thumbnailEditing) return;
 
                         const thumbnailReactions: object = {
                             "✏": async () => {
-                                let edited: boolean = false;
-                                botAuthorMessage.clearReactions();
-                                botAuthorMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.", {embed: {}});
-                                client.on("message", async (reply) => {
-                                    if(message.author.id !== reply.author.id || edited) return;
-                                    thumbnail = reply.content === "${clear}" ? "" : reply.content;
-                                    reply.delete()
-                                    edited = true;
-
-                                    botAuthorMessage.edit(thumbnailEmbed.setDescription(`Current thumbnail: ${thumbnail}`));
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                })
-                                setTimeout(async () => {
-                                    if(edited) return;
-                                    botAuthorMessage.edit(thumbnailEmbed);
-                                    await botAuthorMessage.react("✏");
-                                    await botAuthorMessage.react("🚪");
-                                }, 30*1000);
+                                await editValue("thumbnail", botAuthorMessage, thumbnailEmbed);
                             },
                             "🚪": async () => {
                                 thumbnailEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
@@ -544,6 +479,7 @@ export default class EmbedBuilder extends Command {
                 "📅": async () => {
                     let timestampEditing: boolean = true;
                     await reaction.message.clearReactions();
+
                     const timestampEmbed = new Discord.RichEmbed()
                         .setAuthor("Embed builder", message.guild.iconURL)
                         .setColor(COLORS[color] || color)
@@ -553,11 +489,14 @@ export default class EmbedBuilder extends Command {
 
                     const botAuthorMessage = await sentMessage.edit(timestampEmbed);
 
-                    await botAuthorMessage.react("🔄");
-                    await botAuthorMessage.react("🚪");
+                    await react("🔄🚪", botAuthorMessage);
 
                     client.on("messageReactionAdd", (reaction, user) => {
-                        if(reaction.message.id !== botAuthorMessage.id || user.bot || user.id !== message.author.id || '🔄🚪'.indexOf(reaction.emoji.name) < 0 || !timestampEditing) return;
+                        if(reaction.message.id !== botAuthorMessage.id
+                            || user.bot
+                            || user.id !== message.author.id
+                            || '🔄🚪'.indexOf(reaction.emoji.name) < 0
+                            || !timestampEditing) return;
 
                         const timestampReactions: object = {
                             "🔄": async () => {
@@ -569,7 +508,7 @@ export default class EmbedBuilder extends Command {
                                 timestampEditing = false;
                                 await reaction.message.clearReactions();
                                 botAuthorMessage.edit(embedBuilder);
-                                await reactDefaultEmojis(botAuthorMessage);
+                                await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
                             }
                         }
 
