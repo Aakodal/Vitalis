@@ -1,5 +1,4 @@
 {
     "token": "token",
-    "botOwner": "id",
-    "server": "id"
+    "botOwner": "id"
 }
