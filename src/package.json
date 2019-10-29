@@ -1,0 +1,29 @@
+{
+  "name": "vitalis",
+  "version": "1.0.0",
+  "description": "Multi-purposes Discord bot made by Neshell.",
+  "keywords": [
+    "vitalis",
+    "discord",
+    "bot"
+  ],
+  "license": "Apache-2.0",
+  "main": "main.js",
+  "author": "Neshell",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NeshellDev/Vitalis.git"
+  },
+  "scripts": {
+    "start": "node main.js"
+  },
+  "bugs": {
+    "url": "https://github.com/NeshellDev/Vitalis/issues"
+  },
+  "dependencies": {
+    "date-fns": "2.6.0",
+    "discord.js": "11.5.1",
+    "knex": "0.19.5",
+    "sqlite3": "4.1.0"
+  }
+}
