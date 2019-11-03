@@ -1,0 +1,91 @@
+{
+	"env": {
+		"es6": true,
+		"node": true
+	},
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"airbnb"
+	],
+	"globals": {
+		"Atomics": "readonly",
+		"SharedArrayBuffer": "readonly"
+	},
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"ecmaVersion": 2018,
+		"sourceType": "module"
+	},
+	"plugins": [
+		"@typescript-eslint",
+		"import"
+	],
+	"rules": {
+		"indent": [
+			"error",
+			"tab"
+		],
+		"linebreak-style": [
+			"error",
+			"windows"
+		],
+		"quotes": [
+			"error",
+			"double",
+			{
+				"allowTemplateLiterals": true
+			}
+		],
+		"semi": [
+			"error",
+			"always"
+		],
+		"eqeqeq": [
+			"error",
+			"always"
+		],
+		"no-else-return": [
+			"error",
+			{
+				"allowElseIf": false
+			}
+		],
+		"no-floating-decimal": "error",
+		"no-implicit-coercion": "error",
+		"no-multi-spaces": [
+			"warn",
+			{
+				"ignoreEOLComments": true
+			}
+		],
+		"yoda": "error",
+		"no-unused-vars": [
+			"warn",
+			{
+				"args": "none"
+			}
+		],
+		"require-atomic-updates": "warn",
+		"no-tabs": "off",
+		"max-len": [
+			"error",
+			{
+				"code": 130
+			}
+		],
+		"no-console": "off",
+		"consistent-return": "off",
+		"class-methods-use-this": "off",
+		"no-template-curly-in-string": "off",
+		"no-shadow": "off",
+		"default-case": "off",
+		"import/no-unresolved": "off",
+		"import/prefer-default-export": "off",
+		"no-plusplus": "off",
+		"no-nested-ternary": "warn",
+        "no-return-assign": "off",
+        "no-restricted-syntax": "off",
+        "no-await-in-loop": "off"
+	}
+}

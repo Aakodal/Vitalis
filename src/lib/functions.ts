@@ -1,13 +1,16 @@
-import { client, Discord, db } from "../requires";
+import * as Discord from "discord.js";
+import { client, db } from "../requires";
 import { COLORS } from "./constants";
 
-const sendEmbed = ({author = "", avatar = "", title = "", color = "", text = "", footer = "", channel = null}) => {
+function sendEmbed({
+	author = "", avatar = "", title = "", color = "", text = "", footer = "", channel = null,
+}): Discord.RichEmbed {
 	const embedColor = COLORS[color];
 
-    let avatarembed: string;
-	if(avatar === "client"){
+	let avatarembed: string;
+	if (avatar === "client") {
 		avatarembed = client.user.avatarURL;
-	} else if(avatar === "server"){
+	} else if (avatar === "server") {
 		avatarembed = channel.guild.iconURL;
 	} else {
 		avatarembed = avatar;
@@ -19,32 +22,40 @@ const sendEmbed = ({author = "", avatar = "", title = "", color = "", text = "",
 		.setColor(embedColor)
 		.setDescription(text)
 		.setFooter(footer);
-		
-	if(channel) channel.send(embed);
+
+	if (channel) channel.send(embed);
 	else return embed;
 }
 
-const sendError = (text = "", channel = null) => {
-    const embed = new Discord.RichEmbed()
+function sendError(text = "", channel = null): Discord.RichEmbed {
+	const embed = new Discord.RichEmbed()
 		.setAuthor("Error", client.user.avatarURL)
-		.setColor(COLORS['dark_red'])
-        .setDescription(text);
+		.setColor(COLORS.dark_red)
+		.setDescription(text);
 
-	if(channel) channel.send(embed);
+	if (channel) channel.send(embed);
 	else return embed;
 }
 
-const getValueFromDB = async (table: string, column: string) => {
+async function getValueFromDB(table: string, column: string) {
 	const result = await db.select(column).from(table);
 	return result[0][column]
 		? result[0][column]
 		: null;
 }
 
-const fromArrayToLone = (array: any) => {
+function fromArrayToLone(array: any) {
 	return Array.isArray(array)
 		? array[0]
 		: array;
 }
 
-export { sendEmbed, sendError, getValueFromDB, fromArrayToLone };
+async function react(emojis: string, message: Discord.Message) {
+	for (const emoji of emojis) {
+		await message.react(emoji);
+	}
+}
+
+export {
+	sendEmbed, sendError, getValueFromDB, fromArrayToLone, react,
+};
