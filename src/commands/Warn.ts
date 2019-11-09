@@ -29,10 +29,12 @@ export default class Warn extends Command {
 		const clientMember = message.guild.member(client.user);
 
 		if (member.highestRole.comparePositionTo(clientMember.highestRole) >= 0
-            || member.highestRole.comparePositionTo(message.member.highestRole) >= 0) return sendError(
-                "You can't warn someone who is superior or equal to you or to me.",
-                message.channel
-        );
+            || member.highestRole.comparePositionTo(message.member.highestRole) >= 0) {
+			return sendError(
+				"You can't warn someone who is superior or equal to you or to me.",
+				message.channel,
+			);
+		}
 
 		const warnEmbed = new RichEmbed()
 			.setAuthor("Moderation", message.guild.iconURL)

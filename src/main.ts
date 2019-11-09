@@ -44,16 +44,16 @@ client.on("ready", async () => {
 
 	const muteRole = server.roles.get(await getValueFromDB("server", "muteRoleID"));
 	server.channels.forEach((channel) => {
-		if(!channel.permissionsFor(muteRole)) {
+		if (!channel.permissionsFor(muteRole)) {
 			channel.overwritePermissions(muteRole, {
-				"ADD_REACTIONS": false,
-				"ATTACH_FILES": false,
-				"SEND_MESSAGES": false,
-				"SEND_TTS_MESSAGES": false,
-				"SPEAK": false
+				ADD_REACTIONS: false,
+				ATTACH_FILES: false,
+				SEND_MESSAGES: false,
+				SEND_TTS_MESSAGES: false,
+				SPEAK: false,
 			});
 		}
-	})
+	});
 });
 
 client.on("message", async (message) => {
