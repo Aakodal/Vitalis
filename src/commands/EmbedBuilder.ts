@@ -1,4 +1,4 @@
-import * as Discord from "discord.js";
+import { Message, RichEmbed } from "discord.js";
 import { Command } from "../lib/Command";
 import { Client } from "../lib/Client";
 import { COLORS } from "../lib/constants";
@@ -14,7 +14,7 @@ export default class EmbedBuilder extends Command {
 		});
 	}
 
-	async run(message: Discord.Message, args: string[], client: Client) {
+	async run(message: Message, args: string[], client: Client) {
 		const MAX_HEXADECIMAL_INTEGER: number = 16777215;
 
 		let author = "Default author";
@@ -28,7 +28,7 @@ export default class EmbedBuilder extends Command {
 		let thumbnail = "";
 		let timestamp = false;
 
-		const embedBuilder = new Discord.RichEmbed()
+		const embedBuilder = new RichEmbed()
 			.setAuthor("Embed builder", message.guild.iconURL)
 			.setColor(COLORS[color] || color)
 			.setTitle("React with any of the below emojis to edit your embed.")
@@ -45,7 +45,7 @@ export default class EmbedBuilder extends Command {
 			.addBlankField()
 			.addField("✅ Send", "Send your embed");
 
-		const editValue = async (valueType: string, botMessage: Discord.Message, currentEmbed: Discord.RichEmbed) => {
+		async function editValue(valueType: string, botMessage: Message, currentEmbed: RichEmbed) {
 			let edited = false;
 			await botMessage.clearReactions();
 			await botMessage.edit("You have 30 seconds to edit this value. If you want to clear this value, type `${clear}`.",
@@ -53,6 +53,7 @@ export default class EmbedBuilder extends Command {
 
 			client.on("message", async (reply) => {
 				if (message.author.id !== reply.author.id
+					|| message.channel !== reply.channel
                     || edited) return;
 
 				const newValue = reply.content === "${clear}"
@@ -86,11 +87,10 @@ export default class EmbedBuilder extends Command {
 						color = "";
 						embedBuilder.setColor("");
 					} else {
-						const response = await botMessage.channel.send(
+						const response = fromArrayToLone(await botMessage.channel.send(
 							`${reply.author} : please insert a hex literal value (\`0x000000\` to \`0xFFFFFF\`)`,
-						);
-						const responseMessage = fromArrayToLone(response);
-						await responseMessage.delete(5 * 1000);
+						));
+						await response.delete(5 * 1000);
 					}
 					await botMessage.edit(currentEmbed
 						.setDescription(`Current color: ${color}`)
@@ -126,17 +126,16 @@ export default class EmbedBuilder extends Command {
 
 			setTimeout(async () => {
 				if (edited) return;
-				botMessage.edit(currentEmbed);
+				await botMessage.edit(currentEmbed);
 				await react("✏🚪", botMessage);
 			}, 30 * 1000);
-		};
+		}
 
-		const botMessage = await message.channel.send(embedBuilder);
-		const sentMessage = fromArrayToLone(botMessage);
-		await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+		const botMessage = fromArrayToLone(await message.channel.send(embedBuilder));
+		await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 
 		client.on("messageReactionAdd", (reaction, user) => {
-			if (reaction.message.id !== sentMessage.id
+			if (reaction.message.id !== botMessage.id
                 || user.bot
                 || user.id !== message.author.id
                 || "👤👁📲🔵📌📝📑📷🖼📅✅".indexOf(reaction.emoji.name) < 0) return;
@@ -146,14 +145,14 @@ export default class EmbedBuilder extends Command {
 					let authorEditing = true;
 					await reaction.message.clearReactions();
 
-					const authorEmbed = new Discord.RichEmbed()
+					const authorEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current author: ${author}`)
 						.addField("✏ Edit", "Edit author's name", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(authorEmbed);
+					const botAuthorMessage = await botMessage.edit(authorEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -172,7 +171,7 @@ export default class EmbedBuilder extends Command {
 								authorEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -183,14 +182,14 @@ export default class EmbedBuilder extends Command {
 					let authorIconEditing = true;
 					await reaction.message.clearReactions();
 
-					const authorIconEmbed = new Discord.RichEmbed()
+					const authorIconEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current author icon: ${authorIcon}`)
 						.addField("✏ Edit", "Edit author's icon", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(authorIconEmbed);
+					const botAuthorMessage = await botMessage.edit(authorIconEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -209,7 +208,7 @@ export default class EmbedBuilder extends Command {
 								authorIconEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -220,14 +219,14 @@ export default class EmbedBuilder extends Command {
 					let authorURLEditing = true;
 					await reaction.message.clearReactions();
 
-					const authorURLEmbed = new Discord.RichEmbed()
+					const authorURLEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current author URL: ${authorURL}`)
 						.addField("✏ Edit", "Edit author's URL", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(authorURLEmbed);
+					const botAuthorMessage = await botMessage.edit(authorURLEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -246,7 +245,7 @@ export default class EmbedBuilder extends Command {
 								authorURLEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -257,14 +256,14 @@ export default class EmbedBuilder extends Command {
 					let colorEditing = true;
 					await reaction.message.clearReactions();
 
-					const colorEmbed = new Discord.RichEmbed()
+					const colorEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current color: ${color}`)
 						.addField("✏ Edit", "Edit embed's color", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(colorEmbed);
+					const botAuthorMessage = await botMessage.edit(colorEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -283,7 +282,7 @@ export default class EmbedBuilder extends Command {
 								colorEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -294,14 +293,14 @@ export default class EmbedBuilder extends Command {
 					let titleEditing = true;
 					await reaction.message.clearReactions();
 
-					const titleEmbed = new Discord.RichEmbed()
+					const titleEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current title: ${title}`)
 						.addField("✏ Edit", "Edit embed's title", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(titleEmbed);
+					const botAuthorMessage = await botMessage.edit(titleEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -320,7 +319,7 @@ export default class EmbedBuilder extends Command {
 								titleEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -331,14 +330,14 @@ export default class EmbedBuilder extends Command {
 					let descriptionEditing = true;
 					await reaction.message.clearReactions();
 
-					const descriptionEmbed = new Discord.RichEmbed()
+					const descriptionEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current description: ${description}`)
 						.addField("✏ Edit", "Edit embed's description", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(descriptionEmbed);
+					const botAuthorMessage = await botMessage.edit(descriptionEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -357,7 +356,7 @@ export default class EmbedBuilder extends Command {
 								descriptionEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -368,14 +367,14 @@ export default class EmbedBuilder extends Command {
 					let footerEditing = true;
 					await reaction.message.clearReactions();
 
-					const footerEmbed = new Discord.RichEmbed()
+					const footerEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current footer: ${footer}`)
 						.addField("✏ Edit", "Edit embed's footer", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(footerEmbed);
+					const botAuthorMessage = await botMessage.edit(footerEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -394,7 +393,7 @@ export default class EmbedBuilder extends Command {
 								footerEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -405,14 +404,14 @@ export default class EmbedBuilder extends Command {
 					let footerIconEditing = true;
 					await reaction.message.clearReactions();
 
-					const footerIconEmbed = new Discord.RichEmbed()
+					const footerIconEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current footer icon: ${footerIcon}`)
 						.addField("✏ Edit", "Edit embed's footer icon", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(footerIconEmbed);
+					const botAuthorMessage = await botMessage.edit(footerIconEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -431,7 +430,7 @@ export default class EmbedBuilder extends Command {
 								footerIconEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -442,14 +441,14 @@ export default class EmbedBuilder extends Command {
 					let thumbnailEditing = true;
 					await reaction.message.clearReactions();
 
-					const thumbnailEmbed = new Discord.RichEmbed()
+					const thumbnailEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Current thumbnail: ${thumbnail}`)
 						.addField("✏ Edit", "Edit embed's footer icon", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(thumbnailEmbed);
+					const botAuthorMessage = await botMessage.edit(thumbnailEmbed);
 
 					await react("✏🚪", botAuthorMessage);
 
@@ -468,7 +467,7 @@ export default class EmbedBuilder extends Command {
 								thumbnailEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -479,14 +478,14 @@ export default class EmbedBuilder extends Command {
 					let timestampEditing = true;
 					await reaction.message.clearReactions();
 
-					const timestampEmbed = new Discord.RichEmbed()
+					const timestampEmbed = new RichEmbed()
 						.setAuthor("Embed builder", message.guild.iconURL)
 						.setColor(COLORS[color] || color)
 						.setDescription(`Timestamp active? ${timestamp}`)
 						.addField("🔄 Toggle", "Toggle timestamp", true)
 						.addField("🚪 Return", "Return to the main menu", true);
 
-					const botAuthorMessage = await sentMessage.edit(timestampEmbed);
+					const botAuthorMessage = await botMessage.edit(timestampEmbed);
 
 					await react("🔄🚪", botAuthorMessage);
 
@@ -507,7 +506,7 @@ export default class EmbedBuilder extends Command {
 								timestampEditing = false;
 								await reaction.message.clearReactions();
 								await botAuthorMessage.edit(embedBuilder);
-								await react("👤👁📲🔵📌📝📑📷🖼📅✅", sentMessage);
+								await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 							},
 						};
 
@@ -515,7 +514,7 @@ export default class EmbedBuilder extends Command {
 					});
 				},
 				"✅": async () => {
-					const finalEmbed = new Discord.RichEmbed()
+					const finalEmbed = new RichEmbed()
 						.setAuthor(author, authorIcon, authorURL)
 						.setColor(COLORS[color] || color)
 						.setTitle(title)
@@ -525,7 +524,7 @@ export default class EmbedBuilder extends Command {
 
 					if (timestamp) finalEmbed.setTimestamp();
 
-					await sentMessage.delete();
+					await botMessage.delete();
 					await message.channel.send(finalEmbed);
 				},
 			};

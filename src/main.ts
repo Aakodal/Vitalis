@@ -1,25 +1,59 @@
-import {
-	client, fs, token, dateFns, config,
-} from "./requires";
-import { sendError, getValueFromDB } from "./lib/functions";
-import "./lib/database";
-import "./lib/presence";
+import * as fsModule from "fs";
+import * as dateFns from "date-fns";
+import * as config from "./config.json";
+import { Client } from "./lib/Client";
+import { databaseCheck } from "./lib/database";
+import { sendError, getValueFromDB, pushValueInDB } from "./lib/functions";
 
-client.login(token);
+const client = new Client();
+export { client };
 
-client.emit("databaseCheck");
+const fs = fsModule.promises;
+
+client.login(config.token);
+
+databaseCheck();
 
 fs.readdir("./commands/").then((files) => {
-	files.forEach((file: string) => {
-		client.loadCommand(file);
+	files.forEach(async (file: string) => {
+		await client.loadCommand(file);
 	});
 });
 
-client.on("ready", () => {
-	client.emit("botPresenceUpdate");
+client.on("ready", async () => {
+	await client.updatePresence();
 
 	const currentTime = dateFns.format(Date.now(), "H:mm:ss");
 	console.log(`Vitalis started at ${currentTime}`);
+
+	const server = client.guilds.array()[0];
+	const muteRoleDB = server.roles.get(await getValueFromDB("server", "muteRoleID"));
+	if (!muteRoleDB) {
+		const botRole = server.member(client.user).highestRole;
+		const highestRolePosition = botRole.calculatedPosition;
+		const muteRole = await server.createRole({
+			name: "Muted",
+			color: 0x000001,
+			hoist: false,
+			position: highestRolePosition - 1,
+			permissions: ["VIEW_CHANNEL", "CONNECT", "READ_MESSAGE_HISTORY"],
+			mentionable: false,
+		}, "[AUTO] Mute role not found, created");
+		await pushValueInDB("server", "muteRoleID", muteRole.id);
+	}
+
+	const muteRole = server.roles.get(await getValueFromDB("server", "muteRoleID"));
+	server.channels.forEach((channel) => {
+		if(!channel.permissionsFor(muteRole)) {
+			channel.overwritePermissions(muteRole, {
+				"ADD_REACTIONS": false,
+				"ATTACH_FILES": false,
+				"SEND_MESSAGES": false,
+				"SEND_TTS_MESSAGES": false,
+				"SPEAK": false
+			});
+		}
+	})
 });
 
 client.on("message", async (message) => {

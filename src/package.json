@@ -1,6 +1,6 @@
 {
   "name": "vitalis",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Multi-purposes Discord bot made by Neshell.",
   "keywords": [
     "vitalis",
@@ -34,6 +34,6 @@
     "eslint-plugin-react-hooks": "^2.2.0",
     "knex": "0.19.5",
     "sqlite3": "4.1.0",
-    "typescript": "^3.6.4"
+    "typescript": "3.7.2"
   }
 }

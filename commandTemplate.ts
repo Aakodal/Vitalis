@@ -1,8 +1,8 @@
+import { Message } from "discord.js";
 import { Command } from "../lib/Command";
-import { Discord } from "../requires";
 import { Client } from "../lib/Client";
 
-export class x extends Command {
+export default class x extends Command {
 	constructor() {
 		super({
 			name: "",
@@ -14,7 +14,7 @@ export class x extends Command {
 		});
 	}
 
-	run(message: Discord.Message, args: string[], client: Client) {
+	run(message: Message, args: string[], client: Client) {
 		// code here
 	}
 }

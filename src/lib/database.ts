@@ -1,12 +1,19 @@
-import { client, db } from "../requires";
+import * as knex from "knex";
 
-client.on("databaseCheck", async () => {
+const db = knex({
+	client: "sqlite3",
+	connection: {
+		filename: "./db.db",
+	},
+	useNullAsDefault: true,
+});
+
+async function databaseCheck() {
 	await db.schema.hasTable("infractions").then((exists) => {
 		if (!exists) {
 			db.schema.createTable("infractions", (table) => {
 				table.increments("id").primary();
 				table.string("discord_id");
-				table.string("pseudo");
 				table.text("infraction");
 				table.enum("type", ["warn", "mute", "kick", "ban"]);
 				table.timestamp("created");
@@ -26,12 +33,10 @@ client.on("databaseCheck", async () => {
 			db.schema.createTable("users", (table) => {
 				table.increments("id").primary();
 				table.string("discord_id");
-				table.string("pseudo");
 				table.timestamp("last_warn");
 				table.enum("actual_sanction", ["muted", "banned"]);
 				table.timestamp("created");
 				table.timestamp("expiration");
-				table.text("reason");
 			}).then(() => {
 				console.log("Users table created successfully.");
 			}).catch((error) => {
@@ -59,15 +64,19 @@ client.on("databaseCheck", async () => {
 					// modLogs
 					table.boolean("modlogsActive");
 					table.string("modlogsChannel");
+					// welcome
+					table.boolean("welcomeMessageActive");
+					table.string("welcomeMessageChannel");
+					table.text("welcomeMessageText");
+					// welcome role
+					table.boolean("welcomeRoleActive");
+					table.string("welcomeRoleID");
+					// leaving
+					table.boolean("leavingMessageActive");
+					table.string("leavingMessageChannel");
+					table.text("leavingMessageText");
 					// muterole
 					table.string("muteRoleID");
-					table.string("muteRoleName");
-					table.boolean("ADD_REACTIONS");
-					table.boolean("ATTACH_FILES");
-					table.boolean("CHANGE_NICKNAME");
-					table.boolean("SEND_MESSAGES");
-					table.boolean("SEND_TTS_MESSAGES");
-					table.boolean("SPEAK");
 				});
 				await db.insert({
 					prefix: "!",
@@ -77,13 +86,11 @@ client.on("databaseCheck", async () => {
 					gameName: "{PREFIX}help",
 					logsActive: true,
 					modlogsActive: true,
-					muteRoleName: "Muted",
-					ADD_REACTIONS: false,
-					ATTACH_FILES: false,
-					CHANGE_NICKNAME: false,
-					SEND_MESSAGES: false,
-					SEND_TTS_MESSAGES: false,
-					SPEAK: false,
+					welcomeMessageActive: false,
+					welcomeMessageText: "Welcome {MENTION} on **{SERVER}**! Try `{PREFIX}help` command for any help.",
+					welcomeRoleActive: false,
+					leavingMessageActive: false,
+					leavingMessageText: "{USER} left the server :'c",
 				}).into("server");
 				console.log("Server table created successfully.");
 			} catch (error) {
@@ -111,4 +118,6 @@ client.on("databaseCheck", async () => {
             }
         });
     }); */
-});
+}
+
+export { db, databaseCheck };

@@ -1,5 +1,6 @@
-import { Message } from "discord.js";
+import { Message, PermissionString } from "discord.js";
 import { Client } from "../lib/Client";
+
 
 class Command {
 	name: string;
@@ -12,7 +13,7 @@ class Command {
 
 	category: string;
 
-	permission: string;
+	permission: PermissionString | string;
 
 	constructor(options) {
 		this.name = options.name || null;

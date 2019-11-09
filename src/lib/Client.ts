@@ -1,15 +1,16 @@
-import Discord = require("discord.js");
+import { Client as DiscordClient, Collection } from "discord.js";
+import { getValueFromDB, replaceDBVars } from "./functions";
 
-class Client extends Discord.Client {
-	commands: Discord.Collection<string, object>;
+class Client extends DiscordClient {
+	commands: Collection<string, object>;
 
-	aliases: Discord.Collection<string, object>;
+	aliases: Collection<string, object>;
 
 	constructor() {
 		super();
 
-		this.commands = new Discord.Collection();
-		this.aliases = new Discord.Collection();
+		this.commands = new Collection();
+		this.aliases = new Collection();
 	}
 
 	async loadCommand(commandName: string) {
@@ -29,14 +30,14 @@ class Client extends Discord.Client {
 				this.aliases.set(alias, command);
 			});
 		} catch (error) {
-			return console.log(`Error when trying to load command ${commandName} ; ${error}`);
+			return console.error(`Error when trying to load command ${commandName} ; ${error}`);
 		}
 	}
 
 	reloadCommand(commandName: string) {
 		try {
 			const command = this.commands.get(commandName);
-			if (!command) throw new Error(`${commandName} does not exist.`);
+			if (!command) return console.error(`${commandName} does not exist.`);
 			this.aliases.forEach((value, key) => {
 				if (value === command) this.aliases.delete(key);
 			});
@@ -48,6 +49,26 @@ class Client extends Discord.Client {
 		} catch (error) {
 			throw new Error(`Could not reload command ${commandName} ; ${error}`);
 		}
+	}
+
+	async updatePresence() {
+		const status = await getValueFromDB("server", "status");
+		const gameActive = await getValueFromDB("server", "gameActive");
+		const gameType = await getValueFromDB("server", "gameType");
+		const gameName = await getValueFromDB("server", "gameName");
+
+		const gameFinalName = await replaceDBVars(gameName);
+
+		const presence = {
+			status: status || "online",
+			game: {
+				name: gameFinalName,
+				type: gameType,
+			},
+		};
+
+		if (gameActive) return this.user.setPresence(presence);
+		await this.user.setPresence({ status: presence.status });
 	}
 }
 

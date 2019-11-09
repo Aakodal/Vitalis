@@ -1,5 +1,6 @@
+import { Message, RichEmbed } from "discord.js";
 import { Command } from "../lib/Command";
-import { Discord, config } from "../requires";
+import * as config from "../config.json";
 import { Client } from "../lib/Client";
 import {
 	getValueFromDB, sendError, fromArrayToLone, react,
@@ -16,10 +17,10 @@ export default class Help extends Command {
 		});
 	}
 
-	async run(message: Discord.Message, args: any[], client: Client) {
+	async run(message: Message, args: any[], client: Client) {
 		const prefix = await getValueFromDB("server", "prefix");
 
-		let embed = new Discord.RichEmbed()
+		let embed = new RichEmbed()
 			.setColor(COLORS.light_green)
 			.setThumbnail(client.user.avatarURL)
 			.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL);
@@ -78,7 +79,7 @@ export default class Help extends Command {
 			for (let i = 1; i < commands.length; i++) {
 				if (commands[i].category.toUpperCase() !== commands[i - 1].category.toUpperCase()) {
 					stockEmbeds.push(embed);
-					embed = new Discord.RichEmbed()
+					embed = new RichEmbed()
 						.setColor(COLORS.light_green)
 						.setThumbnail(client.user.avatarURL)
 						.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL);
@@ -90,7 +91,7 @@ export default class Help extends Command {
 			}
 			stockEmbeds.push(embed);
 
-			stockEmbeds.forEach((page: Discord.RichEmbed, index) => {
+			stockEmbeds.forEach((page: RichEmbed, index) => {
 				page.setAuthor(`Commands available - Page ${index + 1} on ${stockEmbeds.length}`);
 			});
 
@@ -128,7 +129,7 @@ export default class Help extends Command {
 
 			const command: any = client.commands.get(args[0].toLowerCase());
 
-			const embed = new Discord.RichEmbed()
+			const embed = new RichEmbed()
 				.setAuthor("Help - Command informations")
 				.setTitle(`**${prefix}${command.name} - ${command.category} category**`)
 				.setColor(COLORS.light_green)

@@ -1,10 +1,15 @@
-import * as Discord from "discord.js";
-import { client, db } from "../requires";
+import {
+	Message, RichEmbed, Guild, GuildMember, TextChannel, DMChannel, GroupDMChannel,
+} from "discord.js";
+import { client } from "../main";
 import { COLORS } from "./constants";
+import { db } from "./database";
+
+type MessageChannel = TextChannel | DMChannel | GroupDMChannel;
 
 function sendEmbed({
-	author = "", avatar = "", title = "", color = "", text = "", footer = "", channel = null,
-}): Discord.RichEmbed {
+	author = "", avatar = "", title = "", color = "", text = "", footer = "", channel,
+}) {
 	const embedColor = COLORS[color];
 
 	let avatarembed: string;
@@ -16,25 +21,23 @@ function sendEmbed({
 		avatarembed = avatar;
 	}
 
-	const embed = new Discord.RichEmbed()
+	const embed = new RichEmbed()
 		.setAuthor(author, avatarembed)
 		.setTitle(title)
 		.setColor(embedColor)
 		.setDescription(text)
 		.setFooter(footer);
 
-	if (channel) channel.send(embed);
-	else return embed;
+	channel.send(embed);
 }
 
-function sendError(text = "", channel = null): Discord.RichEmbed {
-	const embed = new Discord.RichEmbed()
+function sendError(text = "", channel: MessageChannel) {
+	const embed = new RichEmbed()
 		.setAuthor("Error", client.user.avatarURL)
 		.setColor(COLORS.dark_red)
 		.setDescription(text);
 
-	if (channel) channel.send(embed);
-	else return embed;
+	channel.send(embed);
 }
 
 async function getValueFromDB(table: string, column: string) {
@@ -50,12 +53,28 @@ function fromArrayToLone(array: any) {
 		: array;
 }
 
-async function react(emojis: string, message: Discord.Message) {
+async function react(emojis: string, message: Message) {
 	for (const emoji of emojis) {
 		await message.react(emoji);
 	}
 }
 
+async function replaceDBVars(message: string, options?: {server: Guild, member: GuildMember}): Promise<string> {
+	const prefix = await getValueFromDB("server", "prefix");
+
+	return message
+		.replace("{PREFIX}", prefix)
+		.replace("{SERVER}", options?.server?.name)
+		.replace("{MENTION}", `<@${options?.member?.id}>`)
+		.replace("{USER}", options?.member?.user.tag);
+}
+
+async function pushValueInDB(table: string, column: string, value: any) {
+	await db.update({
+		[column]: value,
+	}).into(table);
+}
+
 export {
-	sendEmbed, sendError, getValueFromDB, fromArrayToLone, react,
+	sendEmbed, sendError, getValueFromDB, fromArrayToLone, react, replaceDBVars, pushValueInDB,
 };
