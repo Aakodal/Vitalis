@@ -14,7 +14,7 @@ async function databaseCheck() {
 			db.schema.createTable("infractions", (table) => {
 				table.increments("id").primary();
 				table.string("discord_id");
-				table.text("infraction");
+				table.text("infraction");									// reason
 				table.enum("type", ["warn", "mute", "kick", "ban"]);
 				table.timestamp("created");
 				table.timestamp("expiration");
@@ -33,6 +33,7 @@ async function databaseCheck() {
 			db.schema.createTable("users", (table) => {
 				table.increments("id").primary();
 				table.string("discord_id");
+				table.string("pseudo");
 				table.timestamp("last_warn");
 				table.enum("actual_sanction", ["muted", "banned"]);
 				table.timestamp("created");

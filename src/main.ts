@@ -2,8 +2,10 @@ import * as fsModule from "fs";
 import * as dateFns from "date-fns";
 import * as config from "./config.json";
 import { Client } from "./lib/Client";
-import { databaseCheck } from "./lib/database";
-import { sendError, getValueFromDB, pushValueInDB } from "./lib/functions";
+import { databaseCheck, db } from "./lib/database";
+import {
+	sendError, getValueFromDB, getMuteRole, unsanction,
+} from "./lib/functions";
 
 const client = new Client();
 export { client };
@@ -27,33 +29,12 @@ client.on("ready", async () => {
 	console.log(`Vitalis started at ${currentTime}`);
 
 	const server = client.guilds.array()[0];
-	const muteRoleDB = server.roles.get(await getValueFromDB("server", "muteRoleID"));
-	if (!muteRoleDB) {
-		const botRole = server.member(client.user).highestRole;
-		const highestRolePosition = botRole.calculatedPosition;
-		const muteRole = await server.createRole({
-			name: "Muted",
-			color: 0x000001,
-			hoist: false,
-			position: highestRolePosition - 1,
-			permissions: ["VIEW_CHANNEL", "CONNECT", "READ_MESSAGE_HISTORY"],
-			mentionable: false,
-		}, "[AUTO] Mute role not found, created");
-		await pushValueInDB("server", "muteRoleID", muteRole.id);
-	}
+	await getMuteRole(server);
 
-	const muteRole = server.roles.get(await getValueFromDB("server", "muteRoleID"));
-	server.channels.forEach((channel) => {
-		if (!channel.permissionsFor(muteRole)) {
-			channel.overwritePermissions(muteRole, {
-				ADD_REACTIONS: false,
-				ATTACH_FILES: false,
-				SEND_MESSAGES: false,
-				SEND_TTS_MESSAGES: false,
-				SPEAK: false,
-			});
-		}
-	});
+	const sanctionned = await db.from("users").whereIn("actual_sanction", ["muted", "banned"]);
+	for (const user of sanctionned) {
+		await unsanction(user.discord_id, server, user.actual_sanction, false);
+	}
 });
 
 client.on("message", async (message) => {

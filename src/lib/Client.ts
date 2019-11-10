@@ -1,10 +1,11 @@
 import { Client as DiscordClient, Collection } from "discord.js";
 import { getValueFromDB, replaceDBVars } from "./functions";
+import { Command } from "./Command";
 
 class Client extends DiscordClient {
-	commands: Collection<string, object>;
+	commands: Collection<string, Command>;
 
-	aliases: Collection<string, object>;
+	aliases: Collection<string, Command>;
 
 	constructor() {
 		super();
@@ -25,7 +26,7 @@ class Client extends DiscordClient {
 			console.log(`Command ${command.name} loaded.`);
 			command.aliases.forEach((alias: string) => {
 				if (this.aliases.has(alias)) {
-					return console.log(`Alias ${alias} already exist for command ${this.aliases.get(alias)}.`);
+					return console.log(`Alias ${alias} already exist for command ${this.aliases.get(alias).name}.`);
 				}
 				this.aliases.set(alias, command);
 			});

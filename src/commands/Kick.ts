@@ -5,12 +5,12 @@ import { canSanction, sendError, verifUserInDB } from "../lib/functions";
 import { COLORS } from "../lib/constants";
 import { db } from "../lib/database";
 
-export default class Warn extends Command {
+export default class Kick extends Command {
 	constructor() {
 		super({
-			name: "warn",
-			description: "Warn a member with a specified reason",
-			usage: "warn <member mention> <reason>",
+			name: "kick",
+			description: "Kick a member with a specified reason",
+			usage: "kick <member mention> <reason>",
 			category: "Moderation",
 			permission: "KICK_MEMBERS",
 		});
@@ -22,22 +22,22 @@ export default class Warn extends Command {
 		const member = message.mentions.members.first();
 		const reason = args.slice(1).join(" ");
 
-		if (member.user.bot) return sendError("You can't warn a bot.", message.channel);
+		canSanction(member, message.member, message.channel, "kick");
 
-		if (!canSanction(member, message.member, message.channel, "warn")) return;
-
-		const warnEmbed = new RichEmbed()
+		const kickEmbed = new RichEmbed()
 			.setAuthor("Moderation", message.guild.iconURL)
-			.setColor(COLORS.light_green)
-			.setTitle("Warning")
-			.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`)
+			.setColor(COLORS.light_red)
+			.setTitle("Kick")
+			.setDescription(`${member.user} has been kicked for the following reason:\n\n${reason}`)
 			.setTimestamp();
 
-		message.channel.send(warnEmbed);
+		message.channel.send(kickEmbed);
 
 		// TODO: add mod logging here (adding the moderator)
 
-		member.user.send(warnEmbed.setDescription(`You have been warned for the following reasion:\n\n${reason}`));
+		await member.user.send(kickEmbed.setDescription(`You have been kicked for the following reasion:\n\n${reason}`));
+
+		await member.kick(reason);
 
 		const memberID = member.user.id;
 
@@ -45,20 +45,12 @@ export default class Warn extends Command {
 			.insert({
 				discord_id: memberID,
 				infraction: reason,
-				type: "warn",
+				type: "kick",
 				created: Date.now(),
 				moderator: message.author.tag,
 			})
 			.into("infractions");
 
 		await verifUserInDB(memberID);
-
-		await db
-			.update({
-				pseudo: member.user.tag,
-				last_warn: Date.now(),
-			})
-			.into("users")
-			.where({ discord_id: memberID });
 	}
 }
