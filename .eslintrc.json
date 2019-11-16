@@ -4,9 +4,9 @@
 		"node": true
 	},
 	"extends": [
-		"eslint:recommended",
+		"airbnb-typescript/base",
 		"plugin:@typescript-eslint/eslint-recommended",
-		"airbnb"
+		"plugin:@typescript-eslint/recommended"
 	],
 	"globals": {
 		"Atomics": "readonly",
@@ -22,15 +22,18 @@
 		"import"
 	],
 	"rules": {
-		"indent": [
+		"@typescript-eslint/indent": [
 			"error",
-			"tab"
+			"tab",
+			{
+				"SwitchCase": 1
+			}
 		],
 		"linebreak-style": [
 			"error",
 			"windows"
 		],
-		"quotes": [
+		"@typescript-eslint/quotes": [
 			"error",
 			"double",
 			{
@@ -60,13 +63,12 @@
 			}
 		],
 		"yoda": "error",
-		"no-unused-vars": [
-			"warn",
+		"@typescript-eslint/no-unused-vars": [
+			"error",
 			{
 				"args": "none"
 			}
 		],
-		"require-atomic-updates": "warn",
 		"no-tabs": "off",
 		"max-len": [
 			"error",
@@ -90,6 +92,20 @@
 		"no-mixed-spaces-and-tabs": [
 			"error",
 			"smart-tabs"
+		],
+		"import/no-cycle": "off",
+		"@typescript-eslint/no-explicit-any": "off",
+		"@typescript-eslint/explicit-function-return-type": "off",
+		"@typescript-eslint/member-delimiter-style": [
+			"error",
+			{
+				"multiline": {
+					"delimiter": "comma"
+				},
+				"singleline": {
+					"delimiter": "comma"
+				}
+			}
 		]
 	}
 }

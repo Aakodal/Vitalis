@@ -15,7 +15,7 @@ export default class EmbedBuilder extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		const MAX_HEXADECIMAL_INTEGER: number = 16777215;
+		const MAX_HEXADECIMAL_INTEGER = 16777215;
 
 		let author = "Default author";
 		let authorIcon = message.guild.iconURL;
@@ -64,58 +64,58 @@ export default class EmbedBuilder extends Command {
 				const colorNumber = Number(content);
 
 				switch (valueType) {
-				case "author":
-					author = newValue;
-					await botMessage.edit(currentEmbed.setDescription(`Current author: ${author}`));
-					break;
-				case "authorIcon":
-					authorIcon = newValue;
-					await botMessage.edit(currentEmbed.setDescription(`Current author icon: ${authorIcon}`));
-					break;
-				case "authorURL":
-					authorURL = newValue;
-					await botMessage.edit(currentEmbed.setDescription(`Current author URL: ${authorURL}`));
-					break;
-				case "color":
-					if ((!Number.isNaN(colorNumber) && colorNumber >= 0 && colorNumber <= MAX_HEXADECIMAL_INTEGER)) {
-						color = content;
-						embedBuilder.setColor(color);
-					} else if (Object.keys(COLORS).includes(content.toLowerCase())) {
-						color = content.toLowerCase();
-						embedBuilder.setColor(COLORS[color]);
-					} else if (content === "${clear}") {
-						color = "";
-						embedBuilder.setColor("");
-					} else {
-						const response = fromArrayToLone(await botMessage.channel.send(
-							`${reply.author} : please insert a hex literal value (\`0x000000\` to \`0xFFFFFF\`)`,
-						));
-						await response.delete(5 * 1000);
-					}
-					await botMessage.edit(currentEmbed
-						.setDescription(`Current color: ${color}`)
-						.setColor(COLORS[color] || color));
-					break;
-				case "title":
-					title = newValue;
-					await botMessage.edit(currentEmbed.setDescription(`Current title: ${title}`));
-					break;
-				case "description":
-					description = newValue;
-					await botMessage.edit(currentEmbed.setDescription(`Current description: ${description}`));
-					break;
-				case "footer":
-					footer = newValue;
-					await botMessage.edit(currentEmbed.setDescription(`Current footer: ${footer}`));
-					break;
-				case "footerIcon":
-					footerIcon = newValue;
-					await botMessage.edit(currentEmbed.setDescription(`Current footer icon: ${footerIcon}`));
-					break;
-				case "thumbnail":
-					thumbnail = newValue;
-					await botMessage.edit(currentEmbed.setDescription(`Current thumbnail: ${thumbnail}`));
-					break;
+					case "author":
+						author = newValue;
+						await botMessage.edit(currentEmbed.setDescription(`Current author: ${author}`));
+						break;
+					case "authorIcon":
+						authorIcon = newValue;
+						await botMessage.edit(currentEmbed.setDescription(`Current author icon: ${authorIcon}`));
+						break;
+					case "authorURL":
+						authorURL = newValue;
+						await botMessage.edit(currentEmbed.setDescription(`Current author URL: ${authorURL}`));
+						break;
+					case "color":
+						if ((!Number.isNaN(colorNumber) && colorNumber >= 0 && colorNumber <= MAX_HEXADECIMAL_INTEGER)) {
+							color = content;
+							embedBuilder.setColor(color);
+						} else if (Object.keys(COLORS).includes(content.toLowerCase())) {
+							color = content.toLowerCase();
+							embedBuilder.setColor(COLORS[color]);
+						} else if (content === "${clear}") {
+							color = "";
+							embedBuilder.setColor("");
+						} else {
+							const response = fromArrayToLone(await botMessage.channel.send(
+								`${reply.author} : please insert a hex literal value (\`0x000000\` to \`0xFFFFFF\`)`,
+							));
+							await response.delete(5 * 1000);
+						}
+						await botMessage.edit(currentEmbed
+							.setDescription(`Current color: ${color}`)
+							.setColor(COLORS[color] || color));
+						break;
+					case "title":
+						title = newValue;
+						await botMessage.edit(currentEmbed.setDescription(`Current title: ${title}`));
+						break;
+					case "description":
+						description = newValue;
+						await botMessage.edit(currentEmbed.setDescription(`Current description: ${description}`));
+						break;
+					case "footer":
+						footer = newValue;
+						await botMessage.edit(currentEmbed.setDescription(`Current footer: ${footer}`));
+						break;
+					case "footerIcon":
+						footerIcon = newValue;
+						await botMessage.edit(currentEmbed.setDescription(`Current footer icon: ${footerIcon}`));
+						break;
+					case "thumbnail":
+						thumbnail = newValue;
+						await botMessage.edit(currentEmbed.setDescription(`Current thumbnail: ${thumbnail}`));
+						break;
 				}
 
 				await reply.delete();

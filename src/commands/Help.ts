@@ -95,11 +95,11 @@ export default class Help extends Command {
 				page.setAuthor(`Commands available - Page ${index + 1} on ${stockEmbeds.length}`);
 			});
 
-			let currentPage = args[0] && !Number.isNaN(args[0])
-				? args[0] > stockEmbeds.length - 1
-					? stockEmbeds.length - 1
-					: args[0]
-				: 0;
+			const page = Number(args[0]) || 0;
+
+			let currentPage = page > stockEmbeds.length - 1
+				? stockEmbeds.length - 1
+				: page;
 
 			const botMessage = await message.channel.send(stockEmbeds[currentPage]);
 			const embedMessage = fromArrayToLone(botMessage);
