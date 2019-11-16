@@ -1,4 +1,4 @@
-const COLORS: any = {
+const COLORS = {
 	red: 0xFF0000,
 	green: 0x00FF00,
 	blue: 0x0000FF,

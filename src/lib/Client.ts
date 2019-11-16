@@ -18,15 +18,15 @@ class Client extends DiscordClient {
 		try {
 			const { default: CommandClass } = await import(`../commands/${commandName}`);
 			const command = new CommandClass();
-			if (!command.name) return;
+			if (!command.name) return console.log(`Command in ${commandName} does not have any name. Skipping...`);
 			if (this.commands.has(command.name)) {
-				return console.log(`Command ${command.name} in ${commandName} already exists. Skipping...`);
+				return console.info(`Command ${command.name} in ${commandName} already exists. Skipping...`);
 			}
 			this.commands.set(command.name, command);
 			console.log(`Command ${command.name} loaded.`);
 			command.aliases.forEach((alias: string) => {
 				if (this.aliases.has(alias)) {
-					return console.log(`Alias ${alias} already exist for command ${this.aliases.get(alias).name}.`);
+					return console.info(`Alias ${alias} already exist for command ${this.aliases.get(alias).name}.`);
 				}
 				this.aliases.set(alias, command);
 			});

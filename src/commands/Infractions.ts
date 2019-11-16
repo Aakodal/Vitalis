@@ -32,10 +32,10 @@ export default class Infractions extends Command {
 			.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL)
 			.setTimestamp();
 
-		await Infractions.getList(message, member, embed, type);
+		await this.getList(message, member, embed, type);
 	}
 
-	private static async getList(message: Message, member: GuildMember, embed: RichEmbed, type?: string) {
+	private async getList(message: Message, member: GuildMember, embed: RichEmbed, type?: string) {
 		const infractionsType = type || "infraction";
 		const infractions = type
 			? await db.from("infractions").where({ discord_id: member.id, type })
@@ -54,12 +54,12 @@ export default class Infractions extends Command {
 
 		const sortedInfractions = infractions.sort((a, b) => b.id - a.id);
 
-		Infractions.getInfractions(sortedInfractions, embed);
+		this.getInfractions(sortedInfractions, embed);
 
 		message.channel.send(embed);
 	}
 
-	private static getInfractions(infractions: any[], embed: RichEmbed) {
+	private getInfractions(infractions: any[], embed: RichEmbed) {
 		for (let i = 0; i < infractions.length; i++) {
 			if (i >= 10) break;
 

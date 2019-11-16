@@ -124,7 +124,10 @@ async function getMuteRole(server: Guild) {
 	return muteRole;
 }
 
-function canSanction(user: GuildMember | User | Snowflake, author: GuildMember, channel: MessageChannel, sanction: string): boolean {
+function canSanction(user: GuildMember | User | Snowflake,
+					 author: GuildMember,
+					 channel: MessageChannel,
+					 sanction: string): boolean {
 	if (!user) {
 		sendError("Please mention the member. Note that they must be on the server.", channel);
 		return false;
@@ -225,7 +228,7 @@ async function unsanction(id: Snowflake, server: Guild, sanction: string, forced
 	// TODO: add mod log here
 }
 
-function getSanctionValues(args: any[], sanction: string, member: GuildMember) {
+function getSanctionValues(args: string[], sanction: string, member: GuildMember) {
 	const isPermanent = !args[1].match(/^[0-9]+[smhdwy]$/i);
 
 	const durationString = isPermanent

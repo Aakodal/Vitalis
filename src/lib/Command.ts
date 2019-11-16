@@ -1,5 +1,5 @@
 import { Message, PermissionString } from "discord.js";
-import { Client } from "../lib/Client";
+import { Client } from "./Client";
 
 
 class Command {
@@ -24,7 +24,7 @@ class Command {
 		this.permission = options.permission || null;
 	}
 
-	run(message: Message, args: any[], client: Client) {
+	run(message: Message, args: string[], client: Client) {
 		throw new Error(`No code set for command ${this.name}`);
 	}
 }

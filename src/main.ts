@@ -51,15 +51,16 @@ client.on("message", async (message) => {
 	const command: any = client.commands.get(commandNameLower) || client.aliases.get(commandNameLower);
 
 	try {
-		if (!command.permission) {
-			return command.run(message, args, client);
-		}
-		if (command.permission.toUpperCase() === "BOT_OWNER") {
-			if (message.author.id !== config.botOwner) return;
-			return command.run(message, args, client);
-		}
-		if (message.member.hasPermission(command.permission)) {
-			return command.run(message, args, client);
+		const isOwner = command.permission.toUpperCase() === "BOT_OWNER"
+			&& message.author.id === config.botOwner;
+
+		if (
+			!command.permission
+			|| isOwner
+			|| message.member.hasPermission(command.permission)
+		) {
+			command.run(message, args, client);
+			return await message.delete();
 		}
 	} catch (error) {
 		return sendError(error, message.channel);

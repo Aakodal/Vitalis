@@ -15,6 +15,6 @@ export default class x extends Command {
 	}
 
 	run(message: Message, args: string[], client: Client) {
-		// code here
+		super.run(message, args, client);
 	}
 }

@@ -2,7 +2,7 @@ import { Message, RichEmbed, Snowflake } from "discord.js";
 import { Command } from "../lib/Command";
 import { Client } from "../lib/Client";
 import {
-	sendError, canSanction, getMuteRole, unsanction,
+	sendError, canSanction, unsanction,
 } from "../lib/functions";
 import { COLORS } from "../lib/constants";
 

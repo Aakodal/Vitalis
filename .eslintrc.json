@@ -14,7 +14,7 @@
 	},
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
-		"ecmaVersion": 2018,
+		"ecmaVersion": 2019,
 		"sourceType": "module"
 	},
 	"plugins": [
@@ -86,6 +86,10 @@
 		"no-nested-ternary": "warn",
         "no-return-assign": "off",
         "no-restricted-syntax": "off",
-        "no-await-in-loop": "off"
+        "no-await-in-loop": "off",
+		"no-mixed-spaces-and-tabs": [
+			"error",
+			"smart-tabs"
+		]
 	}
 }

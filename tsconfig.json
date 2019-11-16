@@ -3,10 +3,13 @@
         "module": "commonjs",
         "outDir": "./build",
         "allowJs": true,
-        "target": "es2017",
+        "target": "es2019",
         "resolveJsonModule": true
     },
     "include": [
         "src/**/*"
+    ],
+    "exclude": [
+        "src/node_modules/"
     ]
 }
