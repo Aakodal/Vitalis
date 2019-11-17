@@ -1,11 +1,11 @@
 import { Message, RichEmbed } from "discord.js";
-import { Command } from "../lib/Command";
-import { Client } from "../lib/Client";
+import { Command } from "../../lib/Command";
+import { Client } from "../../lib/Client";
 import {
 	sendError, verifUserInDB, canSanction, unsanction, getSanctionValues,
-} from "../lib/functions";
-import { COLORS } from "../lib/constants";
-import { db } from "../lib/database";
+} from "../../lib/functions";
+import { COLORS } from "../../lib/constants";
+import { db } from "../../lib/database";
 
 export default class Ban extends Command {
 	constructor() {
@@ -13,7 +13,6 @@ export default class Ban extends Command {
 			name: "ban",
 			description: "Ban a member with a specified reason",
 			usage: "ban <member mention> [duration] <reason>",
-			category: "Moderation",
 			permission: "BAN_MEMBERS",
 		});
 	}

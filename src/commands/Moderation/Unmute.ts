@@ -1,10 +1,10 @@
 import { Message, RichEmbed } from "discord.js";
-import { Command } from "../lib/Command";
-import { Client } from "../lib/Client";
+import { Command } from "../../lib/Command";
+import { Client } from "../../lib/Client";
 import {
 	sendError, canSanction, getMuteRole, unsanction,
-} from "../lib/functions";
-import { COLORS } from "../lib/constants";
+} from "../../lib/functions";
+import { COLORS } from "../../lib/constants";
 
 export default class Unmute extends Command {
 	constructor() {
@@ -13,7 +13,6 @@ export default class Unmute extends Command {
 			description: "Unmute a member",
 			usage: "mute <member mention>",
 			aliases: ["demute"],
-			category: "Moderation",
 			permission: "MUTE_MEMBERS",
 		});
 	}

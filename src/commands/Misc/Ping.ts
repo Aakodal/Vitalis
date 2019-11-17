@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
-import { Command } from "../lib/Command";
-import { Client } from "../lib/Client";
-import { fromArrayToLone } from "../lib/functions";
+import { Command } from "../../lib/Command";
+import { Client } from "../../lib/Client";
+import { fromArrayToLone } from "../../lib/functions";
 
 export default class Ping extends Command {
 	constructor() {
@@ -13,13 +13,13 @@ export default class Ping extends Command {
 
 	async run(message: Message, args: string[], client: Client) {
 		const messageCreatedAt = message.createdTimestamp;
-		const botMessage = await message.channel.send("Ping?");
+		const botMessage: Message | Message[] = await message.channel.send("Ping?");
 
-		const reply = fromArrayToLone(botMessage);
+		const reply: Message = fromArrayToLone(botMessage);
 
 		const replyCreatedAt = reply.createdTimestamp;
 		const ping = Number((replyCreatedAt - messageCreatedAt).toFixed(2));
 
-		reply.edit(`🎉 Pong! Took ${ping} ms.`);
+		await reply.edit(`🎉 Pong! Took ${ping} ms.`);
 	}
 }

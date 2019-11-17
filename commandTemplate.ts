@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import { Command } from "../lib/Command";
-import { Client } from "../lib/Client";
+import { Command } from "../../lib/Command";
+import { Client } from "../../lib/Client";
 
 export default class x extends Command {
 	constructor() {
@@ -9,7 +9,6 @@ export default class x extends Command {
 			description: "",
 			usage: "",
 			aliases: [],
-			category: "",
 			permission: "",
 		});
 	}

@@ -20,8 +20,13 @@ class Command {
 		this.description = options.description || "No description set.";
 		this.usage = options.usage || this.name;
 		this.aliases = options.aliases || [];
-		this.category = options.category || "Misc";
 		this.permission = options.permission || null;
+
+		this.category = "Undefined";
+	}
+
+	setCategory(category: string) {
+		this.category = category;
 	}
 
 	run(message: Message, args: string[], client: Client) {

@@ -1,9 +1,9 @@
 import { Message, RichEmbed } from "discord.js";
-import { Command } from "../lib/Command";
-import { Client } from "../lib/Client";
-import { canSanction, sendError, verifUserInDB } from "../lib/functions";
-import { COLORS } from "../lib/constants";
-import { db } from "../lib/database";
+import { Command } from "../../lib/Command";
+import { Client } from "../../lib/Client";
+import { canSanction, sendError, verifUserInDB } from "../../lib/functions";
+import { COLORS } from "../../lib/constants";
+import { db } from "../../lib/database";
 
 export default class Warn extends Command {
 	constructor() {
@@ -11,7 +11,6 @@ export default class Warn extends Command {
 			name: "warn",
 			description: "Warn a member with a specified reason",
 			usage: "warn <member mention> <reason>",
-			category: "Moderation",
 			permission: "KICK_MEMBERS",
 		});
 	}

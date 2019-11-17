@@ -1,5 +1,13 @@
 import {
-	Message, RichEmbed, Guild, GuildMember, TextChannel, DMChannel, GroupDMChannel, Snowflake, User,
+	DMChannel,
+	GroupDMChannel,
+	Guild,
+	GuildMember,
+	Message,
+	RichEmbed,
+	Snowflake,
+	TextChannel,
+	User,
 } from "discord.js";
 import { client } from "../main";
 import { COLORS } from "./constants";
@@ -47,7 +55,7 @@ async function getValueFromDB(table: string, column: string) {
 		: null;
 }
 
-function fromArrayToLone(array: any) {
+function fromArrayToLone(array: any | any[]) {
 	return Array.isArray(array)
 		? array[0]
 		: array;
@@ -254,6 +262,13 @@ function getSanctionValues(args: string[], sanction: string, member: GuildMember
 	return [durationString, duration, reason, embedDescription, DMDescription];
 }
 
+function stringNormalize(baseString: string): string {
+	const firstLetter = baseString.charAt(0).toUpperCase();
+	const rest = baseString.slice(1).replace("_", " ");
+
+	return firstLetter + rest;
+}
+
 export {
 	sendEmbed,
 	sendError,
@@ -268,4 +283,5 @@ export {
 	getDurationFromString,
 	unsanction,
 	getSanctionValues,
+	stringNormalize,
 };

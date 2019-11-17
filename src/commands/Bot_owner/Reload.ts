@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
-import { Command } from "../lib/Command";
-import { Client } from "../lib/Client";
-import { sendError, sendEmbed } from "../lib/functions";
+import { Command } from "../../lib/Command";
+import { Client } from "../../lib/Client";
+import { sendError, sendEmbed } from "../../lib/functions";
 
 export default class Reload extends Command {
 	constructor() {
@@ -9,7 +9,6 @@ export default class Reload extends Command {
 			name: "reload",
 			description: "Reload a command",
 			usage: "reload <command>",
-			category: "Bot owner",
 			permission: "BOT_OWNER",
 		});
 	}

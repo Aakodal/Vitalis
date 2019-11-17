@@ -1,10 +1,10 @@
 import * as dateFns from "date-fns";
 import { GuildMember, Message, RichEmbed } from "discord.js";
-import { Command } from "../lib/Command";
-import { Client } from "../lib/Client";
-import { sendError } from "../lib/functions";
-import { db } from "../lib/database";
-import { COLORS } from "../lib/constants";
+import { Command } from "../../lib/Command";
+import { Client } from "../../lib/Client";
+import { sendError } from "../../lib/functions";
+import { db } from "../../lib/database";
+import { COLORS } from "../../lib/constants";
 
 export default class Infractions extends Command {
 	constructor() {
@@ -13,7 +13,6 @@ export default class Infractions extends Command {
 			description: "See a member's infractions",
 			usage: "infractions <member mention> [warn|kick|mute|ban]",
 			aliases: ["sanctions"],
-			category: "Moderation",
 			permission: "VIEW_AUDIT_LOG",
 		});
 	}

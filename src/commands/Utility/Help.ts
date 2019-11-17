@@ -1,11 +1,11 @@
-import { Message, RichEmbed } from "discord.js";
-import { Command } from "../lib/Command";
-import * as config from "../config.json";
-import { Client } from "../lib/Client";
+import { Message, PermissionString, RichEmbed } from "discord.js";
+import { Command } from "../../lib/Command";
+import * as config from "../../config.json";
+import { Client } from "../../lib/Client";
 import {
 	getValueFromDB, sendError, fromArrayToLone, react,
-} from "../lib/functions";
-import { COLORS } from "../lib/constants";
+} from "../../lib/functions";
+import { COLORS } from "../../lib/constants";
 
 export default class Help extends Command {
 	constructor() {
@@ -13,11 +13,10 @@ export default class Help extends Command {
 			name: "help",
 			description: "Get commands help",
 			usage: "help [command|page number]",
-			category: "Utility",
 		});
 	}
 
-	async run(message: Message, args: any[], client: Client) {
+	async run(message: Message, args: string[], client: Client) {
 		const prefix = await getValueFromDB("server", "prefix");
 
 		let embed = new RichEmbed()
@@ -38,10 +37,12 @@ export default class Help extends Command {
 			}
 		};
 
-		if (!args[0] || !Number.isNaN(args[0])) { // Global help
+		const pageNumber = Number(args[0]);
+
+		if (!args[0] || !Number.isNaN(pageNumber)) { // Global help
 			const commands = [];
 
-			client.commands.forEach((command: any) => {
+			client.commands.forEach((command: Command) => {
 				const commandData = {
 					category: command.category,
 					name: command.name,
@@ -51,7 +52,7 @@ export default class Help extends Command {
 					return;
 				}
 				if (command.permission) {
-					if (message.member.hasPermission(command.permission)) commands.push(commandData);
+					if (message.member.hasPermission(command.permission as PermissionString)) commands.push(commandData);
 					return;
 				}
 				commands.push(commandData);
@@ -72,7 +73,7 @@ export default class Help extends Command {
 
 			embed.setTitle(`${commands[0].category} category`);
 
-			const getCommand: any = (index: number) => client.commands.get(commands[index].name);
+			const getCommand = (index: number): Command => client.commands.get(commands[index].name);
 
 			embed.addField(`**${prefix}${commands[0].name}**`, getCommand(0).description);
 
@@ -95,7 +96,9 @@ export default class Help extends Command {
 				page.setAuthor(`Commands available - Page ${index + 1} on ${stockEmbeds.length}`);
 			});
 
-			const page = Number(args[0]) || 0;
+			const page = pageNumber > 0
+				? pageNumber - 1
+				: 0;
 
 			let currentPage = page > stockEmbeds.length - 1
 				? stockEmbeds.length - 1
@@ -127,7 +130,7 @@ export default class Help extends Command {
 		} else { // Precise help
 			if (!client.commands.has(args[0])) return sendError(`Command ${args[0]} not found.`, message.channel);
 
-			const command: any = client.commands.get(args[0].toLowerCase());
+			const command: Command = client.commands.get(args[0].toLowerCase());
 
 			const embed = new RichEmbed()
 				.setAuthor("Help - Command informations")
@@ -150,7 +153,7 @@ export default class Help extends Command {
 			}
 
 			if (command.permission) {
-				if (message.member.hasPermission(command.permission)) message.channel.send(embed);
+				if (message.member.hasPermission(command.permission as PermissionString)) message.channel.send(embed);
 				return;
 			}
 

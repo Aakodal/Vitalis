@@ -1,10 +1,10 @@
 import { Message, RichEmbed, Snowflake } from "discord.js";
-import { Command } from "../lib/Command";
-import { Client } from "../lib/Client";
+import { Command } from "../../lib/Command";
+import { Client } from "../../lib/Client";
 import {
 	sendError, canSanction, unsanction,
-} from "../lib/functions";
-import { COLORS } from "../lib/constants";
+} from "../../lib/functions";
+import { COLORS } from "../../lib/constants";
 
 export default class Unban extends Command {
 	constructor() {
@@ -13,7 +13,6 @@ export default class Unban extends Command {
 			description: "Unban a member by its ID",
 			usage: "mute <member ID>",
 			aliases: ["deban"],
-			category: "Moderation",
 			permission: "MUTE_MEMBERS",
 		});
 	}

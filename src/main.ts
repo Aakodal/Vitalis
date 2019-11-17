@@ -1,11 +1,13 @@
 import * as fsModule from "fs";
 import * as dateFns from "date-fns";
+import { PermissionString } from "discord.js";
 import * as config from "./config.json";
 import { Client } from "./lib/Client";
 import { databaseCheck, db } from "./lib/database";
 import {
 	sendError, getValueFromDB, getMuteRole, unsanction,
 } from "./lib/functions";
+import { Command } from "./lib/Command";
 
 const client = new Client();
 export { client };
@@ -16,9 +18,12 @@ client.login(config.token);
 
 databaseCheck();
 
-fs.readdir("./commands/").then((files) => {
-	files.forEach(async (file: string) => {
-		await client.loadCommand(file);
+fs.readdir("./commands/").then((folders) => {
+	folders.forEach(async (folder: string) => {
+		const folderFiles = await fs.readdir(`./commands/${folder}/`);
+		for (const file of folderFiles) {
+			await client.loadCommand(folder, file);
+		}
 	});
 });
 
@@ -48,16 +53,17 @@ client.on("message", async (message) => {
 	const commandNameLower = commandName.toLowerCase();
 	if (!client.commands.has(commandNameLower) && !client.aliases.has(commandNameLower)) return;
 
-	const command: any = client.commands.get(commandNameLower) || client.aliases.get(commandNameLower);
+	const command: Command = client.commands.get(commandNameLower) || client.aliases.get(commandNameLower);
 
 	try {
-		const isOwner = command.permission.toUpperCase() === "BOT_OWNER"
+		const isOwner = command.permission
+			&& command.permission.toUpperCase() === "BOT_OWNER"
 			&& message.author.id === config.botOwner;
 
 		if (
 			!command.permission
 			|| isOwner
-			|| message.member.hasPermission(command.permission)
+			|| message.member.hasPermission(command.permission as PermissionString)
 		) {
 			command.run(message, args, client);
 			return await message.delete();
