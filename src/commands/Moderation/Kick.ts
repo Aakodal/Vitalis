@@ -1,9 +1,12 @@
 import { Message, RichEmbed } from "discord.js";
 import { Command } from "../../lib/Command";
 import { Client } from "../../lib/Client";
-import { canSanction, sendError, verifUserInDB } from "../../lib/functions";
 import { COLORS } from "../../lib/constants";
 import { db } from "../../lib/database";
+import { log } from "../../functions/log";
+import { verifUserInDB } from "../../functions/verifUserInDB";
+import { sendError } from "../../functions/sendError";
+import { canSanction } from "../../functions/canSanction";
 
 export default class Kick extends Command {
 	constructor() {
@@ -28,11 +31,12 @@ export default class Kick extends Command {
 			.setColor(COLORS.light_red)
 			.setTitle("Kick")
 			.setDescription(`${member.user} has been kicked for the following reason:\n\n${reason}`)
-			.setTimestamp();
+			.setTimestamp()
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
 
 		message.channel.send(kickEmbed);
 
-		// TODO: add mod logging here (adding the moderator)
+		await log("modlog", kickEmbed);
 
 		await member.user.send(kickEmbed.setDescription(`You have been kicked for the following reasion:\n\n${reason}`));
 

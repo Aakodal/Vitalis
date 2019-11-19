@@ -1,11 +1,14 @@
 import { Message, RichEmbed } from "discord.js";
 import { Command } from "../../lib/Command";
 import { Client } from "../../lib/Client";
-import {
-	sendError, verifUserInDB, canSanction, unsanction, getSanctionValues,
-} from "../../lib/functions";
 import { COLORS } from "../../lib/constants";
 import { db } from "../../lib/database";
+import { log } from "../../functions/log";
+import { getSanctionValues } from "../../functions/getSanctionValues";
+import { verifUserInDB } from "../../functions/verifUserInDB";
+import { sendError } from "../../functions/sendError";
+import { unsanction } from "../../functions/unsanction";
+import { canSanction } from "../../functions/canSanction";
 
 export default class Ban extends Command {
 	constructor() {
@@ -39,11 +42,12 @@ export default class Ban extends Command {
 			.setColor(COLORS.light_green)
 			.setTitle("Ban")
 			.setDescription(embedDescription)
-			.setTimestamp();
+			.setTimestamp()
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
 
 		await message.channel.send(banEmbed);
 
-		// TODO: add mod logging here (adding the moderator)
+		await log("modlog", banEmbed);
 
 		await member.user.send(banEmbed.setDescription(DMDescription));
 

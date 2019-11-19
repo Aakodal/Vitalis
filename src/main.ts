@@ -4,10 +4,11 @@ import { PermissionString } from "discord.js";
 import * as config from "./config.json";
 import { Client } from "./lib/Client";
 import { databaseCheck, db } from "./lib/database";
-import {
-	sendError, getValueFromDB, getMuteRole, unsanction,
-} from "./lib/functions";
 import { Command } from "./lib/Command";
+import { getValueFromDB } from "./functions/getValueFromDB";
+import { sendError } from "./functions/sendError";
+import { unsanction } from "./functions/unsanction";
+import { getMuteRole } from "./functions/getMuteRole";
 
 const client = new Client();
 export { client };
@@ -24,6 +25,12 @@ fs.readdir("./commands/").then((folders) => {
 		for (const file of folderFiles) {
 			await client.loadCommand(folder, file);
 		}
+	});
+});
+
+fs.readdir("./events/").then((files) => {
+	files.forEach((file: string) => {
+		import(`./events/${file}`);
 	});
 });
 

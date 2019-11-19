@@ -2,10 +2,11 @@ import { Message, PermissionString, RichEmbed } from "discord.js";
 import { Command } from "../../lib/Command";
 import * as config from "../../config.json";
 import { Client } from "../../lib/Client";
-import {
-	getValueFromDB, sendError, fromArrayToLone, react,
-} from "../../lib/functions";
 import { COLORS } from "../../lib/constants";
+import { getValueFromDB } from "../../functions/getValueFromDB";
+import { sendError } from "../../functions/sendError";
+import { react } from "../../functions/react";
+import { fromArrayToLone } from "../../functions/fromArrayToLone";
 
 export default class Help extends Command {
 	constructor() {

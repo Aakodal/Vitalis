@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { Command } from "../../lib/Command";
 import { Client } from "../../lib/Client";
-import { fromArrayToLone } from "../../lib/functions";
+import { fromArrayToLone } from "../../functions/fromArrayToLone";
 
 export default class Ping extends Command {
 	constructor() {

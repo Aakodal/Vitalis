@@ -1,7 +1,8 @@
 import { Message } from "discord.js";
 import { Command } from "../../lib/Command";
 import { Client } from "../../lib/Client";
-import { sendError, sendEmbed } from "../../lib/functions";
+import { sendEmbed } from "../../functions/sendEmbed";
+import { sendError } from "../../functions/sendError";
 
 export default class Reload extends Command {
 	constructor() {

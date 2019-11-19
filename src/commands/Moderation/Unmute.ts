@@ -1,10 +1,12 @@
 import { Message, RichEmbed } from "discord.js";
 import { Command } from "../../lib/Command";
 import { Client } from "../../lib/Client";
-import {
-	sendError, canSanction, getMuteRole, unsanction,
-} from "../../lib/functions";
 import { COLORS } from "../../lib/constants";
+import { log } from "../../functions/log";
+import { sendError } from "../../functions/sendError";
+import { unsanction } from "../../functions/unsanction";
+import { getMuteRole } from "../../functions/getMuteRole";
+import { canSanction } from "../../functions/canSanction";
 
 export default class Unmute extends Command {
 	constructor() {
@@ -33,11 +35,12 @@ export default class Unmute extends Command {
 			.setColor(COLORS.light_green)
 			.setTitle("Unmute")
 			.setDescription(`${member.user} has been unmuted`)
-			.setTimestamp();
+			.setTimestamp()
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
 
 		await message.channel.send(unmuteEmbed);
 
-		// TODO: add mod logging here (adding the moderator)
+		await log("modlog", unmuteEmbed);
 
 		await unsanction(member.id, message.guild, "muted", true);
 	}

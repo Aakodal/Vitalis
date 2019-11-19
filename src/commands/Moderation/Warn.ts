@@ -1,9 +1,12 @@
 import { Message, RichEmbed } from "discord.js";
 import { Command } from "../../lib/Command";
 import { Client } from "../../lib/Client";
-import { canSanction, sendError, verifUserInDB } from "../../lib/functions";
 import { COLORS } from "../../lib/constants";
 import { db } from "../../lib/database";
+import { log } from "../../functions/log";
+import { verifUserInDB } from "../../functions/verifUserInDB";
+import { sendError } from "../../functions/sendError";
+import { canSanction } from "../../functions/canSanction";
 
 export default class Warn extends Command {
 	constructor() {
@@ -30,11 +33,12 @@ export default class Warn extends Command {
 			.setColor(COLORS.light_green)
 			.setTitle("Warning")
 			.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`)
-			.setTimestamp();
+			.setTimestamp()
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
 
 		message.channel.send(warnEmbed);
 
-		// TODO: add mod logging here (adding the moderator)
+		await log("modlog", warnEmbed);
 
 		member.user.send(warnEmbed.setDescription(`You have been warned for the following reasion:\n\n${reason}`));
 

@@ -2,9 +2,9 @@ import * as dateFns from "date-fns";
 import { GuildMember, Message, RichEmbed } from "discord.js";
 import { Command } from "../../lib/Command";
 import { Client } from "../../lib/Client";
-import { sendError } from "../../lib/functions";
 import { db } from "../../lib/database";
 import { COLORS } from "../../lib/constants";
+import { sendError } from "../../functions/sendError";
 
 export default class Infractions extends Command {
 	constructor() {

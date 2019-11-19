@@ -2,7 +2,8 @@ import { Message, RichEmbed } from "discord.js";
 import { Command } from "../../lib/Command";
 import { Client } from "../../lib/Client";
 import { COLORS } from "../../lib/constants";
-import { fromArrayToLone, react } from "../../lib/functions";
+import { fromArrayToLone } from "../../functions/fromArrayToLone";
+import { react } from "../../functions/react";
 
 export default class EmbedBuilder extends Command {
 	constructor() {
