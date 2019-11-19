@@ -1,6 +1,8 @@
 import { Client as DiscordClient, Collection } from "discord.js";
-import { getValueFromDB, replaceDBVars, stringNormalize } from "./functions";
 import { Command } from "./Command";
+import { getValueFromDB } from "../functions/getValueFromDB";
+import { replaceDBVars } from "../functions/replaceDBVars";
+import { stringNormalize } from "../functions/stringNormalize";
 
 class Client extends DiscordClient {
 	commands: Collection<string, Command>;
