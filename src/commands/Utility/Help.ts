@@ -1,7 +1,7 @@
 import { Message, PermissionString, RichEmbed } from "discord.js";
-import { Command } from "../../lib/Command";
+import { Command } from "../../classes/Command";
 import * as config from "../../config.json";
-import { Client } from "../../lib/Client";
+import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 import { sendError } from "../../functions/sendError";

@@ -1,6 +1,6 @@
 import { Message, RichEmbed } from "discord.js";
-import { Command } from "../../lib/Command";
-import { Client } from "../../lib/Client";
+import { Command } from "../../classes/Command";
+import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
 import { db } from "../../lib/database";
 import { log } from "../../functions/log";
@@ -9,6 +9,7 @@ import { verifUserInDB } from "../../functions/verifUserInDB";
 import { sendError } from "../../functions/sendError";
 import { unsanction } from "../../functions/unsanction";
 import { canSanction } from "../../functions/canSanction";
+import { longTimeout } from "../../functions/longTimeout";
 
 export default class Ban extends Command {
 	constructor() {
@@ -44,6 +45,8 @@ export default class Ban extends Command {
 			.setDescription(embedDescription)
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
+
+		await member.ban({ days: 7, reason: reasonText });
 
 		await message.channel.send(banEmbed);
 
@@ -82,9 +85,7 @@ export default class Ban extends Command {
 
 		if (!duration) return;
 
-		await member.ban({ days: 7, reason: reasonText });
-
-		setTimeout(async () => {
+		longTimeout(async () => {
 			await unsanction(memberID, message.guild, "banned", false);
 		}, expiration - created);
 	}

@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import { Command } from "../../lib/Command";
-import { Client } from "../../lib/Client";
+import { Command } from "../../classes/Command";
+import { Client } from "../../classes/Client";
 import { sendEmbed } from "../../functions/sendEmbed";
 import { sendError } from "../../functions/sendError";
 

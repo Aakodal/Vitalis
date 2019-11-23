@@ -4,19 +4,21 @@ import { COLORS } from "../lib/constants";
 import { log } from "./log";
 import { verifUserInDB } from "./verifUserInDB";
 import { getMuteRole } from "./getMuteRole";
+import { longTimeout } from "./longTimeout";
 
-export async function unsanction(id: Snowflake, server: Guild, sanction: string, forced: boolean) {
+export async function unsanction(id: Snowflake, server: Guild, sanction: string, forced = false) {
 	await verifUserInDB(id);
 	const user = (await db.from("users").where({ discord_id: id, actual_sanction: sanction }))[0];
-
-	if (!user?.expiration) return;
 
 	const { expiration } = user;
 	const now = Date.now();
 
-	if (now < expiration && !forced) {
-		return setTimeout(() => {
-			unsanction(id, server, sanction, false);
+	if (expiration
+		&& now < expiration
+		&& !forced
+	) {
+		return longTimeout(() => {
+			unsanction(id, server, sanction);
 		}, expiration - now);
 	}
 

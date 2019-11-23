@@ -1,6 +1,6 @@
 import { Message, RichEmbed } from "discord.js";
-import { Command } from "../../lib/Command";
-import { Client } from "../../lib/Client";
+import { Command } from "../../classes/Command";
+import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
 import { db } from "../../lib/database";
 import { log } from "../../functions/log";
@@ -10,6 +10,7 @@ import { sendError } from "../../functions/sendError";
 import { unsanction } from "../../functions/unsanction";
 import { getMuteRole } from "../../functions/getMuteRole";
 import { canSanction } from "../../functions/canSanction";
+import { longTimeout } from "../../functions/longTimeout";
 
 export default class Mute extends Command {
 	constructor() {
@@ -47,13 +48,13 @@ export default class Mute extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
 
+		await member.addRole(muteRole);
+
 		await message.channel.send(muteEmbed);
 
 		await log("modlog", muteEmbed);
 
 		await member.user.send(muteEmbed.setDescription(DMDescription));
-
-		await member.addRole(muteRole);
 
 		const memberID = member.user.id;
 
@@ -86,7 +87,7 @@ export default class Mute extends Command {
 
 		if (!duration) return;
 
-		setTimeout(async () => {
+		longTimeout(async () => {
 			await unsanction(memberID, message.guild, "muted", false);
 		}, expiration - created);
 	}

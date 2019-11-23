@@ -1,7 +1,7 @@
 import * as dateFns from "date-fns";
 import { GuildMember, Message, RichEmbed } from "discord.js";
-import { Command } from "../../lib/Command";
-import { Client } from "../../lib/Client";
+import { Command } from "../../classes/Command";
+import { Client } from "../../classes/Client";
 import { db } from "../../lib/database";
 import { COLORS } from "../../lib/constants";
 import { sendError } from "../../functions/sendError";

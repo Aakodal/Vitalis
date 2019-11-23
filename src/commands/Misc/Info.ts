@@ -1,7 +1,7 @@
 import { Message, RichEmbed } from "discord.js";
-import { Command } from "../../lib/Command";
+import { Command } from "../../classes/Command";
 import * as infos from "../../package.json";
-import { Client } from "../../lib/Client";
+import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
 
 export default class Info extends Command {

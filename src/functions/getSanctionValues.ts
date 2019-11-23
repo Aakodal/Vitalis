@@ -2,7 +2,7 @@ import { GuildMember } from "discord.js";
 import { getDurationFromString } from "./getDurationFromString";
 
 export function getSanctionValues(args: string[], sanction: string, member: GuildMember) {
-	const isPermanent = !args[1].match(/^[0-9]+[smhdwy]$/i);
+	const isPermanent = !args[1].match(/^[0-9]+([smhdwy]|mo)$/i);
 
 	const durationString = isPermanent
 		? null
