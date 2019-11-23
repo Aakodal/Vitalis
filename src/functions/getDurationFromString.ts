@@ -22,5 +22,9 @@ export function getDurationFromString(durationString: string): number {
 		y: 365 * 24 * 60 * 60 * 1000,
 	};
 
-	return integer * timeToMS[time];
+	const duration = integer * timeToMS[time];
+
+	return duration > Number.MAX_SAFE_INTEGER
+		? Number.MAX_SAFE_INTEGER
+		: duration;
 }
