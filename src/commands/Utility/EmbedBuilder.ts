@@ -87,7 +87,7 @@ export default class EmbedBuilder extends Command {
 							color = "";
 							embedBuilder.setColor("");
 						} else {
-							const response = fromArrayToLone(await botMessage.channel.send(
+							const response = fromArrayToLone<Message>(await botMessage.channel.send(
 								`${reply.author} : please insert a hex literal value (\`0x000000\` to \`0xFFFFFF\`)`,
 							));
 							await response.delete(5 * 1000);
@@ -131,7 +131,7 @@ export default class EmbedBuilder extends Command {
 			}, 30 * 1000);
 		}
 
-		const botMessage = fromArrayToLone(await message.channel.send(embedBuilder));
+		const botMessage = fromArrayToLone<Message>(await message.channel.send(embedBuilder));
 		await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 
 		client.on("messageReactionAdd", (reaction, user) => {
@@ -140,7 +140,7 @@ export default class EmbedBuilder extends Command {
                 || user.id !== message.author.id
                 || "👤👁📲🔵📌📝📑📷🖼📅✅".indexOf(reaction.emoji.name) < 0) return;
 
-			const reactions: object = {
+			const reactions = {
 				"👤": async () => {
 					let authorEditing = true;
 					await reaction.message.clearReactions();

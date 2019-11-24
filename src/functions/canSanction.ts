@@ -1,7 +1,7 @@
 import { GuildMember, Snowflake, User } from "discord.js";
 import { client } from "../main";
 import { sendError } from "./sendError";
-import { MessageChannel } from "../typings/types";
+import { MessageChannel } from "../typings";
 
 export function canSanction(
 	user: GuildMember | User | Snowflake, author: GuildMember, channel: MessageChannel, sanction: string,

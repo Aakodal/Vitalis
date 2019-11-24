@@ -2,7 +2,7 @@ import { Guild, GuildMember } from "discord.js";
 import { getValueFromDB } from "./getValueFromDB";
 
 export async function replaceDBVars(message: string, options?: {server: Guild, member: GuildMember}): Promise<string> {
-	const prefix = await getValueFromDB("server", "prefix");
+	const prefix = await getValueFromDB<string>("server", "prefix");
 
 	return message
 		.replace("{PREFIX}", prefix)

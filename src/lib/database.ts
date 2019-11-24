@@ -99,26 +99,6 @@ async function databaseCheck() {
 			}
 		}
 	});
-
-	/* await db.from("users").where({actual_sanction: "muted"}).then(data => {
-        if(!data[0]) return;
-        const guild = client.guilds.get(config.server);
-        data.forEach(async user => {
-            if(user.expiration) {
-                await client.emit("mute", user.discord_id, guild);
-            }
-        });
-    });
-
-    await db.from("users").where({actual_sanction: "banned"}).then(data => {
-        if(!data[0]) return;
-        const guild = client.guilds.get(config.server);
-        data.forEach(async user => {
-            if(user.expiration) {
-                await client.emit("ban", user.discord_id, guild);
-            }
-        });
-    }); */
 }
 
 export { db, databaseCheck };

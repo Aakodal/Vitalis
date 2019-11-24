@@ -5,6 +5,7 @@ import { Client } from "../../classes/Client";
 import { db } from "../../lib/database";
 import { COLORS } from "../../lib/constants";
 import { sendError } from "../../functions/sendError";
+import { Infraction } from "../../typings";
 
 export default class Infractions extends Command {
 	constructor() {
@@ -31,12 +32,12 @@ export default class Infractions extends Command {
 			.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL)
 			.setTimestamp();
 
-		await this.getList(message, member, embed, type);
+		await Infractions.getList(message, member, embed, type);
 	}
 
-	private async getList(message: Message, member: GuildMember, embed: RichEmbed, type?: string) {
+	private static async getList(message: Message, member: GuildMember, embed: RichEmbed, type?: string) {
 		const infractionsType = type || "infraction";
-		const infractions = type
+		const infractions: Infraction[] = type
 			? await db.from("infractions").where({ discord_id: member.id, type })
 			: await db.from("infractions").where({ discord_id: member.id });
 
@@ -53,12 +54,12 @@ export default class Infractions extends Command {
 
 		const sortedInfractions = infractions.sort((a, b) => b.id - a.id);
 
-		this.getInfractions(sortedInfractions, embed);
+		Infractions.getInfractions(sortedInfractions, embed);
 
 		message.channel.send(embed);
 	}
 
-	private getInfractions(infractions: any[], embed: RichEmbed) {
+	private static getInfractions(infractions: Infraction[], embed: RichEmbed) {
 		for (let i = 0; i < infractions.length; i++) {
 			if (i >= 10) break;
 

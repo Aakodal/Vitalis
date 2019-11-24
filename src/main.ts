@@ -4,7 +4,6 @@ import { PermissionString } from "discord.js";
 import * as config from "./config.json";
 import { Client } from "./classes/Client";
 import { databaseCheck, db } from "./lib/database";
-import { Command } from "./classes/Command";
 import { getValueFromDB } from "./functions/getValueFromDB";
 import { sendError } from "./functions/sendError";
 import { unsanction } from "./functions/unsanction";
@@ -50,9 +49,9 @@ client.on("ready", async () => {
 });
 
 client.on("message", async (message) => {
-	const prefix = await getValueFromDB("server", "prefix");
+	const prefix = await getValueFromDB<string>("server", "prefix");
 
-	if (!message.content.startsWith(prefix)
+	if(!message.content.startsWith(prefix)
         || message.author.bot
         || !message.guild) return;
 
@@ -60,7 +59,7 @@ client.on("message", async (message) => {
 	const commandNameLower = commandName.toLowerCase();
 	if (!client.commands.has(commandNameLower) && !client.aliases.has(commandNameLower)) return;
 
-	const command: Command = client.commands.get(commandNameLower) || client.aliases.get(commandNameLower);
+	const command = client.commands.get(commandNameLower) || client.aliases.get(commandNameLower);
 
 	try {
 		const isOwner = command.permission

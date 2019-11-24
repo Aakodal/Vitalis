@@ -3,8 +3,8 @@ import { client } from "../main";
 import { getValueFromDB } from "./getValueFromDB";
 
 async function log(type: "log" | "modlog", embed: RichEmbed) {
-	const channelId: string = await getValueFromDB("server", `${type}sChannel`);
-	const isActive: boolean = await getValueFromDB("server", `${type}sActive`);
+	const channelId = await getValueFromDB<string>("server", `${type}sChannel`);
+	const isActive = await getValueFromDB<boolean>("server", `${type}sActive`);
 	if (!channelId
 		|| !isActive) return;
 

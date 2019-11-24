@@ -14,6 +14,6 @@ export default class x extends Command {
 	}
 
 	run(message: Message, args: string[], client: Client) {
-		super.run(message, args, client);
+		throw new Error("This command does not have code.");
 	}
 }

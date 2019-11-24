@@ -5,7 +5,7 @@ import { log } from "../functions/log";
 import { COLORS } from "../lib/constants";
 
 client.on("channelCreate", async (channel: GuildChannel) => {
-	const logsActive: boolean = await getValueFromDB("server", "logsActive");
+	const logsActive = await getValueFromDB<boolean>("server", "logsActive");
 
 	if (!logsActive
 		|| channel.type === "dm"

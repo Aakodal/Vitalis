@@ -21,7 +21,7 @@ export async function getMuteRole(server: Guild) {
 
 	const muteRole = server.roles.get(await getValueFromDB("server", "muteRoleID"));
 	server.channels.forEach((channel) => {
-		if (!channel.permissionsFor(muteRole)) {
+		if (!channel.permissionOverwrites.get(muteRole.id)) {
 			channel.overwritePermissions(muteRole, {
 				ADD_REACTIONS: false,
 				ATTACH_FILES: false,

@@ -2,7 +2,7 @@ import { Message, PermissionString } from "discord.js";
 import { Client } from "./Client";
 
 
-class Command {
+abstract class Command {
 	name: string;
 
 	description: string;
@@ -15,7 +15,7 @@ class Command {
 
 	permission: PermissionString | string;
 
-	constructor(options) {
+	protected constructor(options) {
 		this.name = options.name || null;
 		this.description = options.description || "No description set.";
 		this.usage = options.usage || this.name;
@@ -29,9 +29,7 @@ class Command {
 		this.category = category;
 	}
 
-	run(message: Message, args: string[], client: Client) {
-		throw new Error(`No code set for command ${this.name}`);
-	}
+	abstract run(message: Message, args: string[], client: Client);
 }
 
 export { Command };

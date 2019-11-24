@@ -1,4 +1,6 @@
-import { Client as DiscordClient, Collection } from "discord.js";
+import {
+	ActivityType, Client as DiscordClient, Collection, PresenceStatus,
+} from "discord.js";
 import { Command } from "./Command";
 import { getValueFromDB } from "../functions/getValueFromDB";
 import { replaceDBVars } from "../functions/replaceDBVars";
@@ -66,10 +68,10 @@ class Client extends DiscordClient {
 	}
 
 	async updatePresence() {
-		const status = await getValueFromDB("server", "status");
-		const gameActive = await getValueFromDB("server", "gameActive");
-		const gameType = await getValueFromDB("server", "gameType");
-		const gameName = await getValueFromDB("server", "gameName");
+		const status = await getValueFromDB<PresenceStatus>("server", "status");
+		const gameActive = await getValueFromDB<boolean>("server", "gameActive");
+		const gameType = await getValueFromDB<ActivityType>("server", "gameType");
+		const gameName = await getValueFromDB<string>("server", "gameName");
 
 		const gameFinalName = await replaceDBVars(gameName);
 

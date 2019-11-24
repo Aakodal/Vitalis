@@ -1,7 +1,7 @@
 import { RichEmbed } from "discord.js";
 import { client } from "../main";
 import { COLORS } from "../lib/constants";
-import { MessageChannel } from "../typings/types";
+import { MessageChannel } from "../typings";
 
 export function sendError(text = "", channel: MessageChannel) {
 	const embed = new RichEmbed()

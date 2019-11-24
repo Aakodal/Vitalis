@@ -18,7 +18,7 @@ export default class Help extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		const prefix = await getValueFromDB("server", "prefix");
+		const prefix = await getValueFromDB<string>("server", "prefix");
 
 		let embed = new RichEmbed()
 			.setColor(COLORS.light_green)
@@ -74,7 +74,7 @@ export default class Help extends Command {
 
 			embed.setTitle(`${commands[0].category} category`);
 
-			const getCommand = (index: number): Command => client.commands.get(commands[index].name);
+			const getCommand = (index: number) => client.commands.get(commands[index].name);
 
 			embed.addField(`**${prefix}${commands[0].name}**`, getCommand(0).description);
 
@@ -105,8 +105,7 @@ export default class Help extends Command {
 				? stockEmbeds.length - 1
 				: page;
 
-			const botMessage = await message.channel.send(stockEmbeds[currentPage]);
-			const embedMessage = fromArrayToLone(botMessage);
+			const embedMessage = fromArrayToLone<Message>(await message.channel.send(stockEmbeds[currentPage]));
 			await updateReactions(embedMessage, currentPage);
 
 			client.on("messageReactionAdd", async (reaction, user) => {
@@ -131,7 +130,7 @@ export default class Help extends Command {
 		} else { // Precise help
 			if (!client.commands.has(args[0])) return sendError(`Command ${args[0]} not found.`, message.channel);
 
-			const command: Command = client.commands.get(args[0].toLowerCase());
+			const command = client.commands.get(args[0].toLowerCase());
 
 			const embed = new RichEmbed()
 				.setAuthor("Help - Command informations")

@@ -15,7 +15,7 @@ export default class Ping extends Command {
 		const messageCreatedAt = message.createdTimestamp;
 		const botMessage: Message | Message[] = await message.channel.send("Ping?");
 
-		const reply: Message = fromArrayToLone(botMessage);
+		const reply = fromArrayToLone<Message>(botMessage);
 
 		const replyCreatedAt = reply.createdTimestamp;
 		const ping = Number((replyCreatedAt - messageCreatedAt).toFixed(2));

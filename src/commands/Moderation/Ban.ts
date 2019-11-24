@@ -46,9 +46,9 @@ export default class Ban extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
 
-		await member.ban({ days: 7, reason: reasonText });
-
 		await message.channel.send(banEmbed);
+
+		await member.ban({ days: 7, reason: reasonText });
 
 		await log("modlog", banEmbed);
 
