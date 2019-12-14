@@ -1,6 +1,6 @@
 import * as fsModule from "fs";
-import * as dateFns from "date-fns";
 import { PermissionString } from "discord.js";
+import * as dateFns from "date-fns";
 import * as config from "./config.json";
 import { Client } from "./classes/Client";
 import { databaseCheck, db } from "./lib/database";
@@ -51,7 +51,7 @@ client.on("ready", async () => {
 client.on("message", async (message) => {
 	const prefix = await getValueFromDB<string>("server", "prefix");
 
-	if(!message.content.startsWith(prefix)
+	if (!message.content.startsWith(prefix)
         || message.author.bot
         || !message.guild) return;
 

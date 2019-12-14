@@ -106,6 +106,7 @@
 					"delimiter": "comma"
 				}
 			}
-		]
+		],
+	  	"@typescript-eslint/no-useless-constructor": "off"
 	}
 }
