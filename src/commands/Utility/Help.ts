@@ -6,7 +6,6 @@ import { COLORS } from "../../lib/constants";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 import { sendError } from "../../functions/sendError";
 import { react } from "../../functions/react";
-import { fromArrayToLone } from "../../functions/fromArrayToLone";
 
 export default class Help extends Command {
 	constructor() {
@@ -105,7 +104,7 @@ export default class Help extends Command {
 				? stockEmbeds.length - 1
 				: page;
 
-			const embedMessage = fromArrayToLone<Message>(await message.channel.send(stockEmbeds[currentPage]));
+			const embedMessage = await message.channel.send(stockEmbeds[currentPage]) as Message;
 			await updateReactions(embedMessage, currentPage);
 
 			client.on("messageReactionAdd", async (reaction, user) => {

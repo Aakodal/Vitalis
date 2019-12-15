@@ -1,4 +1,4 @@
-import * as fsModule from "fs";
+import { promises as fs } from "fs";
 import { PermissionString } from "discord.js";
 import * as dateFns from "date-fns";
 import * as config from "./config.json";
@@ -11,8 +11,6 @@ import { getMuteRole } from "./functions/getMuteRole";
 
 const client = new Client();
 export { client };
-
-const fs = fsModule.promises;
 
 client.login(config.token);
 

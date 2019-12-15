@@ -21,7 +21,11 @@ export default class Kick extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.usage}`, message.channel);
 
-		const member = message.mentions.members.first();
+		const id = args[0].slice(3, args[0].length - 1);
+		const member = message.mentions.members.get(id);
+
+		if (!member) return sendError("Member not found.", message.channel);
+
 		const reason = args.slice(1).join(" ");
 
 		canSanction(member, message.member, message.channel, "kick");
@@ -34,7 +38,7 @@ export default class Kick extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
 
-		message.channel.send(kickEmbed);
+		await message.channel.send(kickEmbed);
 
 		await log("modlog", kickEmbed);
 

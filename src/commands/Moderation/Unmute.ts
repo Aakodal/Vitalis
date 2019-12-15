@@ -22,7 +22,10 @@ export default class Unmute extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.usage}`, message.channel);
 
-		const member = message.mentions.members.first();
+		const id = args[0].slice(3, args[0].length - 1);
+		const member = message.mentions.members.get(id);
+
+		if (!member) return sendError("Member not found.", message.channel);
 
 		const muteRole = await getMuteRole(message.guild);
 

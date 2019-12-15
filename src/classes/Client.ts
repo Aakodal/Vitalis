@@ -60,8 +60,7 @@ class Client extends DiscordClient {
 			this.commands.delete(commandName);
 			delete require.cache[require.resolve(`../commands/${command.category}/${commandName}`)];
 
-			this.loadCommand(command.category, commandName);
-			return `Command ${commandName} reloaded.`;
+			return this.loadCommand(command.category, commandName);
 		} catch (error) {
 			throw new Error(`Could not reload command ${commandName} ; ${error}`);
 		}

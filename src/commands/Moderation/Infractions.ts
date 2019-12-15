@@ -21,7 +21,8 @@ export default class Infractions extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.usage}`, message.channel);
 
-		const member = message.mentions.members.first();
+		const id = args[0].slice(3, args[0].length - 1);
+		const member = message.mentions.members.get(id);
 
 		if (!member) return sendError("Please mention the member. Note that they must be on the server.", message.channel);
 

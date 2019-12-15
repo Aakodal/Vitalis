@@ -2,7 +2,6 @@ import { Message, RichEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
-import { fromArrayToLone } from "../../functions/fromArrayToLone";
 import { react } from "../../functions/react";
 
 export default class EmbedBuilder extends Command {
@@ -87,9 +86,9 @@ export default class EmbedBuilder extends Command {
 							color = "";
 							embedBuilder.setColor("");
 						} else {
-							const response = fromArrayToLone<Message>(await botMessage.channel.send(
+							const response = await botMessage.channel.send(
 								`${reply.author} : please insert a hex literal value (\`0x000000\` to \`0xFFFFFF\`)`,
-							));
+							) as Message;
 							await response.delete(5 * 1000);
 						}
 						await botMessage.edit(currentEmbed
@@ -131,7 +130,7 @@ export default class EmbedBuilder extends Command {
 			}, 30 * 1000);
 		}
 
-		const botMessage = fromArrayToLone<Message>(await message.channel.send(embedBuilder));
+		const botMessage = await message.channel.send(embedBuilder) as Message;
 		await react("👤👁📲🔵📌📝📑📷🖼📅✅", botMessage);
 
 		client.on("messageReactionAdd", (reaction, user) => {

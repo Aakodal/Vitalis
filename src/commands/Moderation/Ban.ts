@@ -24,7 +24,10 @@ export default class Ban extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.usage}`, message.channel);
 
-		const member = message.mentions.members.first();
+		const id = args[0].slice(3, args[0].length - 1);
+		const member = message.mentions.members.get(id);
+
+		if (!member) return sendError("Member not found.", message.channel);
 
 		if (!canSanction(member, message.member, message.channel, "ban")) return;
 
@@ -48,11 +51,11 @@ export default class Ban extends Command {
 
 		await message.channel.send(banEmbed);
 
+		await member.user.send(banEmbed.setDescription(DMDescription));
+
 		await member.ban({ days: 7, reason: reasonText });
 
 		await log("modlog", banEmbed);
-
-		await member.user.send(banEmbed.setDescription(DMDescription));
 
 		const memberID = member.user.id;
 

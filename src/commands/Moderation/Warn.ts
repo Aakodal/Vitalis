@@ -21,7 +21,11 @@ export default class Warn extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.usage}`, message.channel);
 
-		const member = message.mentions.members.first();
+		const id = args[0].slice(3, args[0].length - 1);
+		const member = message.mentions.members.get(id);
+
+		if (!member) return sendError("Member not found.", message.channel);
+
 		const reason = args.slice(1).join(" ");
 
 		if (member.user.bot) return sendError("You can't warn a bot.", message.channel);
@@ -36,11 +40,11 @@ export default class Warn extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
 
-		message.channel.send(warnEmbed);
+		await message.channel.send(warnEmbed);
 
 		await log("modlog", warnEmbed);
 
-		member.user.send(warnEmbed.setDescription(`You have been warned for the following reasion:\n\n${reason}`));
+		await member.user.send(warnEmbed.setDescription(`You have been warned for the following reasion:\n\n${reason}`));
 
 		const memberID = member.user.id;
 

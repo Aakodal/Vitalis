@@ -1,4 +1,9 @@
 import * as knex from "knex";
+import { promises as fs } from "fs";
+
+fs.stat("../db.db").then((stat) => {
+	if (!stat) fs.writeFile("../db.db", "");
+}).catch(() => {});
 
 const db = knex({
 	client: "sqlite3",

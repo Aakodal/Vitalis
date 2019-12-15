@@ -7,17 +7,8 @@ export function sendEmbed({
 }) {
 	const embedColor = COLORS[color];
 
-	let avatarembed: string;
-	if (avatar === "client") {
-		avatarembed = client.user.avatarURL;
-	} else if (avatar === "server") {
-		avatarembed = channel.guild.iconURL;
-	} else {
-		avatarembed = avatar;
-	}
-
 	const embed = new RichEmbed()
-		.setAuthor(author, avatarembed)
+		.setAuthor(author, avatar)
 		.setTitle(title)
 		.setColor(embedColor)
 		.setDescription(text)
