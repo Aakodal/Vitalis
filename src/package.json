@@ -1,7 +1,7 @@
 {
   "name": "vitalis",
   "version": "2.2.5",
-  "description": "Multi-purposes Discord bot made by Neshell.",
+  "description": "Multi-purposes Discord bot made by Aakodal.",
   "keywords": [
     "vitalis",
     "discord",
@@ -12,13 +12,13 @@
   "author": "Neshell",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NeshellDev/Vitalis.git"
+    "url": "git+https://github.com/Aakodal/Vitalis.git"
   },
   "scripts": {
     "start": "node main.js"
   },
   "bugs": {
-    "url": "https://github.com/NeshellDev/Vitalis/issues"
+    "url": "https://github.com/Aakodal/Vitalis/issues"
   },
   "dependencies": {
     "@types/node": "^12.12.5",
