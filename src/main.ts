@@ -1,35 +1,17 @@
-import { promises as fs } from "fs";
 import { PermissionString } from "discord.js";
 import * as dateFns from "date-fns";
 import * as config from "./config.json";
 import { Client } from "./classes/Client";
-import { databaseCheck, db } from "./lib/database";
+import { db } from "./lib/database";
 import { getValueFromDB } from "./functions/getValueFromDB";
 import { sendError } from "./functions/sendError";
 import { unsanction } from "./functions/unsanction";
 import { getMuteRole } from "./functions/getMuteRole";
 
 const client = new Client();
-export { client };
 
 client.login(config.token);
-
-databaseCheck();
-
-fs.readdir("./commands/").then((folders) => {
-	folders.forEach(async (folder: string) => {
-		const folderFiles = await fs.readdir(`./commands/${folder}/`);
-		for (const file of folderFiles) {
-			await client.loadCommand(folder, file);
-		}
-	});
-});
-
-fs.readdir("./events/").then((files) => {
-	files.forEach((file: string) => {
-		import(`./events/${file}`);
-	});
-});
+client.init();
 
 client.on("ready", async () => {
 	await client.updatePresence();
@@ -76,3 +58,5 @@ client.on("message", async (message) => {
 		return sendError(error, message.channel);
 	}
 });
+
+export { client };

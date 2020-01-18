@@ -1,24 +1,43 @@
 import {
-	ActivityType, Client as DiscordClient, Collection, PresenceStatus,
+	ActivityType, Client as DiscordClient, PresenceStatus,
 } from "discord.js";
+import { promises as fs } from "fs";
 import { Command } from "./Command";
 import { getValueFromDB } from "../functions/getValueFromDB";
 import { replaceDBVars } from "../functions/replaceDBVars";
 import { stringNormalize } from "../functions/stringNormalize";
+import { databaseCheck } from "../lib/database";
 
 class Client extends DiscordClient {
-	commands: Collection<string, Command>;
+	commands: Map<string, Command>;
 
-	aliases: Collection<string, Command>;
+	aliases: Map<string, Command>;
 
 	constructor() {
 		super();
 
-		this.commands = new Collection();
-		this.aliases = new Collection();
+		this.commands = new Map();
+		this.aliases = new Map();
 	}
 
-	async loadCommand(folderName: string, commandName: string) {
+	async init() {
+		await databaseCheck();
+
+		const commandsFolders: string[] = await fs.readdir("../commands/");
+		for (const folder of commandsFolders) {
+			const commandsFiles: string[] = await fs.readdir(`../commands/${folder}/`);
+			for (const file of commandsFiles) {
+				await this.loadCommand(folder, file);
+			}
+		}
+
+		const eventsFiles = await fs.readdir("../events/");
+		for (const file of eventsFiles) {
+			import(`../events/${file}`);
+		}
+	}
+
+	private async loadCommand(folderName: string, commandName: string) {
 		try {
 			const { default: CommandClass } = await import(`../commands/${folderName}/${commandName}`);
 			const command: Command = new CommandClass();
