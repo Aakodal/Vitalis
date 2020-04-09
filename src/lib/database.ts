@@ -1,15 +1,13 @@
 import * as knex from "knex";
-import { promises as fs } from "fs";
+import * as path from "path";
 import { getValueFromDB } from "../functions/getValueFromDB";
 
-fs.stat("../db.db").then((stat) => {
-	if (!stat) fs.writeFile("../db.db", "");
-}).catch(() => {});
+const dbPath = path.join(__dirname, "../db.db");
 
 const db = knex({
 	client: "sqlite3",
 	connection: {
-		filename: "./db.db",
+		filename: dbPath,
 	},
 	useNullAsDefault: true,
 });
