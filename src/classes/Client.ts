@@ -42,21 +42,23 @@ class Client extends DiscordClient {
 		}
 	}
 
-	private async loadCommand(folderName: string, commandName: string) {
+	private async loadCommand(folderName: string, commandFile: string) {
 		try {
-			const { default: CommandClass } = await import(`../commands/${folderName}/${commandName}`);
+			const commandPath = path.join(__dirname, `../commands/${folderName}/${commandFile}`);
+			const { default: CommandClass } = await import(commandPath);
 			const command: Command = new CommandClass();
 
-			if (!command.informations.name) return console.log(`Command in ${commandName} does not have any name. Skipping...`);
+			if (!command.informations.name) return console.log(`Command in ${commandFile} does not have any name. Skipping...`);
 
 			if (this.commands.has(command.informations.name)) {
-				return console.info(`Command ${command.informations.name} in ${commandName} already exists. Skipping...`);
+				return console.info(`Command ${command.informations.name} in ${commandFile} already exists. Skipping...`);
 			}
 
 			this.commands.set(command.informations.name, command);
 
 			const category = stringNormalize(folderName);
 			command.setCategory(category);
+			command.setCommandFile(commandFile);
 
 			console.info(`Command ${command.informations.name} loaded.`);
 
@@ -70,7 +72,7 @@ class Client extends DiscordClient {
 				this.aliases.set(alias, command);
 			}
 		} catch (error) {
-			return console.error(`Error when trying to load command ${commandName} ; ${error}`);
+			return console.error(`Error when trying to load command ${commandFile} ; ${error}`);
 		}
 	}
 
@@ -85,7 +87,8 @@ class Client extends DiscordClient {
 			}
 
 			this.commands.delete(commandName);
-			delete require.cache[require.resolve(`../commands/${command.informations.category}/${commandName}`)];
+			const commandPath = path.join(__dirname, `../commands/${command.informations.category}/${command.informations.commandFile}`);
+			delete require.cache[require.resolve(commandPath)];
 
 			return this.loadCommand(command.informations.category, commandName);
 		} catch (error) {

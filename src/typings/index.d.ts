@@ -23,4 +23,5 @@ type CommandInformations = {
 	aliases?: string[],
 	permission?: CommandPermission,
 	category?: string,
+	commandFile?: string,
 };

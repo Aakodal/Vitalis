@@ -14,6 +14,10 @@ abstract class Command {
 		this.informations.category = category;
 	}
 
+	setCommandFile(file: string) {
+		this.informations.commandFile = file;
+	}
+
 	abstract run(message: Message, args: string[], client: Client);
 }
 
