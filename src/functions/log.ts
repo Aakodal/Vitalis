@@ -1,14 +1,14 @@
-import { RichEmbed, TextChannel } from "discord.js";
+import { MessageEmbed, TextChannel } from "discord.js";
 import { client } from "../main";
 import { getValueFromDB } from "./getValueFromDB";
 
-async function log(type: "log" | "modlog", embed: RichEmbed) {
+async function log(type: "log" | "modlog", embed: MessageEmbed) {
 	const channelId = await getValueFromDB<string>("server", `${type}sChannel`);
 	const isActive = await getValueFromDB<boolean>("server", `${type}sActive`);
 	if (!channelId
 		|| !isActive) return;
 
-	const channel = client.channels.get(channelId) as TextChannel;
+	const channel = client.channels.cache.get(channelId) as TextChannel;
 	if (!channel) return;
 
 	try {

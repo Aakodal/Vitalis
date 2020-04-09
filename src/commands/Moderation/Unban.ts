@@ -1,4 +1,4 @@
-import { Message, RichEmbed, Snowflake } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
@@ -6,41 +6,51 @@ import { log } from "../../functions/log";
 import { sendError } from "../../functions/sendError";
 import { unsanction } from "../../functions/unsanction";
 import { canSanction } from "../../functions/canSanction";
+import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 
 export default class Unban extends Command {
 	constructor() {
 		super({
 			name: "unban",
 			description: "Unban a member by its ID",
-			usage: "mute <member ID>",
+			usage: "unban <user ID | user mention>",
 			aliases: ["deban"],
-			permission: "MUTE_MEMBERS",
+			permission: "BAN_MEMBERS",
 		});
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.usage}`, message.channel);
+		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
 
-		const member: Snowflake = args[0];
+		const userSnowflake = getUserSnowflakeFromString(args[0]);
+		const user = await client.users.fetch(userSnowflake);
 
-		if (!canSanction(member, message.member, message.channel, "unmute")) return;
+		if (!user) return sendError("User not found.", message.channel);
 
-		const banned = await message.guild.fetchBans(false);
+		if (user.partial) await user.fetch();
 
-		if (!banned.get(member)) return sendError("This member is not banned.", message.channel);
+		if (!await canSanction(user, message.member, message.channel, "unban")) return;
 
-		const unbanEmbed = new RichEmbed()
-			.setAuthor("Moderation", message.guild.iconURL)
+		const banned = await message.guild.fetchBans();
+
+		if (!banned.get(user.id)) return sendError("This user is not banned.", message.channel);
+
+		const unbanEmbed = new MessageEmbed()
+			.setAuthor("Moderation", message.guild.iconURL())
 			.setColor(COLORS.light_green)
 			.setTitle("Unban")
-			.setDescription(`${member} has been unbanned`)
+			.setDescription(`${user} has been unbanned`)
 			.setTimestamp()
-			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
+
+		try {
+			await unsanction(user.id, message.guild, "banned", true);
+		} catch (error) {
+			return sendError(`For some reason, this user couldn't have been unbanned;\n\n${error}`, message.channel);
+		}
 
 		await message.channel.send(unbanEmbed);
 
 		await log("modlog", unbanEmbed);
-
-		await unsanction(member, message.guild, "banned", true);
 	}
 }

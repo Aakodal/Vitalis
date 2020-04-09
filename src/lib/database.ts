@@ -1,5 +1,6 @@
 import * as knex from "knex";
 import { promises as fs } from "fs";
+import { getValueFromDB } from "../functions/getValueFromDB";
 
 fs.stat("../db.db").then((stat) => {
 	if (!stat) fs.writeFile("../db.db", "");
@@ -58,7 +59,7 @@ async function databaseCheck() {
 					table.increments("id").primary();
 					table.string("prefix");
 					// activity
-					table.enum("status", ["online", "idle", "offline", "dnd"]);
+					table.enum("status", ["online", "idle", "invisible", "dnd"]);
 					table.boolean("gameActive");
 					table.enum("gameType", ["PLAYING", "LISTENING", "WATCHING", "STREAMING"]);
 					table.string("gameName");
@@ -98,11 +99,16 @@ async function databaseCheck() {
 					leavingMessageActive: false,
 					leavingMessageText: "{USER} left the server :'c",
 				}).into("server");
-				console.log("Server table created successfully.");
+				return console.log("Server table created successfully.");
 			} catch (error) {
-				console.error(error);
+				return console.error(error);
 			}
 		}
+		const actualPrefix = await getValueFromDB<string>("server", "prefix");
+		if (actualPrefix) return;
+		await db.insert({
+			prefix: "!",
+		}).into("server");
 	});
 }
 

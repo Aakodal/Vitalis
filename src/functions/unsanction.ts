@@ -1,4 +1,4 @@
-import { Guild, RichEmbed, Snowflake } from "discord.js";
+import { Guild, MessageEmbed, Snowflake } from "discord.js";
 import { db } from "../lib/database";
 import { COLORS } from "../lib/constants";
 import { log } from "./log";
@@ -22,26 +22,28 @@ export async function unsanction(id: Snowflake, server: Guild, sanction: string,
 		}, expiration - now);
 	}
 
-	const embed = new RichEmbed()
-		.setAuthor("Moderation", server.iconURL)
+	const embed = new MessageEmbed()
+		.setAuthor("Moderation", server.iconURL())
 		.setColor(COLORS.light_green)
 		.setDescription(`You have been unmuted from ${server.name}`)
 		.setTimestamp();
 
-	const autoEmbed = new RichEmbed()
-		.setAuthor("Moderation", server.iconURL)
+	const autoEmbed = new MessageEmbed()
+		.setAuthor("Moderation", server.iconURL())
 		.setColor(COLORS.gold)
 		.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout)`)
 		.setTimestamp();
 
 	if (sanction === "muted") {
-		const member = server.members.get(id);
+		const member = server.members.cache.get(id);
 		const muteRole = await getMuteRole(server);
 
 		if (!member
 			|| !muteRole) return;
 
-		if (member.roles.get(muteRole.id)) await member.removeRole(muteRole);
+		if (member.partial) await member.fetch();
+
+		if (member.roles.cache.get(muteRole.id)) await member.roles.remove(muteRole);
 		await db.update({
 			actual_sanction: null,
 			created: null,
@@ -55,10 +57,10 @@ export async function unsanction(id: Snowflake, server: Guild, sanction: string,
 		return;
 	}
 	// else
-	const bans = await server.fetchBans(false);
+	const bans = await server.fetchBans();
 	if (!bans.get(id)) return;
 
-	await server.unban(id, "[AUTO] Sanction finished.");
+	await server.members.unban(id, "[AUTO] Sanction finished.");
 	await db.update({
 		actual_sanction: null,
 		created: null,

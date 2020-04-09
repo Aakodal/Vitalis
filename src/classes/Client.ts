@@ -1,7 +1,8 @@
 import {
-	ActivityType, Client as DiscordClient, PresenceStatus,
+	ActivityType, Client as DiscordClient, ClientOptions, PresenceData, PresenceStatusData,
 } from "discord.js";
 import { promises as fs } from "fs";
+import * as path from "path";
 import { Command } from "./Command";
 import { getValueFromDB } from "../functions/getValueFromDB";
 import { replaceDBVars } from "../functions/replaceDBVars";
@@ -13,8 +14,8 @@ class Client extends DiscordClient {
 
 	aliases: Map<string, Command>;
 
-	constructor() {
-		super();
+	constructor(options?: ClientOptions) {
+		super(options);
 
 		this.commands = new Map();
 		this.aliases = new Map();
@@ -23,17 +24,21 @@ class Client extends DiscordClient {
 	async init() {
 		await databaseCheck();
 
-		const commandsFolders: string[] = await fs.readdir("../commands/");
+		const commandsPath = path.join(__dirname, "../commands/");
+		const commandsFolders: string[] = await fs.readdir(commandsPath);
 		for (const folder of commandsFolders) {
-			const commandsFiles: string[] = await fs.readdir(`../commands/${folder}/`);
+			const folderPath = path.join(commandsPath, folder);
+			const commandsFiles: string[] = await fs.readdir(folderPath);
 			for (const file of commandsFiles) {
 				await this.loadCommand(folder, file);
 			}
 		}
 
-		const eventsFiles = await fs.readdir("../events/");
+		const eventsPath = path.join(__dirname, "../events/");
+		const eventsFiles = await fs.readdir(eventsPath);
 		for (const file of eventsFiles) {
-			import(`../events/${file}`);
+			const eventPath = path.join(eventsPath, file);
+			import(eventPath);
 		}
 	}
 
@@ -42,25 +47,28 @@ class Client extends DiscordClient {
 			const { default: CommandClass } = await import(`../commands/${folderName}/${commandName}`);
 			const command: Command = new CommandClass();
 
-			if (!command.name) return console.log(`Command in ${commandName} does not have any name. Skipping...`);
+			if (!command.informations.name) return console.log(`Command in ${commandName} does not have any name. Skipping...`);
 
-			if (this.commands.has(command.name)) {
-				return console.info(`Command ${command.name} in ${commandName} already exists. Skipping...`);
+			if (this.commands.has(command.informations.name)) {
+				return console.info(`Command ${command.informations.name} in ${commandName} already exists. Skipping...`);
 			}
 
-			this.commands.set(command.name, command);
+			this.commands.set(command.informations.name, command);
 
 			const category = stringNormalize(folderName);
 			command.setCategory(category);
 
-			console.log(`Command ${command.name} loaded.`);
+			console.info(`Command ${command.informations.name} loaded.`);
 
-			command.aliases.forEach((alias: string) => {
+			if (!command.informations.aliases) return;
+
+			for (const alias of command.informations.aliases) {
 				if (this.aliases.has(alias)) {
-					return console.info(`Alias ${alias} already exist for command ${this.aliases.get(alias).name}.`);
+					console.warn(`Alias ${alias} already exist for command ${this.aliases.get(alias).informations.name}.`);
+					continue;
 				}
 				this.aliases.set(alias, command);
-			});
+			}
 		} catch (error) {
 			return console.error(`Error when trying to load command ${commandName} ; ${error}`);
 		}
@@ -72,37 +80,36 @@ class Client extends DiscordClient {
 
 			if (!command) return console.error(`${commandName} does not exist.`);
 
-			this.aliases.forEach((value, key) => {
+			for (const [key, value] of this.aliases) {
 				if (value === command) this.aliases.delete(key);
-			});
+			}
 
 			this.commands.delete(commandName);
-			delete require.cache[require.resolve(`../commands/${command.category}/${commandName}`)];
+			delete require.cache[require.resolve(`../commands/${command.informations.category}/${commandName}`)];
 
-			return this.loadCommand(command.category, commandName);
+			return this.loadCommand(command.informations.category, commandName);
 		} catch (error) {
 			throw new Error(`Could not reload command ${commandName} ; ${error}`);
 		}
 	}
 
 	async updatePresence() {
-		const status = await getValueFromDB<PresenceStatus>("server", "status");
+		const status = await getValueFromDB<PresenceStatusData>("server", "status");
 		const gameActive = await getValueFromDB<boolean>("server", "gameActive");
 		const gameType = await getValueFromDB<ActivityType>("server", "gameType");
 		const gameName = await getValueFromDB<string>("server", "gameName");
 
 		const gameFinalName = await replaceDBVars(gameName);
 
-		const presence = {
-			status: status || "online",
-			game: {
+		const presence: PresenceData = {
+			activity: {
 				name: gameFinalName,
 				type: gameType,
 			},
 		};
 
-		if (gameActive) return this.user.setPresence(presence);
-		await this.user.setPresence({ status: presence.status });
+		if (gameActive) await this.user.setPresence(presence);
+		await this.user.setStatus(status || "online");
 	}
 }
 

@@ -15,7 +15,7 @@ export default class Reload extends Command {
 	}
 
 	run(message: Message, args: string[], client: Client) {
-		if (!args[0]) return sendError(`Missing argument. Usage: \`${this.usage}\``, message.channel);
+		if (!args[0]) return sendError(`Missing argument. Usage: \`${this.informations.usage}\``, message.channel);
 		if (!client.commands.has(args[0].toLowerCase())) return sendError(`Command \`${args[0]}\` not found.`, message.channel);
 
 		try {

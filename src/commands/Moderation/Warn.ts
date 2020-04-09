@@ -1,4 +1,4 @@
-import { Message, RichEmbed } from "discord.js";
+import { Message, MessageEmbed, GuildMember } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
@@ -7,38 +7,41 @@ import { log } from "../../functions/log";
 import { verifUserInDB } from "../../functions/verifUserInDB";
 import { sendError } from "../../functions/sendError";
 import { canSanction } from "../../functions/canSanction";
+import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 
 export default class Warn extends Command {
 	constructor() {
 		super({
 			name: "warn",
 			description: "Warn a member with a specified reason",
-			usage: "warn <member mention> <reason>",
+			usage: "warn <member ID | member mention> <reason>",
 			permission: "KICK_MEMBERS",
 		});
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.usage}`, message.channel);
+		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
 
-		const id = args[0].slice(3, args[0].length - 1);
-		const member = message.mentions.members.get(id);
+		const memberSnowflake = getUserSnowflakeFromString(args[0]);
+		const member = await message.guild.members.fetch(memberSnowflake) as GuildMember;
 
 		if (!member) return sendError("Member not found.", message.channel);
+
+		if (member.partial) await member.fetch();
 
 		const reason = args.slice(1).join(" ");
 
 		if (member.user.bot) return sendError("You can't warn a bot.", message.channel);
 
-		if (!canSanction(member, message.member, message.channel, "warn")) return;
+		if (!await canSanction(member, message.member, message.channel, "warn")) return;
 
-		const warnEmbed = new RichEmbed()
-			.setAuthor("Moderation", message.guild.iconURL)
+		const warnEmbed = new MessageEmbed()
+			.setAuthor("Moderation", message.guild.iconURL())
 			.setColor(COLORS.light_green)
 			.setTitle("Warning")
 			.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`)
 			.setTimestamp()
-			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL);
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
 		await message.channel.send(warnEmbed);
 

@@ -1,32 +1,17 @@
-import { Message, PermissionString } from "discord.js";
+import { Message } from "discord.js";
+import { CommandInformations } from "../typings";
 import { Client } from "./Client";
 
 
 abstract class Command {
-	name: string;
+	informations: CommandInformations;
 
-	description: string;
-
-	usage: string;
-
-	aliases: string[];
-
-	category: string;
-
-	permission: PermissionString | string;
-
-	protected constructor(options) {
-		this.name = options.name || null;
-		this.description = options.description || "No description set.";
-		this.usage = options.usage || this.name;
-		this.aliases = options.aliases || [];
-		this.permission = options.permission || null;
-
-		this.category = "Undefined";
+	protected constructor(informations: CommandInformations) {
+		this.informations = informations;
 	}
 
 	setCategory(category: string) {
-		this.category = category;
+		this.informations.category = category;
 	}
 
 	abstract run(message: Message, args: string[], client: Client);

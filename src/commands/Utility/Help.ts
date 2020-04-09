@@ -1,4 +1,6 @@
-import { Message, PermissionString, RichEmbed } from "discord.js";
+import {
+	Message, PermissionString, MessageEmbed, MessageReaction, User, CollectorFilter,
+} from "discord.js";
 import { Command } from "../../classes/Command";
 import * as config from "../../config.json";
 import { Client } from "../../classes/Client";
@@ -19,22 +21,24 @@ export default class Help extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		const prefix = await getValueFromDB<string>("server", "prefix");
 
-		let embed = new RichEmbed()
+		let embed = new MessageEmbed()
 			.setColor(COLORS.light_green)
-			.setThumbnail(client.user.avatarURL)
-			.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL);
+			.setThumbnail(client.user.avatarURL())
+			.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL());
 
 		const stockEmbeds = [];
 		const updateReactions = async (message, page) => {
-			if (stockEmbeds.length > 1) {
-				if (page === 0) {
-					await react("➡⏭", message);
-				} else if (page === stockEmbeds.length - 1) {
-					await react("⏮⬅", message);
-				} else {
-					await react("⏮⬅➡⏭", message);
-				}
+			if (stockEmbeds.length <= 0) return;
+
+			if (page === 0) {
+				await react("➡⏭", message);
+			} else if (page === stockEmbeds.length - 1) {
+				await react("⏮⬅", message);
+			} else {
+				await react("⏮⬅➡⏭", message);
 			}
+
+			await react("❌", message);
 		};
 
 		const pageNumber = Number(args[0]);
@@ -42,21 +46,25 @@ export default class Help extends Command {
 		if (!args[0] || !Number.isNaN(pageNumber)) { // Global help
 			const commands = [];
 
-			client.commands.forEach((command: Command) => {
+			for (const [, command] of client.commands) {
 				const commandData = {
-					category: command.category,
-					name: command.name,
+					category: command.informations.category,
+					name: command.informations.name,
 				};
-				if (command.permission === "BOT_OWNER") {
+
+				if (command.informations.permission === "BOT_OWNER") {
 					if (message.author.id === config.botOwner) commands.push(commandData);
-					return;
+					continue;
 				}
-				if (command.permission) {
-					if (message.member.hasPermission(command.permission as PermissionString)) commands.push(commandData);
-					return;
+
+				if (command.informations.permission) {
+					const permission = command.informations.permission as PermissionString;
+					if (message.member.hasPermission(permission)) commands.push(commandData);
+					continue;
 				}
+
 				commands.push(commandData);
-			});
+			}
 
 			if (!commands[0]) {
 				embed.setTitle("No command found.");
@@ -73,28 +81,28 @@ export default class Help extends Command {
 
 			embed.setTitle(`${commands[0].category} category`);
 
-			const getCommand = (index: number) => client.commands.get(commands[index].name);
+			const getCommandByIndex = (index: number) => client.commands.get(commands[index].name);
 
-			embed.addField(`**${prefix}${commands[0].name}**`, getCommand(0).description);
+			embed.addField(`**${prefix}${commands[0].name}**`, getCommandByIndex(0).informations.description);
 
 			for (let i = 1; i < commands.length; i++) {
 				if (commands[i].category.toUpperCase() !== commands[i - 1].category.toUpperCase()) {
 					stockEmbeds.push(embed);
-					embed = new RichEmbed()
+					embed = new MessageEmbed()
 						.setColor(COLORS.light_green)
-						.setThumbnail(client.user.avatarURL)
-						.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL);
+						.setThumbnail(client.user.avatarURL())
+						.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL());
 
 					embed.setTitle(`${commands[i].category} category`);
 				}
 
-				embed.addField(`**${prefix}${commands[i].name}**`, getCommand(i).description);
+				embed.addField(`**${prefix}${commands[i].name}**`, getCommandByIndex(i).informations.description);
 			}
 			stockEmbeds.push(embed);
 
-			stockEmbeds.forEach((page: RichEmbed, index) => {
+			for (const [index, page] of stockEmbeds.entries()) {
 				page.setAuthor(`Commands available - Page ${index + 1} on ${stockEmbeds.length}`);
-			});
+			}
 
 			const page = pageNumber > 0
 				? pageNumber - 1
@@ -107,52 +115,65 @@ export default class Help extends Command {
 			const embedMessage = await message.channel.send(stockEmbeds[currentPage]) as Message;
 			await updateReactions(embedMessage, currentPage);
 
-			client.on("messageReactionAdd", async (reaction, user) => {
+			const reactionHandler = async (reaction: MessageReaction, user: User) => {
+				if (reaction.message.partial) await reaction.message.fetch();
+				if (reaction.partial) await reaction.fetch();
+				if (user.partial) await user.fetch();
+
 				if (reaction.message.id !== embedMessage.id
-                    || user !== message.author
-                    || user.bot
-                    || "⏮⬅➡⏭".indexOf(reaction.emoji.name) < 0) return;
+					|| user !== message.author
+					|| user.bot
+					|| "⏮⬅➡⏭❌".indexOf(reaction.emoji.name) < 0) return;
 
 				const reactions = {
 					"⏮": () => currentPage = 0,
 					"⬅": () => currentPage--,
 					"➡": () => currentPage++,
 					"⏭": () => currentPage = stockEmbeds.length - 1,
+					"❌": () => {
+						client.removeListener("messageReactionAdd", reactionHandler);
+						embedMessage.delete();
+					},
 				};
 				if (!reactions[reaction.emoji.name]) return;
 				reactions[reaction.emoji.name]();
 
-				await embedMessage.clearReactions();
+				if (reaction.emoji.name === "❌") return;
+
+				await embedMessage.reactions.removeAll();
 				embedMessage.edit(stockEmbeds[currentPage]);
 				await updateReactions(embedMessage, currentPage);
-			});
+			};
+
+			client.on("messageReactionAdd", reactionHandler);
 		} else { // Precise help
 			if (!client.commands.has(args[0])) return sendError(`Command ${args[0]} not found.`, message.channel);
 
 			const command = client.commands.get(args[0].toLowerCase());
 
-			const embed = new RichEmbed()
+			const embed = new MessageEmbed()
 				.setAuthor("Help - Command informations")
-				.setTitle(`**${prefix}${command.name} - ${command.category} category**`)
+				.setTitle(`**${prefix}${command.informations.name} - ${command.informations.category} category**`)
 				.setColor(COLORS.light_green)
-				.setThumbnail(client.user.avatarURL)
-				.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL);
+				.setThumbnail(client.user.avatarURL())
+				.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL());
 
-			if (command.description) embed.addField("**Description**", command.description);
+			if (command.informations.description) embed.addField("**Description**", command.informations.description);
 
-			if (command.usage) embed.addField("**Usage**", prefix + command.usage);
+			if (command.informations.usage) embed.addField("**Usage**", prefix + command.informations.usage);
 
-			if (command.aliases.length > 0) embed.addField("**Aliases**", command.aliases.join(", "));
+			if (command.informations.aliases.length > 0) embed.addField("**Aliases**", command.informations.aliases.join(", "));
 
-			if (command.permission) embed.addField("**Permission**", command.permission);
+			if (command.informations.permission) embed.addField("**Permission**", command.informations.permission);
 
-			if (command.permission === "BOT_OWNER") {
+			if (command.informations.permission === "BOT_OWNER") {
 				if (message.author.id === config.botOwner) message.channel.send(embed);
 				return;
 			}
 
-			if (command.permission) {
-				if (message.member.hasPermission(command.permission as PermissionString)) message.channel.send(embed);
+			if (command.informations.permission) {
+				const permission = command.informations.permission as PermissionString;
+				if (message.member.hasPermission(permission)) message.channel.send(embed);
 				return;
 			}
 

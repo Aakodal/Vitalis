@@ -1,15 +1,13 @@
 {
     "compilerOptions": {
         "module": "commonjs",
+        "rootDir": "./src",
         "outDir": "./build",
         "allowJs": true,
-        "target": "es2019",
+        "target": "ES2019",
         "resolveJsonModule": true
     },
     "include": [
         "src/**/*"
-    ],
-    "exclude": [
-        "src/node_modules/"
     ]
 }

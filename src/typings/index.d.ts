@@ -1,8 +1,10 @@
 import {
-	DMChannel, GroupDMChannel, Snowflake, TextChannel,
+	DMChannel, Snowflake, TextChannel, PermissionResolvable, NewsChannel,
 } from "discord.js";
 
-type MessageChannel = TextChannel | DMChannel | GroupDMChannel;
+type MessageChannel = TextChannel | DMChannel | NewsChannel;
+type CommandPermission = PermissionResolvable | "BOT_OWNER";
+
 interface Infraction {
 	id: number,
 	discord_id: Snowflake,
@@ -13,3 +15,12 @@ interface Infraction {
 	duration: string,
 	moderator: string,
 }
+
+type CommandInformations = {
+	name: string,
+	description?: string,
+	usage?: string,
+	aliases?: string[],
+	permission?: CommandPermission,
+	category?: string,
+};

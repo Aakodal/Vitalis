@@ -1,13 +1,18 @@
-import { RichEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import { COLORS } from "../lib/constants";
-import { client } from "../main";
 
 export function sendEmbed({
-	author = "", avatar = "", title = "", color = "", text = "", footer = "", channel,
+	author = "",
+	avatar = "",
+	title = "",
+	color = "",
+	text = "",
+	footer = "",
+	channel,
 }) {
 	const embedColor = COLORS[color];
 
-	const embed = new RichEmbed()
+	const embed = new MessageEmbed()
 		.setAuthor(author, avatar)
 		.setTitle(title)
 		.setColor(embedColor)

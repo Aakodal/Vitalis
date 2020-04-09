@@ -14,6 +14,7 @@
 	},
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
+	  	"project": "./tsconfig.json",
 		"ecmaVersion": 2019,
 		"sourceType": "module"
 	},
@@ -114,6 +115,7 @@
 		  	{
 			  	"allowAfterThis": true
 			}
-		]
+		],
+	  	"no-continue": "off"
 	}
 }

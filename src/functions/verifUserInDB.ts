@@ -3,7 +3,9 @@ import { client } from "../main";
 import { db } from "../lib/database";
 
 export async function verifUserInDB(userID: Snowflake) {
-	const user = client.users.get(userID);
+	const user = client.users.cache.get(userID);
+
+	if (user.partial) await user.fetch();
 
 	const userInDB = await db
 		.from("users")

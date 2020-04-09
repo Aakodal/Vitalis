@@ -1,4 +1,4 @@
-import { PermissionString } from "discord.js";
+import { PermissionResolvable } from "discord.js";
 import * as dateFns from "date-fns";
 import * as config from "./config.json";
 import { Client } from "./classes/Client";
@@ -8,7 +8,7 @@ import { sendError } from "./functions/sendError";
 import { unsanction } from "./functions/unsanction";
 import { getMuteRole } from "./functions/getMuteRole";
 
-const client = new Client();
+const client = new Client({ partials: ["USER", "GUILD_MEMBER", "MESSAGE", "REACTION"] });
 
 client.login(config.token);
 client.init();
@@ -19,7 +19,7 @@ client.on("ready", async () => {
 	const currentTime = dateFns.format(Date.now(), "H:mm:ss");
 	console.log(`Vitalis started at ${currentTime}`);
 
-	const server = client.guilds.array()[0];
+	const server = client.guilds.cache.array()[0];
 	await getMuteRole(server);
 
 	const sanctionned = await db.from("users").whereIn("actual_sanction", ["muted", "banned"]);
@@ -31,6 +31,8 @@ client.on("ready", async () => {
 client.on("message", async (message) => {
 	const prefix = await getValueFromDB<string>("server", "prefix");
 
+	if (message.author.partial) await message.author.fetch();
+
 	if (!message.content.startsWith(prefix)
         || message.author.bot
         || !message.guild) return;
@@ -41,21 +43,21 @@ client.on("message", async (message) => {
 
 	const command = client.commands.get(commandNameLower) || client.aliases.get(commandNameLower);
 
-	try {
-		const isOwner = command.permission
-			&& command.permission.toUpperCase() === "BOT_OWNER"
-			&& message.author.id === config.botOwner;
+	const isOwner = command.informations.permission
+		&& (command.informations.permission as string).toUpperCase() === "BOT_OWNER"
+		&& message.author.id === config.botOwner;
 
-		if (
-			!command.permission
-			|| isOwner
-			|| message.member.hasPermission(command.permission as PermissionString)
-		) {
+	if (
+		!command.informations.permission
+		|| isOwner
+		|| message.member.hasPermission(command.informations.permission as PermissionResolvable)
+	) {
+		try {
 			command.run(message, args, client);
 			return await message.delete();
+		} catch (error) {
+			return sendError(error, message.channel);
 		}
-	} catch (error) {
-		return sendError(error, message.channel);
 	}
 });
 

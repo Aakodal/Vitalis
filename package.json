@@ -1,0 +1,39 @@
+{
+  "name": "vitalis",
+  "version": "3.0.0",
+  "description": "Multi-purposes Discord bot made by Aakodal.",
+  "keywords": [
+    "vitalis",
+    "discord",
+    "bot"
+  ],
+  "license": "Apache-2.0",
+  "main": "build/main.js",
+  "author": "Neshell (AKA Aakodal)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aakodal/Vitalis"
+  },
+  "scripts": {
+    "build": "./node_modules/typescript/bin/tsc",
+    "start": "node ."
+  },
+  "bugs": {
+    "url": "https://github.com/Aakodal/Vitalis/issues"
+  },
+  "dependencies": {
+    "@types/node": "13.11.0",
+    "date-fns": "2.11.1",
+    "discord.js": "^12.1.1",
+    "knex": "0.20.4",
+    "sqlite3": "4.1.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "2.27.0",
+    "@typescript-eslint/parser": "2.27.0",
+    "eslint": "6.8.0",
+    "eslint-config-airbnb-typescript": "7.2.0",
+    "eslint-plugin-import": "2.20.2",
+    "typescript": "3.8.3"
+  }
+}
