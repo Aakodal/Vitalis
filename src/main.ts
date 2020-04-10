@@ -10,7 +10,6 @@ import { getMuteRole } from "./functions/getMuteRole";
 
 const client = new Client({ partials: ["USER", "GUILD_MEMBER", "MESSAGE", "REACTION"] });
 
-client.login(config.token);
 client.init();
 
 client.on("ready", async () => {
