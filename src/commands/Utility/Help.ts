@@ -1,5 +1,5 @@
 import {
-	Message, PermissionString, MessageEmbed, MessageReaction, User, CollectorFilter,
+	Message, PermissionString, MessageEmbed, MessageReaction, User,
 } from "discord.js";
 import { Command } from "../../classes/Command";
 import * as config from "../../config.json";

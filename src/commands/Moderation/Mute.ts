@@ -41,7 +41,7 @@ export default class Mute extends Command {
 
 		if (member.roles.cache.get(muteRole.id)) return sendError("This member is already muted.", message.channel);
 
-		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "muted", member.user);
+		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "muted", member.user, message.guild);
 		const durationNumber = Number(duration);
 
 		if (durationNumber && !args[2]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);

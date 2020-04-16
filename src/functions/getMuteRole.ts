@@ -1,4 +1,4 @@
-import { Guild, GuildChannel } from "discord.js";
+import { Guild } from "discord.js";
 import { client } from "../main";
 import { getValueFromDB } from "./getValueFromDB";
 import { pushValueInDB } from "./pushValueInDB";

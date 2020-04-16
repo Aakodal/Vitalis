@@ -38,7 +38,7 @@ export default class Ban extends Command {
 
 		if (banned.get(user.id)) return sendError("This user is already banned.", message.channel);
 
-		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "banned", user);
+		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "banned", user, message.guild);
 		const durationNumber = Number(duration);
 		const reasonText = String(reason);
 
