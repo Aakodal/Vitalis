@@ -1,4 +1,3 @@
-import * as dateFns from "date-fns";
 import { GuildMember, Message, MessageEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
@@ -7,6 +6,7 @@ import { COLORS } from "../../lib/constants";
 import { sendError } from "../../functions/sendError";
 import { Infraction } from "../../typings";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
+import { formatDate } from "../../functions/formatDate";
 
 export default class Infractions extends Command {
 	constructor() {
@@ -67,7 +67,7 @@ export default class Infractions extends Command {
 		const lastInfractions = infractions.slice(0, 10);
 
 		for (const infraction of lastInfractions) {
-			const created = dateFns.format(infraction.created, "dd/MM/yyyy 'at' HH:mm");
+			const created = formatDate(infraction.created);
 			const { moderator } = infraction;
 			const reason = infraction.infraction || "No reason.";
 			const duration = infraction.duration

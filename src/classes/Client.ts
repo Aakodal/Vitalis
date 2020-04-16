@@ -23,8 +23,6 @@ class Client extends DiscordClient {
 	}
 
 	async init() {
-		await this.login(config.token);
-
 		if (!config.botOwner
 			|| !config.botOwner.match(/\d+/)) console.warn(`Owner's ID is undefined or invalid.`);
 
@@ -50,6 +48,8 @@ class Client extends DiscordClient {
 			const eventPath = path.join(eventsPath, file);
 			import(eventPath);
 		}
+
+		await this.login(config.token);
 	}
 
 	private async loadCommand(folderName: string, commandFile: string) {
