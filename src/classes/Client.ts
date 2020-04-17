@@ -8,6 +8,7 @@ import { getValueFromDB } from "../functions/getValueFromDB";
 import { replaceDBVars } from "../functions/replaceDBVars";
 import { stringNormalize } from "../functions/stringNormalize";
 import { databaseCheck } from "../lib/database";
+import * as config from "../config.json";
 
 class Client extends DiscordClient {
 	commands: Map<string, Command>;
@@ -22,13 +23,20 @@ class Client extends DiscordClient {
 	}
 
 	async init() {
-		await databaseCheck();
+		if (!config.botOwner
+			|| !config.botOwner.match(/\d+/)) console.warn(`Owner's ID is undefined or invalid.`);
+
+		try {
+			await databaseCheck();
+		} catch (error) {
+			console.error(`Error while checking databse: ${error}`);
+		}
 
 		const commandsPath = path.join(__dirname, "../commands/");
-		const commandsFolders: string[] = await fs.readdir(commandsPath);
+		const commandsFolders = await fs.readdir(commandsPath);
 		for (const folder of commandsFolders) {
 			const folderPath = path.join(commandsPath, folder);
-			const commandsFiles: string[] = await fs.readdir(folderPath);
+			const commandsFiles = await fs.readdir(folderPath);
 			for (const file of commandsFiles) {
 				await this.loadCommand(folder, file);
 			}
@@ -40,6 +48,8 @@ class Client extends DiscordClient {
 			const eventPath = path.join(eventsPath, file);
 			import(eventPath);
 		}
+
+		await this.login(config.token);
 	}
 
 	private async loadCommand(folderName: string, commandFile: string) {

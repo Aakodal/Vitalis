@@ -2,7 +2,6 @@ import { Message } from "discord.js";
 import { CommandInformations } from "../typings";
 import { Client } from "./Client";
 
-
 abstract class Command {
 	informations: CommandInformations;
 

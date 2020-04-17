@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, GuildMember } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
@@ -12,6 +12,7 @@ import { getMuteRole } from "../../functions/getMuteRole";
 import { canSanction } from "../../functions/canSanction";
 import { longTimeout } from "../../functions/longTimeout";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
+import { fetchMember } from "../../functions/fetchMember";
 
 export default class Mute extends Command {
 	constructor() {
@@ -27,7 +28,7 @@ export default class Mute extends Command {
 		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
 
 		const memberSnowflake = getUserSnowflakeFromString(args[0]);
-		const member = await message.guild.members.fetch(memberSnowflake) as GuildMember;
+		const member = await fetchMember(message.guild, memberSnowflake);
 
 		if (!member) return sendError("Member not found.", message.channel);
 
@@ -41,7 +42,7 @@ export default class Mute extends Command {
 
 		if (member.roles.cache.get(muteRole.id)) return sendError("This member is already muted.", message.channel);
 
-		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "muted", member.user);
+		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "muted", member.user, message.guild);
 		const durationNumber = Number(duration);
 
 		if (durationNumber && !args[2]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
@@ -82,7 +83,7 @@ export default class Mute extends Command {
 				created,
 				expiration,
 				duration: durationString,
-				moderator: message.author.tag,
+				moderator: message.author.id,
 			})
 			.into("infractions");
 

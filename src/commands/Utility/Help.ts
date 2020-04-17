@@ -1,5 +1,5 @@
 import {
-	Message, PermissionString, MessageEmbed, MessageReaction, User, CollectorFilter,
+	Message, PermissionString, MessageEmbed, MessageReaction, User,
 } from "discord.js";
 import { Command } from "../../classes/Command";
 import * as config from "../../config.json";
@@ -141,7 +141,7 @@ export default class Help extends Command {
 				if (reaction.emoji.name === "❌") return;
 
 				await embedMessage.reactions.removeAll();
-				embedMessage.edit(stockEmbeds[currentPage]);
+				await embedMessage.edit(stockEmbeds[currentPage]);
 				await updateReactions(embedMessage, currentPage);
 			};
 
@@ -167,7 +167,7 @@ export default class Help extends Command {
 			if (command.informations.permission) embed.addField("**Permission**", command.informations.permission);
 
 			if (command.informations.permission === "BOT_OWNER") {
-				if (message.author.id === config.botOwner) message.channel.send(embed);
+				if (message.author.id !== config.botOwner) message.channel.send(embed);
 				return;
 			}
 

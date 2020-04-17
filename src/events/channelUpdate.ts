@@ -1,5 +1,5 @@
 import {
-	GuildChannel, DMChannel, MessageEmbed, TextChannel
+	GuildChannel, DMChannel, MessageEmbed, TextChannel,
 } from "discord.js";
 import { client } from "../main";
 import { getValueFromDB } from "../functions/getValueFromDB";

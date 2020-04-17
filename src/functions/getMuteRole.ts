@@ -1,4 +1,4 @@
-import { Guild, GuildChannel } from "discord.js";
+import { Guild } from "discord.js";
 import { client } from "../main";
 import { getValueFromDB } from "./getValueFromDB";
 import { pushValueInDB } from "./pushValueInDB";
@@ -24,9 +24,9 @@ export async function getMuteRole(server: Guild) {
 
 	const muteRole = server.roles.cache.get(await getValueFromDB("server", "muteRoleID"));
 
-	for (const channel of (server.channels.cache.array() as GuildChannel[])) {
+	for (const channel of server.channels.cache.array()) {
 		if (!channel.permissionOverwrites.get(muteRole.id)) {
-			channel.overwritePermissions([
+			await channel.overwritePermissions([
 				{
 					id: muteRole.id,
 					deny: ["ADD_REACTIONS", "ATTACH_FILES", "SEND_MESSAGES", "SEND_TTS_MESSAGES", "SPEAK", "STREAM"],

@@ -1,6 +1,6 @@
 {
   "name": "vitalis",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Multi-purposes Discord bot made by Aakodal.",
   "keywords": [
     "vitalis",
@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@types/node": "13.11.0",
-    "date-fns": "2.11.1",
     "discord.js": "^12.1.1",
     "knex": "0.20.4",
     "sqlite3": "4.1.1"

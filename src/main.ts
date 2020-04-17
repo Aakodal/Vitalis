@@ -1,5 +1,4 @@
 import { PermissionResolvable } from "discord.js";
-import * as dateFns from "date-fns";
 import * as config from "./config.json";
 import { Client } from "./classes/Client";
 import { db } from "./lib/database";
@@ -7,17 +6,16 @@ import { getValueFromDB } from "./functions/getValueFromDB";
 import { sendError } from "./functions/sendError";
 import { unsanction } from "./functions/unsanction";
 import { getMuteRole } from "./functions/getMuteRole";
+import { formatDate } from "./functions/formatDate";
 
 const client = new Client({ partials: ["USER", "GUILD_MEMBER", "MESSAGE", "REACTION"] });
 
-client.login(config.token);
 client.init();
 
 client.on("ready", async () => {
 	await client.updatePresence();
 
-	const currentTime = dateFns.format(Date.now(), "H:mm:ss");
-	console.log(`Vitalis started at ${currentTime}`);
+	console.log(`Vitalis started at ${formatDate()}`);
 
 	const server = client.guilds.cache.array()[0];
 	await getMuteRole(server);
