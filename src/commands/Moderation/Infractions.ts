@@ -41,7 +41,7 @@ export default class Infractions extends Command {
 	}
 
 	private static async getList(message: Message, user: User, embed: MessageEmbed, type?: string) {
-		const infractions: Infraction[] = type
+		const infractions: Infraction[] = type !== "infraction"
 			? await db.from("infractions").where({ discord_id: user.id, type })
 			: await db.from("infractions").where({ discord_id: user.id });
 
@@ -67,7 +67,7 @@ export default class Infractions extends Command {
 		const lastInfractions = infractions.slice(0, 10);
 
 		for (const infraction of lastInfractions) {
-			const type = infraction.type.toUpperCase;
+			const type = infraction.type.toUpperCase();
 			const created = formatDate(infraction.created);
 			const { moderator } = infraction;
 			const reason = infraction.infraction || "No reason.";
@@ -75,7 +75,7 @@ export default class Infractions extends Command {
 				? ` for ${infraction.duration}`
 				: "";
 
-			embed.addField(`**${type} ${created + duration} (by ${moderator})**`, reason);
+			embed.addField(`**[${type}] ${created + duration} (by ${moderator})**`, reason);
 		}
 	}
 }
