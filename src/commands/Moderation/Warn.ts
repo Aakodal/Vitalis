@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, GuildMember } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
@@ -8,6 +8,7 @@ import { verifUserInDB } from "../../functions/verifUserInDB";
 import { sendError } from "../../functions/sendError";
 import { canSanction } from "../../functions/canSanction";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
+import { fetchMember } from "../../functions/fetchMember";
 
 export default class Warn extends Command {
 	constructor() {
@@ -23,7 +24,7 @@ export default class Warn extends Command {
 		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
 
 		const memberSnowflake = getUserSnowflakeFromString(args[0]);
-		const member = await message.guild.members.fetch(memberSnowflake) as GuildMember;
+		const member = await fetchMember(message.guild, memberSnowflake);
 
 		if (!member) return sendError("Member not found.", message.channel);
 
@@ -57,7 +58,7 @@ export default class Warn extends Command {
 				infraction: reason,
 				type: "warn",
 				created: Date.now(),
-				moderator: message.author.tag,
+				moderator: message.author.id,
 			})
 			.into("infractions");
 

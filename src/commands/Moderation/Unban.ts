@@ -7,6 +7,7 @@ import { sendError } from "../../functions/sendError";
 import { unsanction } from "../../functions/unsanction";
 import { canSanction } from "../../functions/canSanction";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
+import { fetchUser } from "../../functions/fetchUser";
 
 export default class Unban extends Command {
 	constructor() {
@@ -23,7 +24,7 @@ export default class Unban extends Command {
 		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
 
 		const userSnowflake = getUserSnowflakeFromString(args[0]);
-		const user = await client.users.fetch(userSnowflake);
+		const user = await fetchUser(userSnowflake);
 
 		if (!user) return sendError("User not found.", message.channel);
 

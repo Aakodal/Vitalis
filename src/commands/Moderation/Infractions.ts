@@ -1,4 +1,4 @@
-import { GuildMember, Message, MessageEmbed } from "discord.js";
+import { Message, MessageEmbed, User } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { db } from "../../lib/database";
@@ -7,6 +7,7 @@ import { sendError } from "../../functions/sendError";
 import { Infraction } from "../../typings";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { formatDate } from "../../functions/formatDate";
+import { fetchUser } from "../../functions/fetchUser";
 
 export default class Infractions extends Command {
 	constructor() {
@@ -22,39 +23,38 @@ export default class Infractions extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
 
-		const memberSnowflake = getUserSnowflakeFromString(args[0]);
-		const member = await message.guild.members.fetch(memberSnowflake) as GuildMember;
+		const userSnowflake = getUserSnowflakeFromString(args[0]);
+		const user = await fetchUser(userSnowflake);
 
-		if (!member) return sendError("Please mention the member. Note that they must be on the server.", message.channel);
+		if (!user) return sendError("User not found.", message.channel);
 
-		if (member.partial) await member.fetch();
+		if (user.partial) await user.fetch();
 
-		const type = args[1]?.toLowerCase();
+		const type = args[1]?.toLowerCase() || "infraction";
 
 		const embed = new MessageEmbed()
 			.setColor(COLORS.orange)
 			.setFooter(`Asked by ${message.author.tag}`, message.author.avatarURL())
 			.setTimestamp();
 
-		await Infractions.getList(message, member, embed, type);
+		await Infractions.getList(message, user, embed, type);
 	}
 
-	private static async getList(message: Message, member: GuildMember, embed: MessageEmbed, type?: string) {
+	private static async getList(message: Message, user: User, embed: MessageEmbed, type?: string) {
 		const infractions: Infraction[] = type
-			? await db.from("infractions").where({ discord_id: member.id, type })
-			: await db.from("infractions").where({ discord_id: member.id });
+			? await db.from("infractions").where({ discord_id: user.id, type })
+			: await db.from("infractions").where({ discord_id: user.id });
 
-		const infractionsType = type || "infraction";
 		const infractionsNumber = infractions.length;
 
-		embed.setAuthor(`${infractionsNumber} Infraction(s) - ${member.user.tag}`, message.guild.iconURL());
+		embed.setAuthor(`${infractionsNumber} Infraction(s) - ${user.tag}`, message.guild.iconURL());
 
 		if (!infractionsNumber) {
-			embed.setTitle(`No ${infractionsType} found.`);
+			embed.setTitle(`No ${type} found.`);
 			return message.channel.send(embed);
 		}
 
-		embed.setTitle(`Last 10 ${infractionsType}s`);
+		embed.setTitle(`Last 10 ${type}s`);
 
 		const sortedInfractions = infractions.sort((a, b) => b.id - a.id);
 
@@ -67,6 +67,7 @@ export default class Infractions extends Command {
 		const lastInfractions = infractions.slice(0, 10);
 
 		for (const infraction of lastInfractions) {
+			const type = infraction.type.toUpperCase;
 			const created = formatDate(infraction.created);
 			const { moderator } = infraction;
 			const reason = infraction.infraction || "No reason.";
@@ -74,7 +75,7 @@ export default class Infractions extends Command {
 				? ` for ${infraction.duration}`
 				: "";
 
-			embed.addField(`**${created + duration} - by ${moderator}**`, reason);
+			embed.addField(`**${type} ${created + duration} (by ${moderator})**`, reason);
 		}
 	}
 }

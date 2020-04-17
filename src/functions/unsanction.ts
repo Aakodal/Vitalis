@@ -10,6 +10,8 @@ export async function unsanction(id: Snowflake, server: Guild, sanction: string,
 	await verifUserInDB(id);
 	const user = (await db.from("users").where({ discord_id: id, actual_sanction: sanction }))[0];
 
+	if (!user) return;
+
 	const { expiration } = user;
 	const now = Date.now();
 
