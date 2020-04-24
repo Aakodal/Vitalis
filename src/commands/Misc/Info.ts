@@ -15,8 +15,8 @@ export default class Info extends Command {
 		const infos = {
 			author: process.env.npm_package_author || process.env.npm_package_author_name,
 			version: process.env.npm_package_version,
-			description: process.env.npm_package_description,
 			homepage: process.env.npm_package_homepage,
+			description: process.env.npm_package_description,
 			dependencies: {
 				"discord.js": process.env.npm_package_dependencies_discord_js,
 				typescript: process.env.npm_package_devDependencies_typescript,
@@ -29,6 +29,7 @@ export default class Info extends Command {
 			.addField("**Author**", infos.author, true)
 			.addField("**Version**", infos.version, true)
 			.addField("**Language**", `TypeScript ${infos.dependencies.typescript}`, true)
+			.addField("**GitHub Repo**", `[Link](${infos.homepage})`, true)
 			.addField("**Library**", `[discord.js](https://discord.js.org/#/) ${infos.dependencies["discord.js"]}`, true)
 			.addField("**Description**", infos.description)
 			.setFooter(`Vitalis - ${infos.author} | Apache 2.0 license. Asked by ${message.author.tag}`,

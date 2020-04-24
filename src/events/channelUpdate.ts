@@ -10,10 +10,8 @@ client.on("channelUpdate", async (oldChannel: GuildChannel | DMChannel, newChann
 	const logsActive = await getValueFromDB<boolean>("server", "logsActive");
 
 	if (!logsActive
+		|| oldChannel.type === "dm"
 		|| newChannel.type === "dm") return;
-
-	const newGuildChannel = newChannel as GuildChannel;
-	const oldGuildChannel = oldChannel as GuildChannel;
 
 	const newTextChannel = newChannel as TextChannel;
 	const oldTextChannel = oldChannel as TextChannel;
@@ -29,8 +27,8 @@ client.on("channelUpdate", async (oldChannel: GuildChannel | DMChannel, newChann
 		.addField("**Type**", newChannel.type, true)
 		.setTimestamp(Date.now());
 
-	if (oldGuildChannel.name !== newGuildChannel.name) {
-		embed.addField("**Old name**", oldGuildChannel.name);
+	if (oldChannel.name !== newChannel.name) {
+		embed.addField("**Old name**", oldChannel.name);
 	}
 
 	if (oldTextChannel.topic !== newTextChannel.topic) {
@@ -38,9 +36,9 @@ client.on("channelUpdate", async (oldChannel: GuildChannel | DMChannel, newChann
 		if (newTextChannel.topic) embed.addField("**New topic**", newTextChannel.topic);
 	}
 
-	if (oldGuildChannel.parent !== newGuildChannel.parent) {
-		embed.addField("**Old parent**", oldGuildChannel.parent, false)
-			.addField("**New parent**", newGuildChannel.parent, true);
+	if (oldChannel.parent !== newChannel.parent) {
+		embed.addField("**Old parent**", oldChannel.parent, false)
+			.addField("**New parent**", newChannel.parent, true);
 	}
 
 	if (oldTextChannel.nsfw !== newTextChannel.nsfw) {

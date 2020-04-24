@@ -5,10 +5,12 @@ import { COLORS } from "../../lib/constants";
 import { db } from "../../lib/database";
 import { log } from "../../functions/log";
 import { verifUserInDB } from "../../functions/verifUserInDB";
-import { sendError } from "../../functions/sendError";
 import { canSanction } from "../../functions/canSanction";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { fetchMember } from "../../functions/fetchMember";
+import { ArgumentError } from "../../exceptions/ArgumentError";
+import { MemberError } from "../../exceptions/MemberError";
+import { SanctionError } from "../../exceptions/SanctionError";
 
 export default class Warn extends Command {
 	constructor() {
@@ -21,18 +23,18 @@ export default class Warn extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (!args[1]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
 		const memberSnowflake = getUserSnowflakeFromString(args[0]);
 		const member = await fetchMember(message.guild, memberSnowflake);
 
-		if (!member) return sendError("Member not found.", message.channel);
+		if (!member) throw new MemberError();
 
 		if (member.partial) await member.fetch();
 
 		const reason = args.slice(1).join(" ");
 
-		if (member.user.bot) return sendError("You can't warn a bot.", message.channel);
+		if (member.user.bot) throw new SanctionError("You can't warn a bot.");
 
 		if (!await canSanction(member, message.member, message.channel, "warn")) return;
 

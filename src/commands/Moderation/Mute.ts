@@ -6,13 +6,16 @@ import { db } from "../../lib/database";
 import { log } from "../../functions/log";
 import { getSanctionValues } from "../../functions/getSanctionValues";
 import { verifUserInDB } from "../../functions/verifUserInDB";
-import { sendError } from "../../functions/sendError";
 import { unsanction } from "../../functions/unsanction";
 import { getMuteRole } from "../../functions/getMuteRole";
 import { canSanction } from "../../functions/canSanction";
 import { longTimeout } from "../../functions/longTimeout";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { fetchMember } from "../../functions/fetchMember";
+import { ArgumentError } from "../../exceptions/ArgumentError";
+import { MemberError } from "../../exceptions/MemberError";
+import { SanctionError } from "../../exceptions/SanctionError";
+import { UsageError } from "../../exceptions/UsageError";
 
 export default class Mute extends Command {
 	constructor() {
@@ -25,27 +28,27 @@ export default class Mute extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (!args[1]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
 		const memberSnowflake = getUserSnowflakeFromString(args[0]);
 		const member = await fetchMember(message.guild, memberSnowflake);
 
-		if (!member) return sendError("Member not found.", message.channel);
+		if (!member) throw new MemberError();
 
 		if (member.partial) await member.fetch();
 
 		const muteRole = await getMuteRole(message.guild);
 
-		if (member.user.bot) return sendError("You can't mute a bot.", message.channel);
+		if (member.user.bot) throw new SanctionError("You can't mute a bot.");
 
 		if (!await canSanction(member, message.member, message.channel, "mute")) return;
 
-		if (member.roles.cache.get(muteRole.id)) return sendError("This member is already muted.", message.channel);
+		if (member.roles.cache.get(muteRole.id)) throw new SanctionError("This member is already muted.");
 
 		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "muted", member.user, message.guild);
 		const durationNumber = Number(duration);
 
-		if (durationNumber && !args[2]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (durationNumber && !args[2]) throw new UsageError(`Wrong command usage. Usage: ${this.informations.usage}`);
 
 		const muteEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
@@ -58,7 +61,7 @@ export default class Mute extends Command {
 		try {
 			await member.roles.add(muteRole);
 		} catch (error) {
-			return sendError(`For some reason, this member couldn't have been muted;\n\n${error}`, message.channel);
+			throw new SanctionError(`For some reason, this member couldn't have been muted; ${error.message}`);
 		}
 
 		await message.channel.send(muteEmbed);

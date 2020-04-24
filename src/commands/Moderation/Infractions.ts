@@ -3,11 +3,12 @@ import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { db } from "../../lib/database";
 import { COLORS } from "../../lib/constants";
-import { sendError } from "../../functions/sendError";
 import { Infraction } from "../../typings";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { formatDate } from "../../functions/formatDate";
 import { fetchUser } from "../../functions/fetchUser";
+import { CommandError } from "../../exceptions/CommandError";
+import { UserError } from "../../exceptions/UserError";
 
 export default class Infractions extends Command {
 	constructor() {
@@ -21,12 +22,12 @@ export default class Infractions extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (!args[0]) throw new CommandError(`Argument missing. Usage: ${this.informations.usage}`);
 
 		const userSnowflake = getUserSnowflakeFromString(args[0]);
 		const user = await fetchUser(userSnowflake);
 
-		if (!user) return sendError("User not found.", message.channel);
+		if (!user) throw new UserError();
 
 		if (user.partial) await user.fetch();
 

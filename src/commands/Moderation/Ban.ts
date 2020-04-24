@@ -6,12 +6,16 @@ import { db } from "../../lib/database";
 import { log } from "../../functions/log";
 import { getSanctionValues } from "../../functions/getSanctionValues";
 import { verifUserInDB } from "../../functions/verifUserInDB";
-import { sendError } from "../../functions/sendError";
 import { unsanction } from "../../functions/unsanction";
 import { canSanction } from "../../functions/canSanction";
 import { longTimeout } from "../../functions/longTimeout";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { fetchUser } from "../../functions/fetchUser";
+import { ArgumentError } from "../../exceptions/ArgumentError";
+import { UserError } from "../../exceptions/UserError";
+import { SanctionError } from "../../exceptions/SanctionError";
+import { fetchMember } from "../../functions/fetchMember";
+import { UsageError } from "../../exceptions/UsageError";
 
 export default class Ban extends Command {
 	constructor() {
@@ -24,12 +28,12 @@ export default class Ban extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (!args[1]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
 		const userSnowflake = getUserSnowflakeFromString(args[0]);
 		const user = await fetchUser(userSnowflake);
 
-		if (!user) return sendError("User not found.", message.channel);
+		if (!user) throw new UserError();
 
 		if (user.partial) await user.fetch();
 
@@ -37,13 +41,13 @@ export default class Ban extends Command {
 
 		const banned = await message.guild.fetchBans();
 
-		if (banned.get(user.id)) return sendError("This user is already banned.", message.channel);
+		if (banned.get(user.id)) throw new SanctionError("This user is already banned.");
 
 		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "banned", user, message.guild);
 		const durationNumber = Number(duration);
 		const reasonText = String(reason);
 
-		if (durationNumber && !args[2]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (durationNumber && !args[2]) throw new UsageError(`Wrong command usage. Usage: ${this.informations.usage}`);
 
 		const banEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
@@ -53,10 +57,10 @@ export default class Ban extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
-		const member = await message.guild.members.cache.get(userSnowflake);
+		const member = await fetchMember(message.guild, userSnowflake);
 
 		if (member) {
-			if (!member.bannable) return sendError("For some reason, this member can not be banned.", message.channel);
+			if (!member.bannable) throw new SanctionError("For some reason, this member can not be banned.");
 			try {
 				await user.send(banEmbed.setDescription(DMDescription));
 			} catch (error) {
@@ -67,7 +71,7 @@ export default class Ban extends Command {
 		try {
 			await message.guild.members.ban(user, { days: 7, reason: reasonText });
 		} catch (error) {
-			return sendError(`For some reason, this user couldn't have been banned;\n\n${error}`, message.channel);
+			throw new SanctionError(`This user couldn't have been banned; ${error.message}`);
 		}
 
 		await message.channel.send(banEmbed);

@@ -5,9 +5,9 @@ import { MessageChannel } from "../typings";
 
 export async function canSanction(
 	user: GuildMember | User | Snowflake, author: GuildMember, channel: MessageChannel, sanction: string,
-): Promise<boolean> {
+) {
 	if (!user) {
-		sendError("Please mention the member. Note that they must be on the server.", channel);
+		sendError("Please mention the user. Note that they must be on the server.", channel);
 		return false;
 	}
 

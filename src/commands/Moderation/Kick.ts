@@ -5,10 +5,12 @@ import { COLORS } from "../../lib/constants";
 import { db } from "../../lib/database";
 import { log } from "../../functions/log";
 import { verifUserInDB } from "../../functions/verifUserInDB";
-import { sendError } from "../../functions/sendError";
 import { canSanction } from "../../functions/canSanction";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { fetchMember } from "../../functions/fetchMember";
+import { ArgumentError } from "../../exceptions/ArgumentError";
+import { MemberError } from "../../exceptions/MemberError";
+import { SanctionError } from "../../exceptions/SanctionError";
 
 export default class Kick extends Command {
 	constructor() {
@@ -21,12 +23,12 @@ export default class Kick extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[1]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (!args[1]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
 		const memberSnowflake = getUserSnowflakeFromString(args[0]);
 		const member = await fetchMember(message.guild, memberSnowflake);
 
-		if (!member) return sendError("Member not found.", message.channel);
+		if (!member) throw new MemberError();
 
 		if (member.partial) await member.fetch();
 
@@ -42,7 +44,7 @@ export default class Kick extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
-		if (!member.kickable) return sendError("For some reason, this member can not be kicked.", message.channel);
+		if (!member.kickable) throw new SanctionError("For some reason, this member can not be kicked.");
 
 		await member.user.send(kickEmbed.setDescription(`You have been kicked for the following reasion:\n\n${reason}`));
 

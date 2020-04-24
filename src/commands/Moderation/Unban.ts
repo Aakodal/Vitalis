@@ -3,11 +3,13 @@ import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
 import { log } from "../../functions/log";
-import { sendError } from "../../functions/sendError";
 import { unsanction } from "../../functions/unsanction";
 import { canSanction } from "../../functions/canSanction";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { fetchUser } from "../../functions/fetchUser";
+import { ArgumentError } from "../../exceptions/ArgumentError";
+import { UserError } from "../../exceptions/UserError";
+import { SanctionError } from "../../exceptions/SanctionError";
 
 export default class Unban extends Command {
 	constructor() {
@@ -21,12 +23,12 @@ export default class Unban extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (!args[0]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
 		const userSnowflake = getUserSnowflakeFromString(args[0]);
 		const user = await fetchUser(userSnowflake);
 
-		if (!user) return sendError("User not found.", message.channel);
+		if (!user) throw new UserError();
 
 		if (user.partial) await user.fetch();
 
@@ -34,7 +36,7 @@ export default class Unban extends Command {
 
 		const banned = await message.guild.fetchBans();
 
-		if (!banned.get(user.id)) return sendError("This user is not banned.", message.channel);
+		if (!banned.get(user.id)) throw new SanctionError("This user is not banned.");
 
 		const unbanEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
@@ -47,7 +49,7 @@ export default class Unban extends Command {
 		try {
 			await unsanction(user.id, message.guild, "banned", true);
 		} catch (error) {
-			return sendError(`For some reason, this user couldn't have been unbanned;\n\n${error}`, message.channel);
+			throw new SanctionError(`For some reason, this user couldn't have been unbanned; ${error.message}`);
 		}
 
 		await message.channel.send(unbanEmbed);

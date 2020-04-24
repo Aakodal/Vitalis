@@ -51,10 +51,15 @@ client.on("message", async (message) => {
 		|| message.member.hasPermission(command.informations.permission as PermissionResolvable)
 	) {
 		try {
-			command.run(message, args, client);
-			return await message.delete();
+			await command.run(message, args, client);
 		} catch (error) {
 			return sendError(error, message.channel);
+		}
+
+		try {
+			await message.delete();
+		} catch {
+			return null;
 		}
 	}
 });

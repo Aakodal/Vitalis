@@ -9,6 +9,8 @@ import { replaceDBVars } from "../functions/replaceDBVars";
 import { stringNormalize } from "../functions/stringNormalize";
 import { databaseCheck } from "../lib/database";
 import * as config from "../config.json";
+import { DatabaseError } from "../exceptions/DatabaseError";
+import { CommandError } from "../exceptions/CommandError";
 
 class Client extends DiscordClient {
 	commands: Map<string, Command>;
@@ -29,7 +31,7 @@ class Client extends DiscordClient {
 		try {
 			await databaseCheck();
 		} catch (error) {
-			console.error(`Error while checking databse: ${error}`);
+			throw new DatabaseError(`Could not check database; ${error.message}`);
 		}
 
 		const commandsPath = path.join(__dirname, "../commands/");
@@ -38,7 +40,11 @@ class Client extends DiscordClient {
 			const folderPath = path.join(commandsPath, folder);
 			const commandsFiles = await fs.readdir(folderPath);
 			for (const file of commandsFiles) {
-				await this.loadCommand(folder, file);
+				try {
+					await this.loadCommand(folder, file);
+				} catch (error) {
+					console.error(`Could not load command in ${file}; ${error.message}\n${error.stackTrace}`);
+				}
 			}
 		}
 
@@ -53,36 +59,32 @@ class Client extends DiscordClient {
 	}
 
 	private async loadCommand(folderName: string, commandFile: string) {
-		try {
-			const commandPath = path.join(__dirname, `../commands/${folderName}/${commandFile}`);
-			const { default: CommandClass } = await import(commandPath);
-			const command: Command = new CommandClass();
+		const commandPath = path.join(__dirname, `../commands/${folderName}/${commandFile}`);
+		const { default: CommandClass } = await import(commandPath);
+		const command: Command = new CommandClass();
 
-			if (!command.informations.name) return console.log(`Command in ${commandFile} does not have any name. Skipping...`);
+		if (!command.informations.name) return console.log(`Command in ${commandFile} does not have any name. Skipping...`);
 
-			if (this.commands.has(command.informations.name)) {
-				return console.info(`Command ${command.informations.name} in ${commandFile} already exists. Skipping...`);
+		if (this.commands.has(command.informations.name)) {
+			return console.info(`Command ${command.informations.name} in ${commandFile} already exists. Skipping...`);
+		}
+
+		this.commands.set(command.informations.name, command);
+
+		const category = stringNormalize(folderName);
+		command.setCategory(category);
+		command.setCommandFile(commandFile);
+
+		console.info(`Command ${command.informations.name} loaded.`);
+
+		if (!command.informations.aliases) return;
+
+		for (const alias of command.informations.aliases) {
+			if (this.aliases.has(alias)) {
+				console.warn(`Alias ${alias} already exist for command ${this.aliases.get(alias).informations.name}.`);
+				continue;
 			}
-
-			this.commands.set(command.informations.name, command);
-
-			const category = stringNormalize(folderName);
-			command.setCategory(category);
-			command.setCommandFile(commandFile);
-
-			console.info(`Command ${command.informations.name} loaded.`);
-
-			if (!command.informations.aliases) return;
-
-			for (const alias of command.informations.aliases) {
-				if (this.aliases.has(alias)) {
-					console.warn(`Alias ${alias} already exist for command ${this.aliases.get(alias).informations.name}.`);
-					continue;
-				}
-				this.aliases.set(alias, command);
-			}
-		} catch (error) {
-			return console.error(`Error when trying to load command ${commandFile} ; ${error}`);
+			this.aliases.set(alias, command);
 		}
 	}
 
@@ -102,7 +104,7 @@ class Client extends DiscordClient {
 
 			return this.loadCommand(command.informations.category, commandName);
 		} catch (error) {
-			throw new Error(`Could not reload command ${commandName} ; ${error}`);
+			throw new CommandError(`Could not reload command ${commandName}; ${error}`);
 		}
 	}
 

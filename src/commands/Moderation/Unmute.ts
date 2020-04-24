@@ -3,12 +3,14 @@ import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
 import { log } from "../../functions/log";
-import { sendError } from "../../functions/sendError";
 import { unsanction } from "../../functions/unsanction";
 import { getMuteRole } from "../../functions/getMuteRole";
 import { canSanction } from "../../functions/canSanction";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { fetchMember } from "../../functions/fetchMember";
+import { ArgumentError } from "../../exceptions/ArgumentError";
+import { MemberError } from "../../exceptions/MemberError";
+import { SanctionError } from "../../exceptions/SanctionError";
 
 export default class Unmute extends Command {
 	constructor() {
@@ -22,12 +24,12 @@ export default class Unmute extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client) {
-		if (!args[0]) return sendError(`Wrong command usage.\n\n${this.informations.usage}`, message.channel);
+		if (!args[0]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
 		const memberSnowflake = getUserSnowflakeFromString(args[0]);
 		const member = await fetchMember(message.guild, memberSnowflake);
 
-		if (!member) return sendError("Member not found.", message.channel);
+		if (!member) throw new MemberError();
 
 		if (member.partial) await member.fetch();
 
@@ -35,7 +37,7 @@ export default class Unmute extends Command {
 
 		if (!await canSanction(member, message.member, message.channel, "unmute")) return;
 
-		if (!member.roles.cache.get(muteRole.id)) return sendError("This member is not muted.", message.channel);
+		if (!member.roles.cache.get(muteRole.id)) throw new SanctionError("This user is not muted.");
 
 		const unmuteEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
@@ -48,7 +50,7 @@ export default class Unmute extends Command {
 		try {
 			await unsanction(member.id, message.guild, "muted", true);
 		} catch (error) {
-			return sendError(`For some reason, this user couldn't have been unmuted;\n\n${error}`, message.channel);
+			throw new SanctionError(`For some reason, this user couldn't have been unmuted; ${error.message}`);
 		}
 
 		await message.channel.send(unmuteEmbed);

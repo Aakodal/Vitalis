@@ -6,8 +6,8 @@ import * as config from "../../config.json";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
 import { getValueFromDB } from "../../functions/getValueFromDB";
-import { sendError } from "../../functions/sendError";
 import { react } from "../../functions/react";
+import { CommandError } from "../../exceptions/CommandError";
 
 export default class Help extends Command {
 	constructor() {
@@ -147,7 +147,7 @@ export default class Help extends Command {
 
 			client.on("messageReactionAdd", reactionHandler);
 		} else { // Precise help
-			if (!client.commands.has(args[0])) return sendError(`Command ${args[0]} not found.`, message.channel);
+			if (!client.commands.has(args[0])) throw new CommandError(`Command ${args[0]} not found.`);
 
 			const command = client.commands.get(args[0].toLowerCase());
 
