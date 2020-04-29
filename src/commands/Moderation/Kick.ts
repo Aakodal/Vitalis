@@ -30,8 +30,6 @@ export default class Kick extends Command {
 
 		if (!member) throw new MemberError();
 
-		if (member.partial) await member.fetch();
-
 		const reason = args.slice(1).join(" ");
 
 		if (!await canSanction(member, message.member, message.channel, "kick")) return;

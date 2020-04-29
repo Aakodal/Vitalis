@@ -4,7 +4,7 @@ import { getValueFromDB } from "./getValueFromDB";
 import { pushValueInDB } from "./pushValueInDB";
 
 export async function getMuteRole(server: Guild) {
-	const muteRoleDB = server.roles.cache.get(await getValueFromDB("server", "muteRoleID"));
+	const muteRoleDB = await server.roles.fetch(await getValueFromDB("server", "muteRoleID") || "1");
 	if (!muteRoleDB) {
 		const botRole = server.member(client.user).roles.highest;
 		const highestRolePosition = botRole.position;
@@ -22,9 +22,10 @@ export async function getMuteRole(server: Guild) {
 		await pushValueInDB("server", "muteRoleID", muteRole.id);
 	}
 
-	const muteRole = server.roles.cache.get(await getValueFromDB("server", "muteRoleID"));
+	const muteRole = await server.roles.fetch(await getValueFromDB<string>("server", "muteRoleID"));
 
-	for (const channel of server.channels.cache.array()) {
+	const channels = server.channels.cache.array();
+	for (const channel of channels) {
 		if (!channel.permissionOverwrites.get(muteRole.id)) {
 			await channel.overwritePermissions([
 				{

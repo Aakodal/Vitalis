@@ -35,15 +35,15 @@ export default class Ban extends Command {
 
 		if (!user) throw new UserError();
 
-		if (user.partial) await user.fetch();
-
 		if (!await canSanction(user, message.member, message.channel, "ban")) return;
 
 		const banned = await message.guild.fetchBans();
 
 		if (banned.get(user.id)) throw new SanctionError("This user is already banned.");
 
-		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "banned", user, message.guild);
+		const [
+			durationString, duration, reason, embedDescription, DMDescription,
+		] = getSanctionValues(args, "banned", user, message.guild);
 		const durationNumber = Number(duration);
 		const reasonText = String(reason);
 
@@ -57,7 +57,7 @@ export default class Ban extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
-		const member = await fetchMember(message.guild, userSnowflake);
+		const member = await fetchMember(message.guild, user);
 
 		if (member) {
 			if (!member.bannable) throw new SanctionError("For some reason, this member can not be banned.");

@@ -35,8 +35,6 @@ export default class Mute extends Command {
 
 		if (!member) throw new MemberError();
 
-		if (member.partial) await member.fetch();
-
 		const muteRole = await getMuteRole(message.guild);
 
 		if (member.user.bot) throw new SanctionError("You can't mute a bot.");
@@ -45,7 +43,9 @@ export default class Mute extends Command {
 
 		if (member.roles.cache.get(muteRole.id)) throw new SanctionError("This member is already muted.");
 
-		const [durationString, duration, reason, embedDescription, DMDescription] = getSanctionValues(args, "muted", member.user, message.guild);
+		const [
+			durationString, duration, reason, embedDescription, DMDescription,
+		] = getSanctionValues(args, "muted", member.user, message.guild);
 		const durationNumber = Number(duration);
 
 		if (durationNumber && !args[2]) throw new UsageError(`Wrong command usage. Usage: ${this.informations.usage}`);

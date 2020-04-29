@@ -30,8 +30,6 @@ export default class Unban extends Command {
 
 		if (!user) throw new UserError();
 
-		if (user.partial) await user.fetch();
-
 		if (!await canSanction(user, message.member, message.channel, "unban")) return;
 
 		const banned = await message.guild.fetchBans();

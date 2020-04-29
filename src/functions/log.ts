@@ -8,7 +8,7 @@ async function log(type: "log" | "modlog", embed: MessageEmbed) {
 	if (!channelId
 		|| !isActive) return;
 
-	const channel = client.channels.cache.get(channelId) as TextChannel;
+	const channel = await client.channels.fetch(channelId) as TextChannel;
 	if (!channel) return;
 
 	try {

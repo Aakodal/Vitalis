@@ -2,6 +2,7 @@ import { GuildMember, Snowflake, User } from "discord.js";
 import { client } from "../main";
 import { sendError } from "./sendError";
 import { MessageChannel } from "../typings";
+import { fetchMember } from "./fetchMember";
 
 export async function canSanction(
 	user: GuildMember | User | Snowflake, author: GuildMember, channel: MessageChannel, sanction: string,
@@ -16,20 +17,17 @@ export async function canSanction(
 		return false;
 	}
 
-	if (sanction === "ban" || sanction === "unban") return true; // return since ban and unban are two commands which can be used on non-guildmembers
+	if (sanction === "ban" || sanction === "unban") return true;
+	// return since ban and unban are two commands which can be used on non-guildmembers
 
-	const member = author.guild.member(user);
+	const member = await fetchMember(author.guild, user);
 
 	if (!member) {
 		sendError(`Member not found.`, channel);
 		return false;
 	}
 
-	if (member.partial) await member.fetch();
-
-	const clientMember = author.guild.member(client.user);
-
-	if (clientMember.partial) await clientMember.fetch();
+	const clientMember = await fetchMember(author.guild, client.user);
 
 	if (member?.roles.highest.comparePositionTo(clientMember.roles.highest) >= 0
 		|| member?.roles.highest.comparePositionTo(author.roles.highest) >= 0) {

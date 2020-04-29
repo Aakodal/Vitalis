@@ -30,8 +30,6 @@ export default class Warn extends Command {
 
 		if (!member) throw new MemberError();
 
-		if (member.partial) await member.fetch();
-
 		const reason = args.slice(1).join(" ");
 
 		if (member.user.bot) throw new SanctionError("You can't warn a bot.");

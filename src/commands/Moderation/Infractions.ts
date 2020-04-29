@@ -29,8 +29,6 @@ export default class Infractions extends Command {
 
 		if (!user) throw new UserError();
 
-		if (user.partial) await user.fetch();
-
 		const type = args[1]?.toLowerCase() || "infraction";
 
 		const embed = new MessageEmbed()

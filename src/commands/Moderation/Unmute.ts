@@ -31,8 +31,6 @@ export default class Unmute extends Command {
 
 		if (!member) throw new MemberError();
 
-		if (member.partial) await member.fetch();
-
 		const muteRole = await getMuteRole(message.guild);
 
 		if (!await canSanction(member, message.member, message.channel, "unmute")) return;
@@ -45,7 +43,7 @@ export default class Unmute extends Command {
 			.setTitle("Unmute")
 			.setDescription(`${member.user} has been unmuted`)
 			.setTimestamp()
-			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL())
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
 		try {
 			await unsanction(member.id, message.guild, "muted", true);

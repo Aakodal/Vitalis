@@ -99,8 +99,9 @@ class Client extends DiscordClient {
 			}
 
 			this.commands.delete(commandName);
-			const commandPath = path.join(__dirname, `../commands/${command.informations.category}/${command.informations.commandFile}`);
-			delete require.cache[require.resolve(commandPath)];
+			const commandPath = `../commands/${command.informations.category}/${command.informations.commandFile}`;
+			const commandFullPath = path.join(__dirname, commandPath);
+			delete require.cache[require.resolve(commandFullPath)];
 
 			return this.loadCommand(command.informations.category, commandName);
 		} catch (error) {
