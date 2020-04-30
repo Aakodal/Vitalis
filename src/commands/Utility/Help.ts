@@ -115,26 +115,28 @@ export default class Help extends Command {
 			const embedMessage = await message.channel.send(stockEmbeds[currentPage]) as Message;
 			await updateReactions(embedMessage, currentPage);
 
-			const reactionHandler = async (reaction: MessageReaction, user: User) => {
-				if (reaction.message.partial) await reaction.message.fetch();
-				if (reaction.partial) await reaction.fetch();
-				if (user.partial) await user.fetch();
+			const filter = (reaction: MessageReaction, user: User) => {
+				return reaction.message.id === embedMessage.id
+				&& user === message.author
+				&& !user.bot
+				&& ["⏮️", "⬅", "➡", "⏭", "❌"].includes(reaction.emoji.name);
+			};
 
-				if (reaction.message.id !== embedMessage.id
-					|| user !== message.author
-					|| user.bot
-					|| "⏮⬅➡⏭❌".indexOf(reaction.emoji.name) < 0) return;
+			while (embedMessage) {
+				const collected = await embedMessage.awaitReactions(filter, { max: 1 });
+				const reaction = collected.first();
+
+				if (reaction.partial) await reaction.fetch();
+				if (reaction.message.partial) await reaction.message.fetch();
 
 				const reactions = {
 					"⏮": () => currentPage = 0,
 					"⬅": () => currentPage--,
 					"➡": () => currentPage++,
 					"⏭": () => currentPage = stockEmbeds.length - 1,
-					"❌": () => {
-						client.removeListener("messageReactionAdd", reactionHandler);
-						embedMessage.delete();
-					},
+					"❌": () => embedMessage.delete(),
 				};
+
 				if (!reactions[reaction.emoji.name]) return;
 				reactions[reaction.emoji.name]();
 
@@ -143,9 +145,7 @@ export default class Help extends Command {
 				await embedMessage.reactions.removeAll();
 				await embedMessage.edit(stockEmbeds[currentPage]);
 				await updateReactions(embedMessage, currentPage);
-			};
-
-			client.on("messageReactionAdd", reactionHandler);
+			}
 		} else { // Precise help
 			if (!client.commands.has(args[0])) throw new CommandError(`Command ${args[0]} not found.`);
 

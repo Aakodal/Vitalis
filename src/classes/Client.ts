@@ -103,7 +103,8 @@ class Client extends DiscordClient {
 			const commandFullPath = path.join(__dirname, commandPath);
 			delete require.cache[require.resolve(commandFullPath)];
 
-			return this.loadCommand(command.informations.category, commandName);
+			const commandFile = stringNormalize(`${commandName}.js`);
+			return this.loadCommand(command.informations.category, commandFile);
 		} catch (error) {
 			throw new CommandError(`Could not reload command ${commandName}; ${error}`);
 		}

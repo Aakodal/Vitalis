@@ -117,6 +117,7 @@
 			  	"allowAfterThis": true
 			}
 		],
-	  	"no-continue": "off"
+	  	"no-continue": "off",
+		"no-loop-func": "off"
 	}
 }
