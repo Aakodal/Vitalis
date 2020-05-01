@@ -6,7 +6,7 @@ import { db } from "../../lib/database";
 import { log } from "../../functions/log";
 import { verifUserInDB } from "../../functions/verifUserInDB";
 import { canSanction } from "../../functions/canSanction";
-import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { fetchMember } from "../../functions/fetchMember";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
@@ -25,7 +25,7 @@ export default class Warn extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[1]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
-		const memberSnowflake = getUserSnowflakeFromString(args[0]);
+		const memberSnowflake = getUserIdFromString(args[0]);
 		const member = await fetchMember(message.guild, memberSnowflake);
 
 		if (!member) throw new MemberError();

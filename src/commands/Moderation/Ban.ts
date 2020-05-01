@@ -9,7 +9,7 @@ import { verifUserInDB } from "../../functions/verifUserInDB";
 import { unsanction } from "../../functions/unsanction";
 import { canSanction } from "../../functions/canSanction";
 import { longTimeout } from "../../functions/longTimeout";
-import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { fetchUser } from "../../functions/fetchUser";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { UserError } from "../../exceptions/UserError";
@@ -30,7 +30,7 @@ export default class Ban extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[1]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
-		const userSnowflake = getUserSnowflakeFromString(args[0]);
+		const userSnowflake = getUserIdFromString(args[0]);
 		const user = await fetchUser(userSnowflake);
 
 		if (!user) throw new UserError();

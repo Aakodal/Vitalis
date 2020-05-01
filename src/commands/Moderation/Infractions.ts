@@ -5,7 +5,7 @@ import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { db } from "../../lib/database";
 import { COLORS } from "../../lib/constants";
-import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { formatDate } from "../../functions/formatDate";
 import { fetchUser } from "../../functions/fetchUser";
 import { CommandError } from "../../exceptions/CommandError";
@@ -36,7 +36,7 @@ export default class Infractions extends Command {
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[0]) throw new CommandError(`Argument missing. Usage: ${this.informations.usage}`);
 
-		const userSnowflake = getUserSnowflakeFromString(args[0]);
+		const userSnowflake = getUserIdFromString(args[0]);
 		const user = await fetchUser(userSnowflake);
 
 		if (!user) throw new UserError();
