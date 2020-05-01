@@ -40,7 +40,7 @@ export default class Unban extends Command {
 			.setAuthor("Moderation", message.guild.iconURL())
 			.setColor(COLORS.light_green)
 			.setTitle("Unban")
-			.setDescription(`${user} has been unbanned`)
+			.setDescription(`${user} has been unbanned.`)
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 

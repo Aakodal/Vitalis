@@ -28,13 +28,13 @@ export async function unsanction(id: Snowflake, server: Guild, sanction: string,
 	const embed = new MessageEmbed()
 		.setAuthor("Moderation", server.iconURL())
 		.setColor(COLORS.light_green)
-		.setDescription(`You have been unmuted from ${server.name}`)
+		.setDescription(`You have been unmuted from ${server.name}.`)
 		.setTimestamp();
 
 	const autoEmbed = new MessageEmbed()
 		.setAuthor("Moderation", server.iconURL())
 		.setColor(COLORS.gold)
-		.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout)`)
+		.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout).`)
 		.setTimestamp();
 
 	if (sanction === "muted") {

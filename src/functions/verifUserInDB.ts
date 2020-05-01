@@ -1,5 +1,5 @@
 import { Snowflake } from "discord.js";
-import { client } from "../main";
+import { client } from "../index";
 import { db } from "../lib/database";
 
 export async function verifUserInDB(userID: Snowflake) {

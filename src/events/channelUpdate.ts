@@ -1,7 +1,7 @@
 import {
 	GuildChannel, DMChannel, MessageEmbed, TextChannel,
 } from "discord.js";
-import { client } from "../main";
+import { client } from "../index";
 import { getValueFromDB } from "../functions/getValueFromDB";
 import { log } from "../functions/log";
 import { COLORS } from "../lib/constants";

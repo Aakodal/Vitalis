@@ -1,6 +1,15 @@
-import { Message } from "discord.js";
-import { CommandInformations } from "../typings";
+import { Message, PermissionResolvable } from "discord.js";
 import { Client } from "./Client";
+
+type CommandInformations = {
+	name: string,
+	description?: string,
+	usage?: string,
+	aliases?: string[],
+	permission?: PermissionResolvable | "BOT_OWNER",
+	category?: string,
+	commandFile?: string,
+};
 
 abstract class Command {
 	informations: CommandInformations;

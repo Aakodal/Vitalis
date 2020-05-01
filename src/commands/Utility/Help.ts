@@ -115,12 +115,10 @@ export default class Help extends Command {
 			const embedMessage = await message.channel.send(stockEmbeds[currentPage]) as Message;
 			await updateReactions(embedMessage, currentPage);
 
-			const filter = (reaction: MessageReaction, user: User) => {
-				return reaction.message.id === embedMessage.id
+			const filter = (reaction: MessageReaction, user: User) => reaction.message.id === embedMessage.id
 				&& user === message.author
 				&& !user.bot
 				&& ["⏮️", "⬅", "➡", "⏭", "❌"].includes(reaction.emoji.name);
-			};
 
 			while (embedMessage) {
 				const collected = await embedMessage.awaitReactions(filter, { max: 1 });

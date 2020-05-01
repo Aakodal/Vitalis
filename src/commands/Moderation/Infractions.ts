@@ -1,14 +1,26 @@
-import { Message, MessageEmbed, User } from "discord.js";
+import {
+	Message, MessageEmbed, Snowflake, User,
+} from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { db } from "../../lib/database";
 import { COLORS } from "../../lib/constants";
-import { Infraction } from "../../typings";
 import { getUserSnowflakeFromString } from "../../functions/getUserSnowflakeFromString";
 import { formatDate } from "../../functions/formatDate";
 import { fetchUser } from "../../functions/fetchUser";
 import { CommandError } from "../../exceptions/CommandError";
 import { UserError } from "../../exceptions/UserError";
+
+interface Infraction {
+	id: number,
+	discord_id: Snowflake,
+	infraction: string,
+	type: "warn" | "mute" | "kick" | "ban",
+	created: number,
+	expiration: number,
+	duration: string,
+	moderator: string,
+}
 
 export default class Infractions extends Command {
 	constructor() {

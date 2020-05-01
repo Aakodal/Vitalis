@@ -1,11 +1,12 @@
-import { GuildMember, Snowflake, User } from "discord.js";
-import { client } from "../main";
+import {
+	GuildMember, Snowflake, User, TextBasedChannelFields,
+} from "discord.js";
+import { client } from "../index";
 import { sendError } from "./sendError";
-import { MessageChannel } from "../typings";
 import { fetchMember } from "./fetchMember";
 
 export async function canSanction(
-	user: GuildMember | User | Snowflake, author: GuildMember, channel: MessageChannel, sanction: string,
+	user: GuildMember | User | Snowflake, author: GuildMember, channel: TextBasedChannelFields, sanction: string,
 ) {
 	if (!user) {
 		sendError("Please mention the user. Note that they must be on the server.", channel);

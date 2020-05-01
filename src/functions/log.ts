@@ -1,5 +1,5 @@
 import { MessageEmbed, TextChannel } from "discord.js";
-import { client } from "../main";
+import { client } from "../index";
 import { getValueFromDB } from "./getValueFromDB";
 
 async function log(type: "log" | "modlog", embed: MessageEmbed) {

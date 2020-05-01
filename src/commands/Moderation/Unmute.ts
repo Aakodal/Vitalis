@@ -41,7 +41,7 @@ export default class Unmute extends Command {
 			.setAuthor("Moderation", message.guild.iconURL())
 			.setColor(COLORS.light_green)
 			.setTitle("Unmute")
-			.setDescription(`${member.user} has been unmuted`)
+			.setDescription(`${member.user} has been unmuted.`)
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
