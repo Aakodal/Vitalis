@@ -8,5 +8,6 @@ export function longTimeout(handler: TimerHandler, timeout: number) {
 		}, MAX_TIMEOUT_TIME);
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-implied-eval
 	return setTimeout(handler, timeout);
 }

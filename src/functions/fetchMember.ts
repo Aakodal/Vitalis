@@ -1,8 +1,8 @@
-import { Guild, Snowflake } from "discord.js";
+import { Guild, UserResolvable } from "discord.js";
 
-export async function fetchMember(guild: Guild, id: Snowflake | string) {
+export async function fetchMember(guild: Guild, user: UserResolvable) {
 	try {
-		return await guild.members.fetch(id);
+		return await guild.members.fetch(user);
 	} catch (error) {
 		return undefined;
 	}

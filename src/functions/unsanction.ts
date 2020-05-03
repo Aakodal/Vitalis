@@ -5,6 +5,7 @@ import { log } from "./log";
 import { verifUserInDB } from "./verifUserInDB";
 import { getMuteRole } from "./getMuteRole";
 import { longTimeout } from "./longTimeout";
+import { fetchMember } from "./fetchMember";
 
 export async function unsanction(id: Snowflake, server: Guild, sanction: string, forced = false) {
 	await verifUserInDB(id);
@@ -26,24 +27,22 @@ export async function unsanction(id: Snowflake, server: Guild, sanction: string,
 
 	const embed = new MessageEmbed()
 		.setAuthor("Moderation", server.iconURL())
-		.setColor(COLORS.light_green)
-		.setDescription(`You have been unmuted from ${server.name}`)
+		.setColor(COLORS.lightGreen)
+		.setDescription(`You have been unmuted from ${server.name}.`)
 		.setTimestamp();
 
 	const autoEmbed = new MessageEmbed()
 		.setAuthor("Moderation", server.iconURL())
 		.setColor(COLORS.gold)
-		.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout)`)
+		.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout).`)
 		.setTimestamp();
 
 	if (sanction === "muted") {
-		const member = server.members.cache.get(id);
+		const member = await fetchMember(server, id);
 		const muteRole = await getMuteRole(server);
 
 		if (!member
 			|| !muteRole) return;
-
-		if (member.partial) await member.fetch();
 
 		if (member.roles.cache.get(muteRole.id)) await member.roles.remove(muteRole);
 		await db.update({

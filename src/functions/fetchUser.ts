@@ -1,5 +1,5 @@
 import { Snowflake } from "discord.js";
-import { client } from "../main";
+import { client } from "../index";
 
 export async function fetchUser(id: Snowflake | string) {
 	try {

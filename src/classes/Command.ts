@@ -1,20 +1,33 @@
-import { Message } from "discord.js";
-import { CommandInformations } from "../typings";
+import { Message, PermissionResolvable } from "discord.js";
 import { Client } from "./Client";
 
+type CommandInformations = {
+	name: string,
+	description?: string,
+	category?: string,
+	usage?: string,
+	aliases?: string[],
+	permission?: PermissionResolvable | "BOT_OWNER",
+	path?: string,
+};
+
 abstract class Command {
-	informations: CommandInformations;
+	private readonly _informations: CommandInformations;
 
 	protected constructor(informations: CommandInformations) {
-		this.informations = informations;
+		this._informations = informations;
 	}
 
 	setCategory(category: string) {
-		this.informations.category = category;
+		this._informations.category = category;
 	}
 
-	setCommandFile(file: string) {
-		this.informations.commandFile = file;
+	setPath(file: string) {
+		this._informations.path = file;
+	}
+
+	get informations() {
+		return this._informations;
 	}
 
 	abstract run(message: Message, args: string[], client: Client);
