@@ -2,6 +2,7 @@ import { Message, MessageEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
+import { getPackageJsonPath } from "../../functions/getPackageJsonPath";
 
 export default class Info extends Command {
 	constructor() {
@@ -11,28 +12,23 @@ export default class Info extends Command {
 		});
 	}
 
-	run(message: Message, args: string[], client: Client) {
-		const infos = {
-			author: process.env.npm_package_author || process.env.npm_package_author_name,
-			version: process.env.npm_package_version,
-			homepage: process.env.npm_package_homepage,
-			description: process.env.npm_package_description,
-			dependencies: {
-				"discord.js": process.env.npm_package_dependencies_discord_js,
-				typescript: process.env.npm_package_devDependencies_typescript,
-			},
-		};
+	async run(message: Message, args: string[], client: Client) {
+		const packageJsonPath = await getPackageJsonPath();
+		const packageJson = await import(packageJsonPath);
+		const {
+			author, version, description, homepage, dependencies, devDependencies,
+		} = packageJson;
 
 		const embed = new MessageEmbed()
-			.setAuthor("Vitalis - Informations", client.user.avatarURL(), infos.homepage)
+			.setAuthor("Vitalis - Informations", client.user.avatarURL(), homepage)
 			.setColor(COLORS.gold)
-			.addField("**Author**", infos.author, true)
-			.addField("**Version**", infos.version, true)
-			.addField("**Language**", `TypeScript ${infos.dependencies.typescript}`, true)
-			.addField("**GitHub Repo**", `[Link](${infos.homepage})`, true)
-			.addField("**Library**", `[discord.js](https://discord.js.org/#/) ${infos.dependencies["discord.js"]}`, true)
-			.addField("**Description**", infos.description)
-			.setFooter(`Vitalis - ${infos.author} | Apache 2.0 license. Asked by ${message.author.tag}`,
+			.addField("**Author**", author, true)
+			.addField("**Version**", version, true)
+			.addField("**Language**", `TypeScript ${devDependencies.typescript}`, true)
+			.addField("**GitHub Repo**", `[Link](${homepage})`, true)
+			.addField("**Library**", `[discord.js](https://discord.js.org/#/) ${dependencies["discord.js"]}`, true)
+			.addField("**Description**", description)
+			.setFooter(`Vitalis - ${author} | Apache 2.0 license. Asked by ${message.author.tag}`,
 				message.author.avatarURL());
 
 		message.channel.send(embed);
