@@ -33,13 +33,13 @@ export default class Unmute extends Command {
 
 		const muteRole = await getMuteRole(message.guild);
 
-		if (!await canSanction(member, message.member, message.channel, "unmute")) return;
+		if (!await canSanction(member, message.member, "unmute")) return;
 
 		if (!member.roles.cache.get(muteRole.id)) throw new SanctionError("This user is not muted.");
 
 		const unmuteEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
-			.setColor(COLORS.light_green)
+			.setColor(COLORS.lightGreen)
 			.setTitle("Unmute")
 			.setDescription(`${member.user} has been unmuted.`)
 			.setTimestamp()

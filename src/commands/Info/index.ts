@@ -2,13 +2,14 @@ import { Message, MessageEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
-import { getPackageJsonPath } from "../../functions/getPackageJsonPath";
+import { getPackageJsonPath } from "./functions/getPackageJsonPath";
 
 export default class Info extends Command {
 	constructor() {
 		super({
 			name: "info",
 			description: "Get bot's informations",
+			category: "Misc",
 		});
 	}
 

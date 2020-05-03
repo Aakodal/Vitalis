@@ -16,6 +16,7 @@ export default class Unban extends Command {
 		super({
 			name: "unban",
 			description: "Unban a member by its ID",
+			category: "Moderation",
 			usage: "unban <user ID | user mention>",
 			aliases: ["deban"],
 			permission: "BAN_MEMBERS",
@@ -30,7 +31,7 @@ export default class Unban extends Command {
 
 		if (!user) throw new UserError();
 
-		if (!await canSanction(user, message.member, message.channel, "unban")) return;
+		if (!await canSanction(user, message.member, "unban")) return;
 
 		const banned = await message.guild.fetchBans();
 
@@ -38,7 +39,7 @@ export default class Unban extends Command {
 
 		const unbanEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
-			.setColor(COLORS.light_green)
+			.setColor(COLORS.lightGreen)
 			.setTitle("Unban")
 			.setDescription(`${user} has been unbanned.`)
 			.setTimestamp()

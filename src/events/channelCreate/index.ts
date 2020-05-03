@@ -1,8 +1,8 @@
 import { GuildChannel, DMChannel, MessageEmbed } from "discord.js";
-import { client } from "../index";
-import { getValueFromDB } from "../functions/getValueFromDB";
-import { log } from "../functions/log";
-import { COLORS } from "../lib/constants";
+import { client } from "../../index";
+import { getValueFromDB } from "../../functions/getValueFromDB";
+import { log } from "../../functions/log";
+import { COLORS } from "../../lib/constants";
 
 client.on("channelCreate", async (channel: GuildChannel | DMChannel) => {
 	const logsActive = await getValueFromDB<boolean>("server", "logsActive");
@@ -16,7 +16,7 @@ client.on("channelCreate", async (channel: GuildChannel | DMChannel) => {
 
 	const embed = new MessageEmbed()
 		.setAuthor("Channel Created", channel.guild.iconURL())
-		.setColor(COLORS.light_green)
+		.setColor(COLORS.lightGreen)
 		.addField("**Channel**", channelReference, true)
 		.addField("**Type**", channel.type, true)
 		.setTimestamp(Date.now());

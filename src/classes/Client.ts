@@ -37,43 +37,39 @@ class Client extends DiscordClient {
 		const commandsPath = path.join(__dirname, "../commands/");
 		const commandsFolders = await fs.readdir(commandsPath);
 		for (const folder of commandsFolders) {
-			const folderPath = path.join(commandsPath, folder);
-			const commandsFiles = await fs.readdir(folderPath);
-			for (const file of commandsFiles) {
-				try {
-					await this.loadCommand(folder, file);
-				} catch (error) {
-					console.error(`Could not load command in ${file}; ${error.message}\n${error.stackTrace}`);
-				}
+			const commandPath = path.join(commandsPath, folder);
+			try {
+				await this.loadCommand(commandPath);
+			} catch (error) {
+				console.error(`Could not load command in ${folder}; ${error.message}\n${error.stackTrace}`);
 			}
 		}
 
 		const eventsPath = path.join(__dirname, "../events/");
-		const eventsFiles = await fs.readdir(eventsPath);
-		for (const file of eventsFiles) {
-			const eventPath = path.join(eventsPath, file);
+		const eventsFolders = await fs.readdir(eventsPath);
+		for (const folder of eventsFolders) {
+			const eventPath = path.join(eventsPath, folder);
 			import(eventPath);
 		}
 
 		await this.login(config.token);
 	}
 
-	private async loadCommand(folderName: string, commandFile: string) {
-		const commandPath = path.join(__dirname, `../commands/${folderName}/${commandFile}`);
-		const { default: CommandClass } = await import(commandPath);
+	private async loadCommand(path: string) {
+		const { default: CommandClass } = await import(path);
 		const command: Command = new CommandClass();
 
-		if (!command.informations.name) return console.log(`Command in ${commandFile} does not have any name. Skipping...`);
+		if (!command.informations.name) return console.log(`Command in '${path}' does not have any name. Skipping...`);
 
 		if (this.commands.has(command.informations.name)) {
-			return console.info(`Command ${command.informations.name} in ${commandFile} already exists. Skipping...`);
+			return console.info(`Command ${command.informations.name} in '${path}' already exists. Skipping...`);
 		}
 
 		this.commands.set(command.informations.name, command);
 
-		const category = stringNormalize(folderName);
+		const category = stringNormalize(command.informations.category) || "Misc";
 		command.setCategory(category);
-		command.setCommandFile(commandFile);
+		command.setPath(path);
 
 		console.info(`Command ${command.informations.name} loaded.`);
 
@@ -99,12 +95,9 @@ class Client extends DiscordClient {
 			}
 
 			this.commands.delete(commandName);
-			const commandPath = `../commands/${command.informations.category}/${command.informations.commandFile}`;
-			const commandFullPath = path.join(__dirname, commandPath);
-			delete require.cache[require.resolve(commandFullPath)];
+			delete require.cache[require.resolve(command.informations.path)];
 
-			const commandFile = stringNormalize(`${commandName}.js`);
-			return this.loadCommand(command.informations.category, commandFile);
+			return this.loadCommand(command.informations.path);
 		} catch (error) {
 			throw new CommandError(`Could not reload command ${commandName}; ${error}`);
 		}

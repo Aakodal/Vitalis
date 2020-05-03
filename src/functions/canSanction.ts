@@ -1,21 +1,22 @@
 import {
-	GuildMember, Snowflake, User, TextBasedChannelFields,
+	GuildMember, Snowflake, User,
 } from "discord.js";
 import { client } from "../index";
-import { sendError } from "./sendError";
 import { fetchMember } from "./fetchMember";
+import { ArgumentError } from "../exceptions/ArgumentError";
+import { UsageError } from "../exceptions/UsageError";
+import { MemberError } from "../exceptions/MemberError";
+import { PermissionError } from "../exceptions/PermissionError";
 
 export async function canSanction(
-	user: GuildMember | User | Snowflake, author: GuildMember, channel: TextBasedChannelFields, sanction: string,
+	user: GuildMember | User | Snowflake, author: GuildMember, sanction: string,
 ) {
 	if (!user) {
-		sendError("Please mention the user. Note that they must be on the server.", channel);
-		return false;
+		throw new ArgumentError("Please mention the user or provide their ID. Note that they must be on the server.");
 	}
 
 	if (user === author) {
-		sendError(`You can't ${sanction} yourself.`, channel);
-		return false;
+		throw new UsageError(`You can't ${sanction} yourself.`);
 	}
 
 	if (sanction === "ban" || sanction === "unban") return true;
@@ -24,19 +25,14 @@ export async function canSanction(
 	const member = await fetchMember(author.guild, user);
 
 	if (!member) {
-		sendError(`Member not found.`, channel);
-		return false;
+		throw new MemberError(`Member not found.`);
 	}
 
 	const clientMember = await fetchMember(author.guild, client.user);
 
 	if (member?.roles.highest.comparePositionTo(clientMember.roles.highest) >= 0
 		|| member?.roles.highest.comparePositionTo(author.roles.highest) >= 0) {
-		sendError(
-			`You can't ${sanction} someone who is superior or equal to you or to me.`,
-			channel,
-		);
-		return false;
+		throw new PermissionError(`You can't ${sanction} someone who is superior or equal to you or to me.`);
 	}
 
 	return true;

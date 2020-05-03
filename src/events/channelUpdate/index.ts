@@ -1,10 +1,10 @@
 import {
 	GuildChannel, DMChannel, MessageEmbed, TextChannel,
 } from "discord.js";
-import { client } from "../index";
-import { getValueFromDB } from "../functions/getValueFromDB";
-import { log } from "../functions/log";
-import { COLORS } from "../lib/constants";
+import { client } from "../../index";
+import { getValueFromDB } from "../../functions/getValueFromDB";
+import { log } from "../../functions/log";
+import { COLORS } from "../../lib/constants";
 
 client.on("channelUpdate", async (oldChannel: GuildChannel | DMChannel, newChannel: GuildChannel | DMChannel) => {
 	const logsActive = await getValueFromDB<boolean>("server", "logsActive");

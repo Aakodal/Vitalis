@@ -7,70 +7,79 @@ import { log } from "../../functions/log";
 import { getSanctionValues } from "../../functions/getSanctionValues";
 import { verifUserInDB } from "../../functions/verifUserInDB";
 import { unsanction } from "../../functions/unsanction";
-import { getMuteRole } from "../../functions/getMuteRole";
 import { canSanction } from "../../functions/canSanction";
 import { longTimeout } from "../../functions/longTimeout";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { fetchMember } from "../../functions/fetchMember";
+import { fetchUser } from "../../functions/fetchUser";
 import { ArgumentError } from "../../exceptions/ArgumentError";
-import { MemberError } from "../../exceptions/MemberError";
+import { UserError } from "../../exceptions/UserError";
 import { SanctionError } from "../../exceptions/SanctionError";
+import { fetchMember } from "../../functions/fetchMember";
 import { UsageError } from "../../exceptions/UsageError";
 
-export default class Mute extends Command {
+export default class Ban extends Command {
 	constructor() {
 		super({
-			name: "mute",
-			description: "Mute a member with a specified reason",
-			usage: "mute <member ID | member mention> [duration] <reason>",
-			permission: "MUTE_MEMBERS",
+			name: "ban",
+			description: "Ban a member with a specified reason",
+			category: "Moderation",
+			usage: "ban <user ID | user mention> [duration] <reason>",
+			permission: "BAN_MEMBERS",
 		});
 	}
 
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[1]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
 
-		const memberSnowflake = getUserIdFromString(args[0]);
-		const member = await fetchMember(message.guild, memberSnowflake);
+		const userSnowflake = getUserIdFromString(args[0]);
+		const user = await fetchUser(userSnowflake);
 
-		if (!member) throw new MemberError();
+		if (!user) throw new UserError();
 
-		const muteRole = await getMuteRole(message.guild);
+		if (!await canSanction(user, message.member, "ban")) return;
 
-		if (member.user.bot) throw new SanctionError("You can't mute a bot.");
+		const banned = await message.guild.fetchBans();
 
-		if (!await canSanction(member, message.member, message.channel, "mute")) return;
-
-		if (member.roles.cache.get(muteRole.id)) throw new SanctionError("This member is already muted.");
+		if (banned.get(user.id)) throw new SanctionError("This user is already banned.");
 
 		const [
 			durationString, duration, reason, embedDescription, DMDescription,
-		] = getSanctionValues(args, "muted", member.user, message.guild);
+		] = getSanctionValues(args, "banned", user, message.guild);
 		const durationNumber = Number(duration);
+		const reasonText = String(reason);
 
 		if (durationNumber && !args[2]) throw new UsageError(`Wrong command usage. Usage: ${this.informations.usage}`);
 
-		const muteEmbed = new MessageEmbed()
+		const banEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
-			.setColor(COLORS.light_green)
-			.setTitle("Mute")
+			.setColor(COLORS.lightGreen)
+			.setTitle("Ban")
 			.setDescription(embedDescription)
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
-		try {
-			await member.roles.add(muteRole);
-		} catch (error) {
-			throw new SanctionError(`For some reason, this member couldn't have been muted; ${error.message}`);
+		const member = await fetchMember(message.guild, user);
+
+		if (member) {
+			if (!member.bannable) throw new SanctionError("For some reason, this member can not be banned.");
+			try {
+				await user.send(banEmbed.setDescription(DMDescription));
+			} catch (error) {
+				console.info("Could not DM the banned user.");
+			}
 		}
 
-		await message.channel.send(muteEmbed);
+		try {
+			await message.guild.members.ban(user, { days: 7, reason: reasonText });
+		} catch (error) {
+			throw new SanctionError(`This user couldn't have been banned; ${error.message}`);
+		}
 
-		await log("modlog", muteEmbed);
+		await message.channel.send(banEmbed);
 
-		await member.user.send(muteEmbed.setDescription(DMDescription));
+		await log("modlog", banEmbed);
 
-		const memberID = member.user.id;
+		const userID = user.id;
 
 		const created = Date.now();
 
@@ -80,9 +89,9 @@ export default class Mute extends Command {
 
 		await db
 			.insert({
-				discord_id: memberID,
-				infraction: reason,
-				type: "mute",
+				discord_id: userID,
+				infraction: reasonText,
+				type: "ban",
 				created,
 				expiration,
 				duration: durationString,
@@ -90,19 +99,19 @@ export default class Mute extends Command {
 			})
 			.into("infractions");
 
-		await verifUserInDB(memberID);
+		await verifUserInDB(userID);
 
 		await db.update({
-			pseudo: member.user.tag,
-			actual_sanction: "muted",
+			pseudo: user.tag,
+			actual_sanction: "banned",
 			created,
 			expiration,
-		}).into("users").where({ discord_id: memberID });
+		}).into("users").where({ discord_id: userID });
 
 		if (!duration) return;
 
 		longTimeout(async () => {
-			await unsanction(memberID, message.guild, "muted", false);
+			await unsanction(userID, message.guild, "banned", false);
 		}, expiration - created);
 	}
 }

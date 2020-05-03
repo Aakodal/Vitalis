@@ -1,12 +1,12 @@
-import { PermissionResolvable } from "discord.js";
+import { MessageEmbed, PermissionResolvable } from "discord.js";
 import * as config from "./config.json";
 import { Client } from "./classes/Client";
 import { db } from "./lib/database";
 import { getValueFromDB } from "./functions/getValueFromDB";
-import { sendError } from "./functions/sendError";
 import { unsanction } from "./functions/unsanction";
 import { getMuteRole } from "./functions/getMuteRole";
 import { formatDate } from "./functions/formatDate";
+import { COLORS } from "./lib/constants";
 
 const client = new Client({ partials: ["USER", "GUILD_MEMBER", "MESSAGE", "REACTION"] });
 
@@ -53,7 +53,12 @@ client.on("message", async (message) => {
 		try {
 			await command.run(message, args, client);
 		} catch (error) {
-			return sendError(error, message.channel);
+			const embed = new MessageEmbed()
+				.setAuthor("Error", client.user.avatarURL())
+				.setColor(COLORS.darkRed)
+				.setDescription(error);
+
+			return message.channel.send(embed);
 		}
 
 		try {

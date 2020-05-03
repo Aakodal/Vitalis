@@ -27,7 +27,7 @@ export async function unsanction(id: Snowflake, server: Guild, sanction: string,
 
 	const embed = new MessageEmbed()
 		.setAuthor("Moderation", server.iconURL())
-		.setColor(COLORS.light_green)
+		.setColor(COLORS.lightGreen)
 		.setDescription(`You have been unmuted from ${server.name}.`)
 		.setTimestamp();
 

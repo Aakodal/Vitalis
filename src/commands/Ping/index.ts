@@ -8,6 +8,7 @@ export default class Ping extends Command {
 		super({
 			name: "ping",
 			description: "Check bot's ping",
+			category: "Misc",
 		});
 	}
 

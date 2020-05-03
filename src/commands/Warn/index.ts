@@ -12,12 +12,12 @@ import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
 
-export default class Kick extends Command {
+export default class Warn extends Command {
 	constructor() {
 		super({
-			name: "kick",
-			description: "Kick a member with a specified reason",
-			usage: "kick <member ID | member mention> <reason>",
+			name: "warn",
+			description: "Warn a member with a specified reason",
+			usage: "warn <member ID | member mention> <reason>",
 			permission: "KICK_MEMBERS",
 		});
 	}
@@ -32,25 +32,23 @@ export default class Kick extends Command {
 
 		const reason = args.slice(1).join(" ");
 
-		if (!await canSanction(member, message.member, message.channel, "kick")) return;
+		if (member.user.bot) throw new SanctionError("You can't warn a bot.");
 
-		const kickEmbed = new MessageEmbed()
+		if (!await canSanction(member, message.member, "warn")) return;
+
+		const warnEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
-			.setColor(COLORS.light_red)
-			.setTitle("Kick")
-			.setDescription(`${member.user} has been kicked for the following reason:\n\n${reason}`)
+			.setColor(COLORS.lightGreen)
+			.setTitle("Warning")
+			.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`)
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
-		if (!member.kickable) throw new SanctionError("For some reason, this member can not be kicked.");
+		await message.channel.send(warnEmbed);
 
-		await member.user.send(kickEmbed.setDescription(`You have been kicked for the following reasion:\n\n${reason}`));
+		await log("modlog", warnEmbed);
 
-		await member.kick(reason);
-
-		await message.channel.send(kickEmbed);
-
-		await log("modlog", kickEmbed);
+		await member.user.send(warnEmbed.setDescription(`You have been warned for the following reasion:\n\n${reason}`));
 
 		const memberID = member.user.id;
 
@@ -58,12 +56,20 @@ export default class Kick extends Command {
 			.insert({
 				discord_id: memberID,
 				infraction: reason,
-				type: "kick",
+				type: "warn",
 				created: Date.now(),
 				moderator: message.author.id,
 			})
 			.into("infractions");
 
 		await verifUserInDB(memberID);
+
+		await db
+			.update({
+				pseudo: member.user.tag,
+				last_warn: Date.now(),
+			})
+			.into("users")
+			.where({ discord_id: memberID });
 	}
 }
