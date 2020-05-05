@@ -22,8 +22,8 @@ abstract class Command {
 		this._informations.category = category;
 	}
 
-	setPath(file: string) {
-		this._informations.path = file;
+	setPath(path: string) {
+		this._informations.path = path;
 	}
 
 	get informations() {

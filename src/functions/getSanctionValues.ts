@@ -21,8 +21,8 @@ export function getSanctionValues(args: string[], sanction: string, member: User
 		: `${member} has been permanently ${sanction} for the following reason:\n\n${reason}`;
 
 	const DMDescription = duration
-		? `You have been permanently ${sanction} from ${guild.name} for the following reason:\n\n${reason}`
-		: `You have been ${sanction} from ${guild.name} for ${durationString} for the following reason:\n\n${reason}`;
+		? `You have been ${sanction} from ${guild.name} for ${durationString} for the following reason:\n\n${reason}`
+		: `You have been permanently ${sanction} from ${guild.name} for the following reason:\n\n${reason}`;
 
 	return [durationString, duration, reason, embedDescription, DMDescription];
 }

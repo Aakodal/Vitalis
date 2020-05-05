@@ -43,9 +43,12 @@ export default class Kick extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
+		const userEmbed = new MessageEmbed(kickEmbed)
+			.setDescription(`You have been kicked for the following reasion:\n\n${reason}`);
+
 		if (!member.kickable) throw new SanctionError("For some reason, this member can not be kicked.");
 
-		await member.user.send(kickEmbed.setDescription(`You have been kicked for the following reasion:\n\n${reason}`));
+		await member.user.send(userEmbed);
 
 		await member.kick(reason);
 

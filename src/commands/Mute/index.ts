@@ -59,6 +59,8 @@ export default class Mute extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
+		const userEmbed = new MessageEmbed(muteEmbed).setDescription(DMDescription);
+
 		try {
 			await member.roles.add(muteRole);
 		} catch (error) {
@@ -69,7 +71,7 @@ export default class Mute extends Command {
 
 		await log("modlog", muteEmbed);
 
-		await member.user.send(muteEmbed.setDescription(DMDescription));
+		await member.user.send(userEmbed);
 
 		const memberID = member.user.id;
 
