@@ -25,33 +25,33 @@ export async function unsanction(id: Snowflake, server: Guild, sanction: string,
 		}, expiration - now);
 	}
 
-	const embed = new MessageEmbed()
+	const baseEmbed = new MessageEmbed()
 		.setAuthor("Moderation", server.iconURL())
 		.setColor(COLORS.lightGreen)
-		.setDescription(`You have been unmuted from ${server.name}.`)
 		.setTimestamp();
 
-	const autoEmbed = new MessageEmbed()
-		.setAuthor("Moderation", server.iconURL())
+	const autoEmbed = new MessageEmbed(baseEmbed)
 		.setColor(COLORS.gold)
-		.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout).`)
-		.setTimestamp();
+		.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout).`);
 
 	if (sanction === "muted") {
 		const member = await fetchMember(server, id);
 		const muteRole = await getMuteRole(server);
 
-		if (!member
-			|| !muteRole) return;
+		if (member
+			&& muteRole
+			&& member.roles.cache.get(muteRole.id)) await member.roles.remove(muteRole);
 
-		if (member.roles.cache.get(muteRole.id)) await member.roles.remove(muteRole);
 		await db.update({
 			actual_sanction: null,
 			created: null,
 			expiration: null,
 		}).into("users").where({ discord_id: id });
 
-		await member.send(embed.setTitle("Unmute"));
+		const unmuteEmbed = new MessageEmbed(baseEmbed)
+			.setTitle("Unmute")
+			.setDescription(`You have been unmuted from ${server.name}.`);
+		await member.send(unmuteEmbed);
 
 		if (!forced) await log("modlog", autoEmbed);
 

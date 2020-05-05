@@ -58,22 +58,22 @@ export default class Ban extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
 
+		const userEmbed = new MessageEmbed(banEmbed).setDescription(DMDescription);
+
 		const member = await fetchMember(message.guild, user);
 
-		if (member) {
-			if (!member.bannable) throw new SanctionError("For some reason, this member can not be banned.");
-			try {
-				await user.send(banEmbed.setDescription(DMDescription));
-			} catch (error) {
-				console.info("Could not DM the banned user.");
-			}
-		}
+		if (member && !member.bannable) throw new SanctionError("For some reason, this member can not be banned.");
 
 		try {
 			await message.guild.members.ban(user, { days: 7, reason: reasonText });
 		} catch (error) {
 			throw new SanctionError(`This user couldn't have been banned; ${error.message}`);
 		}
+
+		try {
+			if (member) await user.send(userEmbed);
+		// eslint-disable-next-line no-empty
+		} catch {}
 
 		await message.channel.send(banEmbed);
 
