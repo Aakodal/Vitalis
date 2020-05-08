@@ -26,7 +26,7 @@ async function databaseCheck() {
 			table.string("duration");
 			table.string("moderator");
 		});
-		console.log("Infractions table created successfully.");
+		console.info("Infractions table created successfully.");
 	}
 
 	const usersTableExists = await db.schema.hasTable("users");
@@ -41,7 +41,7 @@ async function databaseCheck() {
 			table.timestamp("created");
 			table.timestamp("expiration");
 		});
-		console.log("Users table created successfully.");
+		console.info("Users table created successfully.");
 	}
 
 	const serverTableExists = await db.schema.hasTable("server");
@@ -91,7 +91,7 @@ async function databaseCheck() {
 			leavingMessageActive: false,
 			leavingMessageText: "{USER} left the server :'c",
 		}).into("server");
-		console.log("Server table created successfully.");
+		console.info("Server table created successfully.");
 	}
 
 	const actualPrefix = await getValueFromDB<string>("server", "prefix");
