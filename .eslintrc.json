@@ -118,6 +118,12 @@
 			}
 		],
 	  	"no-continue": "off",
-		"no-loop-func": "off"
+		"no-loop-func": "off",
+		"no-empty": [
+			"error",
+			{
+				"allowEmptyCatch": true
+			}
+		]
 	}
 }

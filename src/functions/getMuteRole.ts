@@ -5,10 +5,8 @@ import { configMuteRole } from "./configMuteRole";
 
 export async function getMuteRole(server: Guild) {
 	const muteRoleDB = await server.roles.fetch(await getValueFromDB("server", "muteRoleID") || "1");
-	if (!muteRoleDB) await createMuteRole(server);
 
-	const muteRole = await server.roles.fetch(await getValueFromDB("server", "muteRoleID"));
-
+	const muteRole = muteRoleDB || await createMuteRole(server);
 	await configMuteRole(server, muteRole);
 
 	return muteRole;

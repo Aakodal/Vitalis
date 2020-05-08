@@ -17,4 +17,6 @@ export async function createMuteRole(server: Guild) {
 		reason: "[AUTO] Mute role not found, created",
 	});
 	await pushValueInDB("server", "muteRoleID", muteRole.id);
+
+	return muteRole;
 }
