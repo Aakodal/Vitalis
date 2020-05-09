@@ -10,7 +10,7 @@ export async function createMuteRole(server: Guild) {
 			name: "Muted",
 			color: 0x000001,
 			hoist: false,
-			position: botHighestRolePosition - 1,
+			position: botHighestRolePosition,
 			permissions: ["VIEW_CHANNEL", "CONNECT", "READ_MESSAGE_HISTORY"],
 			mentionable: false,
 		},
