@@ -106,10 +106,11 @@ export default class Help extends Command {
 				&& !user.bot
 				&& ["⏮️", "⬅", "➡", "⏭", "❌"].includes(reaction.emoji.name);
 
-			while (embedMessage) {
+			while (embedMessage && !embedMessage.deleted) {
 				const collected = await embedMessage.awaitReactions(filter, { max: 1 });
 				const reaction = collected.first();
 
+				if (!reaction) break;
 				if (reaction.partial) await reaction.fetch();
 				if (reaction.message.partial) await reaction.message.fetch();
 
@@ -121,10 +122,10 @@ export default class Help extends Command {
 					"❌": () => embedMessage.delete(),
 				};
 
-				if (!reactions[reaction.emoji.name]) return;
+				if (!reactions[reaction.emoji.name]) continue;
 				reactions[reaction.emoji.name]();
 
-				if (reaction.emoji.name === "❌") return;
+				if (reaction.emoji.name === "❌") break;
 
 				await embedMessage.reactions.removeAll();
 				await embedMessage.edit(stockEmbeds[currentPage]);
