@@ -18,17 +18,21 @@ export default class Reload extends Command {
 
 	async run(message: Message, args: string[], client: Client) {
 		if (!args[0]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
-		if (!client.commands.has(args[0].toLowerCase())) throw new CommandError(`Command \`${args[0]}\` not found.`);
+		const commandName = args[0].toLowerCase();
+		if (!client.commands.has(commandName)
+			&& !client.aliases.has(commandName)) throw new CommandError(`Command \`${args[0]}\` not found.`);
+
+		const command = client.commands.get(commandName) || client.aliases.get(commandName);
 
 		try {
-			await client.reloadCommand(args[0].toLowerCase());
+			await client.reloadCommand(command);
 		} catch (error) {
 			throw new CommandError(error.message);
 		}
 
 		const embed = new MessageEmbed()
 			.setColor(COLORS.lightGreen)
-			.setDescription(`✅ Command ${args[0].toLowerCase()} reloaded.`);
+			.setDescription(`✅ Command ${command.informations.name} reloaded.`);
 
 		message.channel.send(embed);
 	}

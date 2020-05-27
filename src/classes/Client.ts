@@ -84,22 +84,18 @@ class Client extends DiscordClient {
 		}
 	}
 
-	reloadCommand(commandName: string) {
+	reloadCommand(command: Command) {
 		try {
-			const command = this.commands.get(commandName);
-
-			if (!command) return console.error(`${commandName} does not exist.`);
-
 			for (const [key, value] of this.aliases) {
 				if (value === command) this.aliases.delete(key);
 			}
 
-			this.commands.delete(commandName);
+			this.commands.delete(command.informations.name);
 			delete require.cache[require.resolve(command.informations.path)];
 
 			return this.loadCommand(command.informations.path);
 		} catch (error) {
-			throw new CommandError(`Could not reload command ${commandName}; ${error}`);
+			throw new CommandError(`Could not reload command ${command.informations.name}; ${error}`);
 		}
 	}
 

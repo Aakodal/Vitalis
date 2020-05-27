@@ -1,4 +1,4 @@
-import { MessageEmbed, PermissionResolvable } from "discord.js";
+import {MessageEmbed, MessageReaction, PermissionResolvable, User} from "discord.js";
 import * as config from "./config.json";
 import { Client } from "./classes/Client";
 import { db } from "./lib/database";
@@ -7,6 +7,7 @@ import { unsanction } from "./functions/unsanction";
 import { getMuteRole } from "./functions/getMuteRole";
 import { formatDate } from "./functions/formatDate";
 import { COLORS } from "./lib/constants";
+import { react } from "./functions/react";
 
 const client = new Client({ partials: ["USER", "GUILD_MEMBER", "MESSAGE", "REACTION"] });
 
@@ -51,6 +52,10 @@ client.on("message", async (message) => {
 		|| message.member.hasPermission(command.informations.permission as PermissionResolvable)
 	) {
 		try {
+			await message.delete();
+		} catch {}
+
+		try {
 			await command.run(message, args, client);
 		} catch (error) {
 			const embed = new MessageEmbed()
@@ -58,13 +63,35 @@ client.on("message", async (message) => {
 				.setColor(COLORS.darkRed)
 				.setDescription(error);
 
-			return message.channel.send(embed);
-		}
+			const errorMessage = await message.channel.send(embed);
+			await react("🔍", errorMessage);
 
-		try {
-			await message.delete();
-		} catch {
-			return null;
+			const filter = (reaction: MessageReaction, user: User) => reaction.message.id === errorMessage.id
+				&& user === message.author
+				&& !user.bot
+				&& reaction.emoji.name === "🔍";
+
+			const collected = await errorMessage.awaitReactions(filter, { max: 1, time: 5000 });
+			const reaction = collected.first();
+
+			if (!reaction) {
+				try {
+					return errorMessage.reactions.removeAll();
+				} catch {}
+			}
+			if (reaction.partial) await reaction.fetch();
+			if (reaction.message.partial) await reaction.message.fetch();
+
+			// V8 actually writes error.message inside error.stack, so I remove it
+			const stackTrace = error.stack.split("\n").slice(1).join("\n");
+
+			const completeEmbed = new MessageEmbed(embed)
+				.setDescription(`${error}\`\`\`${stackTrace}\`\`\``);
+
+			try {
+				await errorMessage.edit(completeEmbed);
+				await errorMessage.reactions.removeAll();
+			} catch {}
 		}
 	}
 });
