@@ -26,7 +26,7 @@ class Client extends DiscordClient {
 
 	async init() {
 		if (!config.botOwner
-			|| !config.botOwner.match(/\d+/)) console.warn(`Owner's ID is undefined or invalid.`);
+			|| !config.botOwner.match(/^\d+$/)) console.warn(`Owner's ID is undefined or invalid.`);
 
 		try {
 			await databaseCheck();
