@@ -1,4 +1,6 @@
-import {MessageEmbed, MessageReaction, PermissionResolvable, User} from "discord.js";
+import {
+	MessageEmbed, MessageReaction, PermissionResolvable, User,
+} from "discord.js";
 import * as config from "./config.json";
 import { Client } from "./classes/Client";
 import { db } from "./lib/database";
