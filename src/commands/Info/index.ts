@@ -19,6 +19,7 @@ export default class Info extends Command {
 		const {
 			author, version, description, homepage, dependencies, devDependencies,
 		} = packageJson;
+		const invite = "https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=8&scope=bot";
 
 		const embed = new MessageEmbed()
 			.setAuthor("Vitalis - Informations", client.user.displayAvatarURL({ dynamic: true }), homepage)
@@ -28,7 +29,7 @@ export default class Info extends Command {
 			.addField("**Language**", `TypeScript ${devDependencies.typescript}`, true)
 			.addField("**GitHub Repo**", `[Link](${homepage})`, true)
 			.addField("**Library**", `[discord.js](https://discord.js.org/#/) ${dependencies["discord.js"]}`, true)
-			.addField("**Invite link**", `[Click here!](https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=8&scope=bot)`, true)
+			.addField("**Invite link**", `[Click here!](${invite})`, true)
 			.addField("**Description**", description)
 			.setFooter(
 				`Vitalis - ${author} | Apache 2.0 license. Asked by ${message.author.tag}`,
