@@ -1,0 +1,15 @@
+import { EmbedMessage } from "../index";
+import { getValueFromDB } from "../../../functions/getValueFromDB";
+import { pushValueInDB } from "../../../functions/pushValueInDB";
+import { reactionsHandler } from "./reactionsHandler";
+
+export async function toggleValue(source: EmbedMessage, column: string): Promise<void> {
+	const { message, embed } = source;
+
+	const value = await getValueFromDB<number>("servers", column, { server_id: message.guild.id });
+
+	await pushValueInDB<boolean>("servers", column, message.guild.id, !value);
+
+	await message.edit("", { embed: await embed(message) });
+	await reactionsHandler(source);
+}

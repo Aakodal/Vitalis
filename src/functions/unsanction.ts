@@ -7,19 +7,23 @@ import { getMuteRole } from "./getMuteRole";
 import { longTimeout } from "./longTimeout";
 import { fetchMember } from "./fetchMember";
 
-export async function unsanction(id: Snowflake, server: Guild, sanction: string, forced = false) {
-	await verifUserInDB(id);
-	const user = (await db.from("users").where({ discord_id: id, actual_sanction: sanction }))[0];
+export async function unsanction(
+	id: Snowflake,
+	server: Guild,
+	sanction: string,
+	forced = false,
+): Promise<number | NodeJS.Timeout> {
+	await verifUserInDB(id, server);
+	const user = (await db.from("users").where({ server_id: server.id, discord_id: id, actual_sanction: sanction }))[0];
 
-	if (!user) return;
+	if (!user) {
+		return;
+	}
 
 	const { expiration } = user;
 	const now = Date.now();
 
-	if (expiration
-		&& now < expiration
-		&& !forced
-	) {
+	if (expiration && now < expiration && !forced) {
 		return longTimeout(() => {
 			unsanction(id, server, sanction);
 		}, expiration - now);
@@ -38,35 +42,47 @@ export async function unsanction(id: Snowflake, server: Guild, sanction: string,
 		const member = await fetchMember(server, id);
 		const muteRole = await getMuteRole(server);
 
-		if (member
-			&& muteRole
-			&& member.roles.cache.get(muteRole.id)) await member.roles.remove(muteRole);
+		if (member && muteRole && member.roles.cache.get(muteRole.id)) {
+			await member.roles.remove(muteRole);
+		}
 
-		await db.update({
-			actual_sanction: null,
-			created: null,
-			expiration: null,
-		}).into("users").where({ discord_id: id });
+		await db
+			.update({
+				actual_sanction: null,
+				created: null,
+				expiration: null,
+			})
+			.into("users")
+			.where({ server_id: server.id, discord_id: id });
 
 		const unmuteEmbed = new MessageEmbed(baseEmbed)
 			.setTitle("Unmute")
 			.setDescription(`You have been unmuted from ${server.name}.`);
 		await member.send(unmuteEmbed);
 
-		if (!forced) await log("modlog", autoEmbed);
+		if (!forced) {
+			await log("mod_log", autoEmbed, server);
+		}
 
 		return;
 	}
 	// else
 	const bans = await server.fetchBans();
-	if (!bans.get(id)) return;
+	if (!bans.get(id)) {
+		return;
+	}
 
 	await server.members.unban(id, "[AUTO] Sanction finished.");
-	await db.update({
-		actual_sanction: null,
-		created: null,
-		expiration: null,
-	}).into("users").where({ discord_id: id });
+	await db
+		.update({
+			actual_sanction: null,
+			created: null,
+			expiration: null,
+		})
+		.into("users")
+		.where({ server_id: server.id, discord_id: id });
 
-	if (!forced) await log("modlog", autoEmbed);
+	if (!forced) {
+		await log("mod_log", autoEmbed, server);
+	}
 }

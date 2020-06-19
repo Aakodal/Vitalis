@@ -10,6 +10,7 @@ import { fetchUser } from "../../functions/fetchUser";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { UserError } from "../../exceptions/UserError";
 import { SanctionError } from "../../exceptions/SanctionError";
+import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Unban extends Command {
 	constructor() {
@@ -17,25 +18,35 @@ export default class Unban extends Command {
 			name: "unban",
 			description: "Unban a member by its ID",
 			category: "Moderation",
-			usage: "unban <user ID | user mention>",
+			usage: (prefix: string) => `${prefix}unban <user ID | user mention>`,
 			aliases: ["deban"],
 			permission: "BAN_MEMBERS",
 		});
 	}
 
-	async run(message: Message, args: string[], client: Client) {
-		if (!args[0]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
+	async run(message: Message, args: string[], client: Client): Promise<void> {
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+
+		if (!args[0]) {
+			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage(prefix)}`);
+		}
 
 		const userSnowflake = getUserIdFromString(args[0]);
 		const user = await fetchUser(userSnowflake);
 
-		if (!user) throw new UserError();
+		if (!user) {
+			throw new UserError();
+		}
 
-		if (!await canSanction(user, message.member, "unban")) return;
+		if (!(await canSanction(user, message.member, "unban"))) {
+			return;
+		}
 
 		const banned = await message.guild.fetchBans();
 
-		if (!banned.get(user.id)) throw new SanctionError("This user is not banned.");
+		if (!banned.get(user.id)) {
+			throw new SanctionError("This user is not banned.");
+		}
 
 		const unbanEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
@@ -43,7 +54,7 @@ export default class Unban extends Command {
 			.setTitle("Unban")
 			.setDescription(`${user} has been unbanned.`)
 			.setTimestamp()
-			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
 		try {
 			await unsanction(user.id, message.guild, "banned", true);
@@ -53,6 +64,6 @@ export default class Unban extends Command {
 
 		await message.channel.send(unbanEmbed);
 
-		await log("modlog", unbanEmbed);
+		await log("mod_log", unbanEmbed, message.guild);
 	}
 }

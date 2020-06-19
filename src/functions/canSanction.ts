@@ -1,6 +1,4 @@
-import {
-	GuildMember, Snowflake, User,
-} from "discord.js";
+import { GuildMember, Snowflake, User } from "discord.js";
 import { client } from "../index";
 import { fetchMember } from "./fetchMember";
 import { ArgumentError } from "../exceptions/ArgumentError";
@@ -9,8 +7,10 @@ import { MemberError } from "../exceptions/MemberError";
 import { PermissionError } from "../exceptions/PermissionError";
 
 export async function canSanction(
-	user: GuildMember | User | Snowflake, author: GuildMember, sanction: string,
-) {
+	user: GuildMember | User | Snowflake,
+	author: GuildMember,
+	sanction: string,
+): Promise<boolean> {
 	if (!user) {
 		throw new ArgumentError("Please mention the user or provide their ID. Note that they must be on the server.");
 	}
@@ -19,7 +19,9 @@ export async function canSanction(
 		throw new UsageError(`You can't ${sanction} yourself.`);
 	}
 
-	if (sanction === "ban" || sanction === "unban") return true;
+	if (sanction === "ban" || sanction === "unban") {
+		return true;
+	}
 	// return since ban and unban are two commands which can be used on non-guildmembers
 
 	const member = await fetchMember(author.guild, user);
@@ -30,8 +32,10 @@ export async function canSanction(
 
 	const clientMember = await fetchMember(author.guild, client.user);
 
-	if (member?.roles.highest.comparePositionTo(clientMember.roles.highest) >= 0
-		|| member?.roles.highest.comparePositionTo(author.roles.highest) >= 0) {
+	if (
+		member?.roles.highest.comparePositionTo(clientMember.roles.highest) >= 0
+		|| member?.roles.highest.comparePositionTo(author.roles.highest) >= 0
+	) {
 		throw new PermissionError(`You can't ${sanction} someone who is superior or equal to you or to me.`);
 	}
 

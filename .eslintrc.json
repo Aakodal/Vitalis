@@ -24,6 +24,10 @@
 		"import"
 	],
 	"rules": {
+		"multiline-ternary": [
+			"error",
+			"always"
+		],
 		"@typescript-eslint/indent": [
 			"error",
 			"tab",
@@ -33,7 +37,7 @@
 		],
 		"linebreak-style": [
 			"error",
-			"windows"
+			"unix"
 		],
 		"@typescript-eslint/quotes": [
 			"error",
@@ -41,10 +45,6 @@
 			{
 				"allowTemplateLiterals": true
 			}
-		],
-		"semi": [
-			"error",
-			"always"
 		],
 		"eqeqeq": [
 			"error",
@@ -75,19 +75,16 @@
 		"max-len": [
 			"error",
 			{
-				"code": 130
+				"code": 120,
+				"ignoreComments": true
 			}
 		],
 		"no-console": "off",
 		"consistent-return": "off",
 		"class-methods-use-this": "off",
-		"no-template-curly-in-string": "off",
-		"no-shadow": "off",
-		"default-case": "off",
-		"import/no-unresolved": "off",
 		"import/prefer-default-export": "off",
 		"no-plusplus": "off",
-		"no-nested-ternary": "warn",
+		"no-nested-ternary": "error",
         "no-return-assign": "off",
         "no-restricted-syntax": "off",
         "no-await-in-loop": "off",
@@ -96,20 +93,7 @@
 			"smart-tabs"
 		],
 		"import/no-cycle": "off",
-		"@typescript-eslint/no-explicit-any": "off",
-		"@typescript-eslint/explicit-function-return-type": "off",
-		"@typescript-eslint/member-delimiter-style": [
-			"error",
-			{
-				"multiline": {
-					"delimiter": "comma"
-				},
-				"singleline": {
-					"delimiter": "comma"
-				}
-			}
-		],
-	  	"@typescript-eslint/no-useless-constructor": "off",
+		"@typescript-eslint/explicit-function-return-type": "warn",
 	  	"import/extensions": "off",
 	  	"no-underscore-dangle": [
 		  	"error",
@@ -118,12 +102,17 @@
 			}
 		],
 	  	"no-continue": "off",
-		"no-loop-func": "off",
 		"no-empty": [
 			"error",
 			{
 				"allowEmptyCatch": true
 			}
+		],
+		"@typescript-eslint/explicit-module-boundary-types": "off",
+		"no-void": "off",
+		"curly": [
+			"error",
+			"all"
 		]
 	}
 }

@@ -1,5 +1,7 @@
 # Vitalis
 Multi-tasks bot made by Neshell (AKA Aakodal). Successor of Luminis.
+## Adding to your server
+Simply use [this link](https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=8&scope=bot).
 ## Downloading
 Just clone this repository. That's all.
 ## Prerequisites

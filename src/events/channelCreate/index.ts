@@ -5,10 +5,15 @@ import { log } from "../../functions/log";
 import { COLORS } from "../../lib/constants";
 
 client.on("channelCreate", async (channel: GuildChannel | DMChannel) => {
-	const logsActive = await getValueFromDB<boolean>("server", "logsActive");
+	if (!client.operational || channel.type === "dm") {
+		return;
+	}
 
-	if (!logsActive
-		|| channel.type === "dm") return;
+	const logsActive = await getValueFromDB<boolean>("servers", "logs_active", { server_id: channel.guild.id });
+
+	if (!logsActive) {
+		return;
+	}
 
 	const channelReference = channel.type !== "voice" && channel.type !== "category"
 		? channel
@@ -21,5 +26,5 @@ client.on("channelCreate", async (channel: GuildChannel | DMChannel) => {
 		.addField("**Type**", channel.type, true)
 		.setTimestamp(Date.now());
 
-	await log("log", embed);
+	await log("log", embed, channel.guild);
 });

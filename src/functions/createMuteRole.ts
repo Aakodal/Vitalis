@@ -1,8 +1,8 @@
-import { Guild } from "discord.js";
+import { Guild, Role } from "discord.js";
 import { client } from "../index";
 import { pushValueInDB } from "./pushValueInDB";
 
-export async function createMuteRole(server: Guild) {
+export async function createMuteRole(server: Guild): Promise<Role> {
 	const botRole = server.member(client.user).roles.highest;
 	const botHighestRolePosition = botRole.position;
 	const muteRole = await server.roles.create({
@@ -16,7 +16,7 @@ export async function createMuteRole(server: Guild) {
 		},
 		reason: "[AUTO] Mute role not found, created",
 	});
-	await pushValueInDB("server", "muteRoleID", muteRole.id);
+	await pushValueInDB("servers", "mute_role_id", server.id, muteRole.id);
 
 	return muteRole;
 }

@@ -1,32 +1,38 @@
 import {
-	ActivityType, Client as DiscordClient, ClientOptions, PresenceData, PresenceStatusData,
+	ActivityType, Client as DiscordClient, ClientOptions, Guild, PresenceData, PresenceStatusData,
 } from "discord.js";
 import { promises as fs } from "fs";
 import * as path from "path";
 import { Command } from "./Command";
-import { getValueFromDB } from "../functions/getValueFromDB";
-import { replaceDBVars } from "../functions/replaceDBVars";
 import { stringNormalize } from "../functions/stringNormalize";
-import { databaseCheck } from "../lib/database";
+import { databaseCheck, db, defaultServerConfig } from "../lib/database";
 import * as config from "../config.json";
 import { DatabaseError } from "../exceptions/DatabaseError";
 import { CommandError } from "../exceptions/CommandError";
+import { getMuteRole } from "../functions/getMuteRole";
+import { unsanction } from "../functions/unsanction";
+import { formatDate } from "../functions/formatDate";
 
 class Client extends DiscordClient {
 	commands: Map<string, Command>;
 
 	aliases: Map<string, Command>;
 
+	operational: boolean;
+
 	constructor(options?: ClientOptions) {
 		super(options);
 
 		this.commands = new Map();
 		this.aliases = new Map();
+
+		this.operational = false;
 	}
 
-	async init() {
-		if (!config.botOwner
-			|| !config.botOwner.match(/^\d+$/)) console.warn(`Owner's ID is undefined or invalid.`);
+	async init(): Promise<void> {
+		if (!config.botOwner || !config.botOwner.match(/^\d+$/)) {
+			console.warn(`Owner's ID is undefined or invalid.`);
+		}
 
 		try {
 			await databaseCheck();
@@ -53,27 +59,63 @@ class Client extends DiscordClient {
 		}
 
 		await this.login(config.token);
+		await this.user.setPresence({
+			activity: {
+				name: "starting...",
+				type: "PLAYING",
+			},
+			status: "dnd",
+		});
+
+		const servers = Array.from(this.guilds.cache.values());
+
+		if (servers.length > 0) {
+			for (const server of servers) {
+				await this.initServer(server);
+			}
+
+			const sanctionned = await db.from("users").whereIn("actual_sanction", ["muted", "banned"]);
+			for (const user of sanctionned) {
+				if (user.expiration) {
+					await unsanction(user.discord_id, user.server_id, user.actual_sanction);
+				}
+			}
+		}
+
+		this.operational = true;
+
+		try {
+			await this.updatePresence();
+		} catch (error) {
+			console.error(`Error while updating bot's presence: invalid config.\n${error}`);
+		}
+		console.log(`Vitalis started at ${formatDate()}.`);
 	}
 
-	private async loadCommand(path: string) {
-		const { default: CommandClass } = await import(path);
+	private async loadCommand(filePath: string): Promise<void> {
+		// eslint-disable-next-line @typescript-eslint/naming-convention
+		const { default: CommandClass } = await import(filePath);
 		const command: Command = new CommandClass();
 
-		if (!command.informations.name) return console.log(`Command in '${path}' does not have any name. Skipping...`);
+		if (!command.informations.name) {
+			return console.log(`Command in '${filePath}' does not have any name. Skipping...`);
+		}
 
 		if (this.commands.has(command.informations.name)) {
-			return console.info(`Command ${command.informations.name} in '${path}' already exists. Skipping...`);
+			return console.info(`Command ${command.informations.name} in '${filePath}' already exists. Skipping...`);
 		}
 
 		this.commands.set(command.informations.name, command);
 
 		const category = stringNormalize(command.informations.category) || "Misc";
 		command.setCategory(category);
-		command.setPath(path);
+		command.setPath(filePath);
 
 		console.info(`Command ${command.informations.name} loaded.`);
 
-		if (!command.informations.aliases) return;
+		if (!command.informations.aliases) {
+			return;
+		}
 
 		for (const alias of command.informations.aliases) {
 			if (this.aliases.has(alias)) {
@@ -84,12 +126,14 @@ class Client extends DiscordClient {
 		}
 	}
 
-	reloadCommand(command: Command) {
-		try {
-			for (const [key, value] of this.aliases) {
-				if (value === command) this.aliases.delete(key);
+	reloadCommand(command: Command): Promise<void> {
+		for (const [key, value] of this.aliases) {
+			if (value === command) {
+				this.aliases.delete(key);
 			}
+		}
 
+		try {
 			this.commands.delete(command.informations.name);
 			delete require.cache[require.resolve(command.informations.path)];
 
@@ -99,23 +143,33 @@ class Client extends DiscordClient {
 		}
 	}
 
-	async updatePresence() {
-		const status = await getValueFromDB<PresenceStatusData>("server", "status");
-		const gameActive = await getValueFromDB<boolean>("server", "gameActive");
-		const gameType = await getValueFromDB<ActivityType>("server", "gameType");
-		const gameName = await getValueFromDB<string>("server", "gameName");
-
-		const gameFinalName = await replaceDBVars(gameName);
-
+	async updatePresence(): Promise<void> {
+		const configUpdated = await import("../config.json");
+		const { active, name, type } = configUpdated.game;
 		const presence: PresenceData = {
 			activity: {
-				name: gameFinalName,
-				type: gameType,
+				name,
+				type: type as ActivityType,
 			},
 		};
 
-		if (gameActive) await this.user.setPresence(presence);
-		await this.user.setStatus(status || "online");
+		if (active) {
+			await this.user.setPresence(presence);
+		}
+		await this.user.setStatus((configUpdated.status as PresenceStatusData) || "online");
+	}
+
+	async initServer(server: Guild): Promise<void> {
+		const dbServer = await db.from("servers").where({ server_id: server.id });
+		if (!dbServer[0]) {
+			await db.insert({ ...defaultServerConfig, server_id: server.id }).into("servers");
+		}
+
+		try {
+			await getMuteRole(server);
+		} catch {
+			await server.owner?.send(`[${server.name}] Vitalis doesn't have sufficent permissions to work.`);
+		}
 	}
 }
 

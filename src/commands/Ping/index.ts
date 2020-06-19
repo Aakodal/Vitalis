@@ -12,9 +12,9 @@ export default class Ping extends Command {
 		});
 	}
 
-	async run(message: Message, args: string[], client: Client) {
+	async run(message: Message, args: string[], client: Client): Promise<void> {
 		const messageCreatedAt = message.createdTimestamp;
-		const reply = await message.channel.send("Ping?") as Message;
+		const reply = await message.channel.send("Ping?");
 
 		const replyCreatedAt = reply.createdTimestamp;
 		const ping = Number((replyCreatedAt - messageCreatedAt).toFixed(2));

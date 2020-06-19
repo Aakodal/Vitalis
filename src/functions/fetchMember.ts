@@ -1,9 +1,7 @@
-import { Guild, UserResolvable } from "discord.js";
+import { Guild, GuildMember, UserResolvable } from "discord.js";
 
-export async function fetchMember(guild: Guild, user: UserResolvable) {
+export async function fetchMember(guild: Guild, user: UserResolvable): Promise<GuildMember> {
 	try {
-		return await guild.members.fetch(user);
-	} catch (error) {
-		return undefined;
-	}
+		return guild.members.fetch(user);
+	} catch {}
 }

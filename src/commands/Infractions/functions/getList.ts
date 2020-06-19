@@ -1,12 +1,12 @@
 import { Message, MessageEmbed, User } from "discord.js";
 import { db } from "../../../lib/database";
 import { Infraction } from "../index";
-import { getInfractions } from "./getInfractions";
+import { writeInfractions } from "./writeInfractions";
 
-export async function getList(message: Message, user: User, embed: MessageEmbed, type?: string) {
+export async function getList(message: Message, user: User, embed: MessageEmbed, type?: string): Promise<void> {
 	const infractions: Infraction[] = type !== "infraction"
-		? await db.from("infractions").where({ discord_id: user.id, type })
-		: await db.from("infractions").where({ discord_id: user.id });
+		? await db.from("infractions").where({ server_id: message.guild.id, discord_id: user.id, type })
+		: await db.from("infractions").where({ server_id: message.guild.id, discord_id: user.id });
 
 	const infractionsNumber = infractions.length;
 
@@ -14,14 +14,15 @@ export async function getList(message: Message, user: User, embed: MessageEmbed,
 
 	if (!infractionsNumber) {
 		embed.setTitle(`No ${type} found.`);
-		return message.channel.send(embed);
+		await message.channel.send(embed);
+		return;
 	}
 
 	embed.setTitle(`Last 10 ${type}s`);
 
 	const sortedInfractions = infractions.sort((a, b) => b.id - a.id);
 
-	getInfractions(sortedInfractions, embed);
+	writeInfractions(sortedInfractions, embed);
 
-	message.channel.send(embed);
+	await message.channel.send(embed);
 }

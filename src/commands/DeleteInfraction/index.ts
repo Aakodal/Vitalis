@@ -5,6 +5,7 @@ import { ArgumentError } from "../../exceptions/ArgumentError";
 import { db } from "../../lib/database";
 import { DatabaseError } from "../../exceptions/DatabaseError";
 import { COLORS } from "../../lib/constants";
+import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class DeleteInfraction extends Command {
 	constructor() {
@@ -12,20 +13,26 @@ export default class DeleteInfraction extends Command {
 			name: "deleteinfraction",
 			description: "Remove an infraction from database with its ID",
 			category: "Moderation",
-			usage: "deleteinfraction <infraction ID>",
+			usage: (prefix: string) => `${prefix}deleteinfraction <infraction ID>`,
 			aliases: ["removeinfraction"],
 			permission: "BAN_MEMBERS",
 		});
 	}
 
-	async run(message: Message, args: string[], client: Client) {
-		if (!args[0]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
+	async run(message: Message, args: string[], client: Client): Promise<void> {
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+
+		if (!args[0]) {
+			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage(prefix)}`);
+		}
 
 		const id = Number(args[0]);
-		const infractionQuery = db.from("infractions").where({ id });
+		const infractionQuery = db.from("infractions").where({ server_id: message.guild.id, id });
 		const infraction = (await infractionQuery)[0];
 
-		if (!infraction) throw new DatabaseError(`Infraction ${id} does not exist in database.`);
+		if (!infraction) {
+			throw new DatabaseError(`Infraction ${id} does not exist in database or in this server.`);
+		}
 
 		try {
 			await infractionQuery.delete();

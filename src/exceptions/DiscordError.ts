@@ -1,5 +1,5 @@
 export class DiscordError extends Error {
-	constructor(message) {
+	constructor(message: string) {
 		super(message);
 		this.name = this.constructor.name;
 	}

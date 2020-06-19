@@ -1,10 +1,14 @@
 export function getDurationFromString(durationString: string): number {
-	if (!durationString) return null;
+	if (!durationString) {
+		return null;
+	}
 
-	const integer = Number(durationString.match(/^[0-9]+/g)?.toString());
+	const integer = Number(durationString.match(/^[1-9]+/g)?.toString());
 	const time = durationString.match(/([smhdwy]|mo)$/g)?.toString();
 
-	if (integer <= 0) return null;
+	if (integer <= 0) {
+		return null;
+	}
 
 	if (time === "mo") { // month
 		const now = Date.now();

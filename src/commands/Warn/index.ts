@@ -11,30 +11,42 @@ import { fetchMember } from "../../functions/fetchMember";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
+import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Warn extends Command {
 	constructor() {
 		super({
 			name: "warn",
 			description: "Warn a member with a specified reason",
-			usage: "warn <member ID | member mention> <reason>",
+			category: "Moderation",
+			usage: (prefix: string) => `${prefix}warn <member ID | member mention> <reason>`,
 			permission: "KICK_MEMBERS",
 		});
 	}
 
-	async run(message: Message, args: string[], client: Client) {
-		if (!args[1]) throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage}`);
+	async run(message: Message, args: string[], client: Client): Promise<void> {
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+
+		if (!args[1]) {
+			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage(prefix)}`);
+		}
 
 		const memberSnowflake = getUserIdFromString(args[0]);
 		const member = await fetchMember(message.guild, memberSnowflake);
 
-		if (!member) throw new MemberError();
+		if (!member) {
+			throw new MemberError();
+		}
 
 		const reason = args.slice(1).join(" ");
 
-		if (member.user.bot) throw new SanctionError("You can't warn a bot.");
+		if (member.user.bot) {
+			throw new SanctionError("You can't warn a bot.");
+		}
 
-		if (!await canSanction(member, message.member, "warn")) return;
+		if (!(await canSanction(member, message.member, "warn"))) {
+			return;
+		}
 
 		const warnEmbed = new MessageEmbed()
 			.setAuthor("Moderation", message.guild.iconURL())
@@ -42,18 +54,22 @@ export default class Warn extends Command {
 			.setTitle("Warning")
 			.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`)
 			.setTimestamp()
-			.setFooter(`Moderator: ${message.author.tag}`, message.author.avatarURL());
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
 		await message.channel.send(warnEmbed);
 
-		await log("modlog", warnEmbed);
+		await log("mod_log", warnEmbed, message.guild);
 
-		await member.user.send(warnEmbed.setDescription(`You have been warned for the following reasion:\n\n${reason}`));
+		warnEmbed.setDescription(
+			`You have been warned from ${message.guild.name} for the following reasion:\n\n${reason}`,
+		);
+		await member.user.send(warnEmbed);
 
 		const memberID = member.user.id;
 
 		await db
 			.insert({
+				server_id: message.guild.id,
 				discord_id: memberID,
 				infraction: reason,
 				type: "warn",
@@ -62,7 +78,7 @@ export default class Warn extends Command {
 			})
 			.into("infractions");
 
-		await verifUserInDB(memberID);
+		await verifUserInDB(memberID, message.guild);
 
 		await db
 			.update({
@@ -70,6 +86,6 @@ export default class Warn extends Command {
 				last_warn: Date.now(),
 			})
 			.into("users")
-			.where({ discord_id: memberID });
+			.where({ server_id: message.guild.id, discord_id: memberID });
 	}
 }

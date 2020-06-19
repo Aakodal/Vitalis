@@ -1,5 +1,6 @@
-todo/
+todo
 node_modules/
 secretfile.txt
 build/
 .idea
+pnpm-debug.log
