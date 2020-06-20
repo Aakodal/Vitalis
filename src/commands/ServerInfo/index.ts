@@ -24,7 +24,7 @@ export default class ServerInfo extends Command {
 			.setColor(COLORS.gold)
 			.setFooter(`Asked by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
-		embed.addField("Created at", guild.createdAt, true);
+		embed.addField("Created at", guild.createdAt.toUTCString(), true);
 
 		if (guild.description) {
 			embed.addField("Description", guild.description, true);
