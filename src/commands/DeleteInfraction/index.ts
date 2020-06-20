@@ -13,7 +13,7 @@ export default class DeleteInfraction extends Command {
 			name: "deleteinfraction",
 			description: "Remove an infraction from database with its ID",
 			category: "Moderation",
-			usage: (prefix: string) => `${prefix}deleteinfraction <infraction ID>`,
+			usage: (prefix) => `${prefix}deleteinfraction <infraction ID>`,
 			aliases: ["removeinfraction"],
 			permission: "BAN_MEMBERS",
 		});

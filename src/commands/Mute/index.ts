@@ -24,7 +24,7 @@ export default class Mute extends Command {
 			name: "mute",
 			description: "Mute a member with a specified reason",
 			category: "Moderation",
-			usage: (prefix: string) => `${prefix}mute <member ID | member mention> [duration] <reason>`,
+			usage: (prefix) => `${prefix}mute <member ID | member mention> [duration] <reason>`,
 			permission: "MUTE_MEMBERS",
 		});
 	}

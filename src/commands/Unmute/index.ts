@@ -19,7 +19,7 @@ export default class Unmute extends Command {
 			name: "unmute",
 			description: "Unmute a member",
 			category: "Moderation",
-			usage: (prefix: string) => `${prefix}unmute <member ID | member mention>`,
+			usage: (prefix) => `${prefix}unmute <member ID | member mention>`,
 			aliases: ["demute"],
 			permission: "MUTE_MEMBERS",
 		});

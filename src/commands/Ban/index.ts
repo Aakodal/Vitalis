@@ -24,7 +24,7 @@ export default class Ban extends Command {
 			name: "ban",
 			description: "Ban a member with a specified reason",
 			category: "Moderation",
-			usage: (prefix: string) => `${prefix}ban <user ID | user mention> [duration] <reason>`,
+			usage: (prefix) => `${prefix}ban <user ID | user mention> [duration] <reason>`,
 			permission: "BAN_MEMBERS",
 		});
 	}

@@ -4,7 +4,7 @@
         "rootDir": "./src",
         "outDir": "./build",
         "allowJs": true,
-        "target": "ES2019",
+        "target": "ES2020",
         "resolveJsonModule": true
     },
     "include": [

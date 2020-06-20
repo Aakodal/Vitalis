@@ -18,7 +18,7 @@ export default class Unban extends Command {
 			name: "unban",
 			description: "Unban a member by its ID",
 			category: "Moderation",
-			usage: (prefix: string) => `${prefix}unban <user ID | user mention>`,
+			usage: (prefix) => `${prefix}unban <user ID | user mention>`,
 			aliases: ["deban"],
 			permission: "BAN_MEMBERS",
 		});

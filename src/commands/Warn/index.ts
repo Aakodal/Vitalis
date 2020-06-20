@@ -19,7 +19,7 @@ export default class Warn extends Command {
 			name: "warn",
 			description: "Warn a member with a specified reason",
 			category: "Moderation",
-			usage: (prefix: string) => `${prefix}warn <member ID | member mention> <reason>`,
+			usage: (prefix) => `${prefix}warn <member ID | member mention> <reason>`,
 			permission: "KICK_MEMBERS",
 		});
 	}

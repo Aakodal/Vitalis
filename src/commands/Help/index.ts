@@ -11,7 +11,7 @@ export default class Help extends Command {
 			name: "help",
 			description: "Get commands help",
 			category: "Utility",
-			usage: (prefix: string) => `${prefix}help [command|page number]`,
+			usage: (prefix) => `${prefix}help [command|page number]`,
 		});
 	}
 

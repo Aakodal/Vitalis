@@ -30,6 +30,7 @@ export default class Info extends Command {
 			.addField("**GitHub Repo**", `[Link](${homepage})`, true)
 			.addField("**Library**", `[discord.js](https://discord.js.org/#/) ${dependencies["discord.js"]}`, true)
 			.addField("**Invite link**", `[Click here!](${invite})`, true)
+			.addField("**Servers count**", client.guilds.cache.size, true)
 			.addField("**Description**", description)
 			.setFooter(
 				`Vitalis - ${author} | Apache 2.0 license. Asked by ${message.author.tag}`,

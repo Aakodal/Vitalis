@@ -12,7 +12,7 @@ export default class Reload extends Command {
 			name: "reload",
 			description: "Reload a command",
 			category: "Bot owner",
-			usage: (prefix: string) => `${prefix}reload <command>`,
+			usage: (prefix) => `${prefix}reload <command>`,
 			permission: "BOT_OWNER",
 		});
 	}

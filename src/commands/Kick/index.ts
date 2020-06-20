@@ -19,7 +19,7 @@ export default class Kick extends Command {
 			name: "kick",
 			description: "Kick a member with a specified reason",
 			category: "Moderation",
-			usage: (prefix: string) => `${prefix}kick <member ID | member mention> <reason>`,
+			usage: (prefix) => `${prefix}kick <member ID | member mention> <reason>`,
 			permission: "KICK_MEMBERS",
 		});
 	}

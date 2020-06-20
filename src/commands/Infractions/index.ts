@@ -26,7 +26,7 @@ export default class Infractions extends Command {
 			name: "infractions",
 			description: "See a member's infractions",
 			category: "Moderation",
-			usage: (prefix: string) => `${prefix}infractions <member ID | member mention> [warn|kick|mute|ban]`,
+			usage: (prefix) => `${prefix}infractions <member ID | member mention> [warn|kick|mute|ban]`,
 			aliases: ["sanctions"],
 			permission: "VIEW_AUDIT_LOG",
 		});
