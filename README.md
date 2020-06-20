@@ -20,7 +20,4 @@ And *voilà*!
 ### Configuring
 Edit your `config.json` in your `build` folder, and change the `token` and the `botOwner` values by your own. Don't forget to add the bot to your server ; it needs the "administrator" permission and needs to be high-placed in your roles.
 ## Using
-### WARNING /!\\
-Vitalis is **NOT** made for being used in more than one server (at least for now). Only one server per Vitalis instance.
-
 After installing node modules, always in your `build` folder, just execute `npm run start` (or `node .` if you prefer). And that's it! Your bot is on!
