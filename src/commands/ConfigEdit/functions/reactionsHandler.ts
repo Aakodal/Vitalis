@@ -15,6 +15,6 @@ export async function reactionsHandler(embedMessage: EmbedMessage): Promise<void
 	if (!effects[reaction.emoji.name]) {
 		return;
 	}
-	effects[reaction.emoji.name]();
 	await reaction.users.remove(author);
+	effects[reaction.emoji.name]();
 }
