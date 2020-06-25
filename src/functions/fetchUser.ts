@@ -3,6 +3,6 @@ import { client } from "../index";
 
 export async function fetchUser(id: Snowflake | string): Promise<User> {
 	try {
-		return client.users.fetch(id);
+		return await client.users.fetch(id);
 	} catch {}
 }

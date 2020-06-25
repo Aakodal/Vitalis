@@ -95,7 +95,6 @@ export default class Ban extends Command {
 			if (member) {
 				await user.send(userEmbed);
 			}
-			// eslint-disable-next-line no-empty
 		} catch {}
 
 		await message.channel.send(banEmbed);
