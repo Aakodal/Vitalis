@@ -50,7 +50,7 @@ export default class Unmute extends Command {
 		}
 
 		const unmuteEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild.iconURL())
+			.setAuthor("Moderation", message.guild..iconURL({ dynamic: true }))
 			.setColor(COLORS.lightGreen)
 			.setTitle("Unmute")
 			.setDescription(`${member.user} has been unmuted.`)

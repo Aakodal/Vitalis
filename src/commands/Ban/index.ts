@@ -67,7 +67,7 @@ export default class Ban extends Command {
 		}
 
 		const banEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild.iconURL())
+			.setAuthor("Moderation", message.guild..iconURL({ dynamic: true }))
 			.setColor(COLORS.lightGreen)
 			.setTitle("Ban")
 			.setDescription(embedDescription)

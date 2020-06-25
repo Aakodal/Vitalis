@@ -30,7 +30,7 @@ export async function unsanction(
 	}
 
 	const baseEmbed = new MessageEmbed()
-		.setAuthor("Moderation", server.iconURL())
+		.setAuthor("Moderation", server..iconURL({ dynamic: true }))
 		.setColor(COLORS.lightGreen)
 		.setTimestamp();
 

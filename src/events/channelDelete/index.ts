@@ -16,7 +16,7 @@ client.on("channelDelete", async (channel: GuildChannel | DMChannel) => {
 	}
 
 	const embed = new MessageEmbed()
-		.setAuthor("Channel Deleted", channel.guild.iconURL())
+		.setAuthor("Channel Deleted", channel.guild..iconURL({ dynamic: true }))
 		.setColor(COLORS.lightRed)
 		.addField("**Channel**", channel.name, true)
 		.addField("**Type**", channel.type, true)

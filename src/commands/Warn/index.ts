@@ -49,7 +49,7 @@ export default class Warn extends Command {
 		}
 
 		const warnEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild.iconURL())
+			.setAuthor("Moderation", message.guild..iconURL({ dynamic: true }))
 			.setColor(COLORS.lightGreen)
 			.setTitle("Warning")
 			.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`)
