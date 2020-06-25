@@ -44,8 +44,9 @@ export async function databaseCheck(): Promise<void> {
 
 	if (!usersTableExists) {
 		await db.schema.createTable("users", (table) => {
-			table.string("server_id").primary();
+			table.string("server_id");
 			table.string("discord_id");
+			table.primary(["server_id", "discord_id"]);
 			table.string("pseudo");
 			table.timestamp("last_warn");
 			table.enum("actual_sanction", ["muted", "banned"]);

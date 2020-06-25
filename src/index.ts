@@ -14,9 +14,9 @@ client.init();
 client.on("guildCreate", client.initServer);
 
 client.on("guildDelete", async (guild) => {
-	await db.from("infractions").where({ server_id: guild.id }).delete();
-	await db.from("users").where({ server_id: guild.id }).delete();
-	await db.from("servers").where({ server_id: guild.id }).delete();
+	for (const table of ["infractions", "users", "servers"]) {
+		await db.from(table).where({ server_id: guild.id }).delete();
+	}
 });
 
 client.on("message", async (message) => {
