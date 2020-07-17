@@ -49,7 +49,7 @@ export default class Unban extends Command {
 		}
 
 		const unbanEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild..iconURL({ dynamic: true }))
+			.setAuthor("Moderation", message.guild.iconURL({ dynamic: true }))
 			.setColor(COLORS.lightGreen)
 			.setTitle("Unban")
 			.setDescription(`${user} has been unbanned.`)

@@ -33,7 +33,7 @@ export default class Info extends Command {
 			.addField("**Servers count**", client.guilds.cache.size, true)
 			.addField("**Description**", description)
 			.setFooter(
-				`Vitalis - ${author} | Apache 2.0 license. Asked by ${message.author.tag}`,
+				`Vitalis - ${author} | AGPLv3 license. Asked by ${message.author.tag}`,
 				message.author.displayAvatarURL({ dynamic: true }),
 			);
 

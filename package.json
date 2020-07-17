@@ -1,13 +1,13 @@
 {
   "name": "vitalis",
-  "version": "5.1.5",
+  "version": "5.1.6",
   "description": "Multi-purposes Discord bot made by Aakodal.",
   "keywords": [
     "vitalis",
     "discord",
     "bot"
   ],
-  "license": "Apache-2.0",
+  "license": "AGPL-3.0-only",
   "main": "build/index.js",
   "author": "Neshell AKA Aakodal",
   "homepage": "https://github.com/Aakodal/Vitalis#readme",

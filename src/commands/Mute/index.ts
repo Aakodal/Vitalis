@@ -70,7 +70,7 @@ export default class Mute extends Command {
 		}
 
 		const muteEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild..iconURL({ dynamic: true }))
+			.setAuthor("Moderation", message.guild.iconURL({ dynamic: true }))
 			.setColor(COLORS.lightGreen)
 			.setTitle("Mute")
 			.setDescription(embedDescription)

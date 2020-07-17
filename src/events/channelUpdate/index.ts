@@ -25,7 +25,7 @@ client.on("channelUpdate", async (oldChannel: GuildChannel | DMChannel, newChann
 		: newChannel.name;
 
 	const embed = new MessageEmbed()
-		.setAuthor("Channel Updated", newChannel.guild..iconURL({ dynamic: true }))
+		.setAuthor("Channel Updated", newChannel.guild.iconURL({ dynamic: true }))
 		.setColor(COLORS.gold)
 		.addField("**Channel**", channelReference, true)
 		.addField("**Type**", newChannel.type, true)

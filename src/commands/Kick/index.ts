@@ -45,7 +45,7 @@ export default class Kick extends Command {
 		}
 
 		const kickEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild..iconURL({ dynamic: true }))
+			.setAuthor("Moderation", message.guild.iconURL({ dynamic: true }))
 			.setColor(COLORS.lightRed)
 			.setTitle("Kick")
 			.setDescription(`${member.user} has been kicked for the following reason:\n\n${reason}`)

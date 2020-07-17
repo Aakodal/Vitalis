@@ -20,7 +20,7 @@ client.on("channelCreate", async (channel: GuildChannel | DMChannel) => {
 		: channel.name;
 
 	const embed = new MessageEmbed()
-		.setAuthor("Channel Created", channel.guild..iconURL({ dynamic: true }))
+		.setAuthor("Channel Created", channel.guild.iconURL({ dynamic: true }))
 		.setColor(COLORS.lightGreen)
 		.addField("**Channel**", channelReference, true)
 		.addField("**Type**", channel.type, true)

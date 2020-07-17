@@ -10,7 +10,7 @@ export async function getList(message: Message, user: User, embed: MessageEmbed,
 
 	const infractionsNumber = infractions.length;
 
-	embed.setAuthor(`${infractionsNumber} Infraction(s) - ${user.tag}`, message.guild..iconURL({ dynamic: true }));
+	embed.setAuthor(`${infractionsNumber} Infraction(s) - ${user.tag}`, message.guild.iconURL({ dynamic: true }));
 
 	if (!infractionsNumber) {
 		embed.setTitle(`No ${type} found.`);
