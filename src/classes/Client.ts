@@ -77,7 +77,8 @@ class Client extends DiscordClient {
 			const sanctionned = await db.from("users").whereIn("actual_sanction", ["muted", "banned"]);
 			for (const user of sanctionned) {
 				if (user.expiration) {
-					await unsanction(user.discord_id, user.server_id, user.actual_sanction);
+					const guild = this.guilds.cache.get(user.server_id);
+					await unsanction(user.discord_id, guild, user.actual_sanction);
 				}
 			}
 		}
