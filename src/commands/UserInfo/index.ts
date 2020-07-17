@@ -15,8 +15,12 @@ export default class UserInfo extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client): Promise<void> {
+		if (!message.guild || !message.member) {
+			return;
+		}
+
 		const memberSnowflake = getUserIdFromString(args[0]);
-		const memberArg = await fetchMember(message.guild, memberSnowflake);
+		const memberArg = await fetchMember(message.guild, memberSnowflake as string);
 
 		const member = memberArg || message.member;
 		const { user } = member;
@@ -33,7 +37,7 @@ export default class UserInfo extends Command {
 
 		embed.addField("Created at", user.createdAt.toUTCString(), true);
 
-		embed.addField("Joined at", member.joinedAt.toUTCString(), true);
+		embed.addField("Joined at", member.joinedAt?.toUTCString(), true);
 
 		const rolesArray = member.roles.cache.array().sort((a, b) => b.position - a.position);
 		rolesArray.pop();

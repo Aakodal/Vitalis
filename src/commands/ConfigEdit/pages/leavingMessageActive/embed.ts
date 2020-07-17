@@ -6,10 +6,10 @@ export async function getLeavingMessageActiveEmbed(message: Message): Promise<Me
 	const active = await getValueFromDB<number>(
 		"servers",
 		"leaving_message_active",
-		{ server_id: message.guild.id },
+		{ server_id: message.guild?.id },
 	);
 	return new MessageEmbed()
-		.setAuthor("Configuration Editor - Leaving message active", message.guild.iconURL({ dynamic: true }))
+		.setAuthor("Configuration Editor - Leaving message active", message.guild?.iconURL({ dynamic: true }) as string)
 		.setColor(COLORS.purple)
 		.setDescription(`Leaving message active? ${Boolean(active)}`)
 		.addField("🔄 Toggle", "Toggle the actual value", true)

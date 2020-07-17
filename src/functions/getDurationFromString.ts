@@ -1,4 +1,4 @@
-export function getDurationFromString(durationString: string): number {
+export function getDurationFromString(durationString: string): number | null {
 	if (!durationString) {
 		return null;
 	}
@@ -17,7 +17,7 @@ export function getDurationFromString(durationString: string): number {
 		return end - now;
 	}
 
-	const timeToMS = {
+	const timeToMS: { [index: string]: number } = {
 		s: 1000,
 		m: 60 * 1000,
 		h: 60 * 60 * 1000,
@@ -26,7 +26,7 @@ export function getDurationFromString(durationString: string): number {
 		y: 365 * 24 * 60 * 60 * 1000,
 	};
 
-	const duration = integer * timeToMS[time];
+	const duration = integer * timeToMS[time as string];
 
 	return duration > Number.MAX_SAFE_INTEGER
 		? Number.MAX_SAFE_INTEGER

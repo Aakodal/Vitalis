@@ -8,7 +8,7 @@ import { collectReaction } from "./collectReaction";
 
 export async function sendError(message: Message, error: Error): Promise<void> {
 	const embed = new MessageEmbed()
-		.setAuthor("Error", client.user.displayAvatarURL({ dynamic: true }))
+		.setAuthor("Error", client.user?.displayAvatarURL({ dynamic: true }))
 		.setColor(COLORS.darkRed)
 		.setDescription(error);
 
@@ -37,7 +37,7 @@ export async function sendError(message: Message, error: Error): Promise<void> {
 	}
 
 	// V8 actually writes error.message inside error.stack, so I remove it
-	const stackTrace = error.stack.split("\n").slice(1).join("\n");
+	const stackTrace = error.stack?.split("\n").slice(1).join("\n");
 
 	const completeEmbed = new MessageEmbed(embed).setDescription(`${error}\`\`\`${stackTrace}\`\`\``);
 

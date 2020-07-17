@@ -14,12 +14,12 @@ export async function globalHelp(
 	pageNumber: number,
 	prefix: string,
 ): Promise<void> {
-	const commands: { category: string; name: string }[] = [];
+	const commands: { category: string | undefined; name: string }[] = [];
 	const stockEmbeds: MessageEmbed[] = [];
 
 	let embed = new MessageEmbed()
 		.setColor(COLORS.lightGreen)
-		.setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
+		.setThumbnail(client.user?.displayAvatarURL({ dynamic: true }) as string)
 		.setFooter(`Asked by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
 	for (const [, command] of client.commands) {
@@ -34,7 +34,7 @@ export async function globalHelp(
 		}
 
 		if (permission) {
-			if (message.member.hasPermission(permission)) {
+			if (message.member?.hasPermission(permission)) {
 				commands.push(commandData);
 			}
 			continue;
@@ -50,8 +50,8 @@ export async function globalHelp(
 	}
 
 	commands.sort((a, b) => {
-		const categoryA = a.category;
-		const categoryB = b.category;
+		const categoryA = a.category as string;
+		const categoryB = b.category as string;
 		if (categoryA < categoryB) {
 			return -1;
 		}
@@ -63,7 +63,7 @@ export async function globalHelp(
 
 	embed.setTitle(commands[0].category);
 
-	const getCommandByIndex = (index: number): Command => client.commands.get(commands[index].name);
+	const getCommandByIndex = (index: number): Command => client.commands.get(commands[index].name) as Command;
 
 	embed.addField(`**${prefix}${commands[0].name}**`, getCommandByIndex(0).informations.description);
 
@@ -72,7 +72,7 @@ export async function globalHelp(
 			stockEmbeds.push(embed);
 			embed = new MessageEmbed()
 				.setColor(COLORS.lightGreen)
-				.setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
+				.setThumbnail(client.user?.displayAvatarURL({ dynamic: true }) as string)
 				.setFooter(`Asked by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
 			embed.setTitle(commands[i].category);
@@ -102,7 +102,7 @@ export async function globalHelp(
 		&& !user.bot
 		&& ["⏮️", "⬅", "➡", "⏭", "❌"].includes(reaction.emoji.name);
 
-	const reactions = {
+	const reactions: { [index: string]: () => (number | void) } = {
 		"⏮": (): number => (currentPage = 0),
 		"⬅": (): number => currentPage--,
 		"➡": (): number => currentPage++,

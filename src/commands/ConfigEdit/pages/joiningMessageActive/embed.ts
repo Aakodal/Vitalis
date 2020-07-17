@@ -6,10 +6,10 @@ export async function getJoiningMessageActiveEmbed(message: Message): Promise<Me
 	const active = await getValueFromDB<number>(
 		"servers",
 		"joining_message_active",
-		{ server_id: message.guild.id },
+		{ server_id: message.guild?.id },
 	);
 	return new MessageEmbed()
-		.setAuthor("Configuration Editor - Joining message active", message.guild.iconURL({ dynamic: true }))
+		.setAuthor("Configuration Editor - Joining message active", message.guild?.iconURL({ dynamic: true }) as string)
 		.setColor(COLORS.purple)
 		.setDescription(`Joining message active? ${Boolean(active)}`)
 		.addField("🔄 Toggle", "Toggle the actual value", true)

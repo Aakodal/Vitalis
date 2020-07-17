@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Guild, Message, MessageEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
@@ -30,26 +30,30 @@ export default class Ban extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client): Promise<void> {
-		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[1]) {
-			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage(prefix)}`);
+			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage?.(prefix)}`);
 		}
 
 		const userSnowflake = getUserIdFromString(args[0]);
-		const user = await fetchUser(userSnowflake);
+		const user = await fetchUser(userSnowflake as string);
 
 		if (!user) {
 			throw new UserError();
+		}
+
+		if (!message.member || !message.guild) {
+			return;
 		}
 
 		if (!(await canSanction(user, message.member, "ban"))) {
 			return;
 		}
 
-		const banned = await message.guild.fetchBans();
+		const banned = await message.guild?.fetchBans();
 
-		if (banned.get(user.id)) {
+		if (banned?.get(user.id)) {
 			throw new SanctionError("This user is already banned.");
 		}
 
@@ -63,11 +67,11 @@ export default class Ban extends Command {
 		const reasonText = String(reason);
 
 		if (durationNumber && !args[2]) {
-			throw new UsageError(`Wrong command usage. Usage: ${this.informations.usage(prefix)}`);
+			throw new UsageError(`Wrong command usage. Usage: ${this.informations.usage?.(prefix)}`);
 		}
 
 		const banEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild.iconURL({ dynamic: true }))
+			.setAuthor("Moderation", message.guild?.iconURL({ dynamic: true }) as string)
 			.setColor(COLORS.lightGreen)
 			.setTitle("Ban")
 			.setDescription(embedDescription)
@@ -83,7 +87,7 @@ export default class Ban extends Command {
 		}
 
 		try {
-			await message.guild.members.ban(user, {
+			await message.guild?.members.ban(user, {
 				days: 7,
 				reason: reasonText,
 			});
@@ -111,7 +115,7 @@ export default class Ban extends Command {
 
 		await db
 			.insert({
-				server_id: message.guild.id,
+				server_id: message.guild?.id,
 				discord_id: userID,
 				infraction: reasonText,
 				type: "ban",
@@ -132,14 +136,14 @@ export default class Ban extends Command {
 				expiration,
 			})
 			.into("users")
-			.where({ server_id: message.guild.id, discord_id: userID });
+			.where({ server_id: message.guild?.id, discord_id: userID });
 
-		if (!duration) {
+		if (!expiration) {
 			return;
 		}
 
 		longTimeout(async () => {
-			await unsanction(userID, message.guild, "banned", false);
+			await unsanction(userID, message.guild as Guild, "banned", false);
 		}, expiration - created);
 	}
 }

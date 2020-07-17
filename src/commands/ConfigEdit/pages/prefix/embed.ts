@@ -3,9 +3,9 @@ import { COLORS } from "../../../../lib/constants";
 import { getValueFromDB } from "../../../../functions/getValueFromDB";
 
 export async function getPrefixEmbed(message: Message): Promise<MessageEmbed> {
-	const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+	const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 	return new MessageEmbed()
-		.setAuthor("Configuration Editor - Prefix", message.guild.iconURL({ dynamic: true }))
+		.setAuthor("Configuration Editor - Prefix", message.guild?.iconURL({ dynamic: true }) as string)
 		.setColor(COLORS.purple)
 		.setDescription(`Current prefix: ${prefix}`)
 		.addField("✏ Edit", "Edit the prefix", true)

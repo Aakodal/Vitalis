@@ -1,11 +1,11 @@
-import { GuildChannel, DMChannel, MessageEmbed } from "discord.js";
+import { GuildChannel, MessageEmbed, Channel } from "discord.js";
 import { client } from "../../index";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
 import { COLORS } from "../../lib/constants";
 
-client.on("channelDelete", async (channel: GuildChannel | DMChannel) => {
-	if (!client.operational || channel.type === "dm") {
+client.on("channelDelete", async (channel: Channel) => {
+	if (!client.operational || !(channel instanceof GuildChannel)) {
 		return;
 	}
 
@@ -16,7 +16,7 @@ client.on("channelDelete", async (channel: GuildChannel | DMChannel) => {
 	}
 
 	const embed = new MessageEmbed()
-		.setAuthor("Channel Deleted", channel.guild.iconURL({ dynamic: true }))
+		.setAuthor("Channel Deleted", channel.guild.iconURL({ dynamic: true }) as string)
 		.setColor(COLORS.lightRed)
 		.addField("**Channel**", channel.name, true)
 		.addField("**Type**", channel.type, true)

@@ -18,17 +18,19 @@ export default class Reload extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client): Promise<void> {
-		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[0]) {
-			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage(prefix)}`);
-		}
-		const commandName = args[0].toLowerCase();
-		if (!client.commands.has(commandName) && !client.aliases.has(commandName)) {
-			throw new CommandError(`Command \`${args[0]}\` not found.`);
+			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage?.(prefix)}`);
 		}
 
+		const commandName = args[0].toLowerCase();
+
 		const command = client.commands.get(commandName) || client.aliases.get(commandName);
+
+		if (!command) {
+			throw new CommandError(`Command \`${args[0]}\` not found.`);
+		}
 
 		try {
 			await client.reloadCommand(command);

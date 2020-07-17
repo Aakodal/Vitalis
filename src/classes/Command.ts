@@ -30,5 +30,5 @@ export abstract class Command {
 		return this._informations;
 	}
 
-	abstract run(message: Message, args: string[], client: Client);
+	abstract run(message: Message, args: string[], client: Client): unknown;
 }

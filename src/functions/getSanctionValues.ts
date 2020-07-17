@@ -1,7 +1,12 @@
 import { Guild, User } from "discord.js";
 import { getDurationFromString } from "./getDurationFromString";
 
-export function getSanctionValues(args: string[], sanction: string, member: User, guild: Guild): (string | number)[] {
+export function getSanctionValues(
+	args: string[],
+	sanction: string,
+	member: User,
+	guild: Guild,
+): (string | number | null)[] {
 	const isPermanent = !args[1].match(/^[1-9]+([smhdwy]|mo)$/i);
 
 	const durationString = isPermanent

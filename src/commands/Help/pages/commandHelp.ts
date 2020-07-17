@@ -11,11 +11,11 @@ export async function commandHelp(
 	client: Client,
 	prefix: string,
 ): Promise<void> {
-	if (!client.commands.has(args[0])) {
+	const command = client.commands.get(args[0].toLowerCase());
+	if (!command) {
 		throw new CommandError(`Command ${args[0]} not found.`);
 	}
 
-	const command = client.commands.get(args[0].toLowerCase());
 	const {
 		name, description, usage, aliases, permission, category,
 	} = command.informations;
@@ -24,13 +24,13 @@ export async function commandHelp(
 		throw new PermissionError("You do not have permission to see this command.");
 	}
 
-	if (permission && !message.member.hasPermission(permission as PermissionString)) {
+	if (permission && !message.member?.hasPermission(permission as PermissionString)) {
 		throw new PermissionError("You do not have permission to see this command.");
 	}
 
 	const commandEmbed = new MessageEmbed()
 		.setColor(COLORS.lightGreen)
-		.setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
+		.setThumbnail(client.user?.displayAvatarURL({ dynamic: true }) as string)
 		.setFooter(`Asked by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }))
 		.setAuthor("Help - Command informations")
 		.setTitle(`**${prefix}${name} ─ ${category}**`);
@@ -42,8 +42,8 @@ export async function commandHelp(
 	const usageString = usage?.(prefix) || prefix + name;
 	commandEmbed.addField("**Usage**", usageString);
 
-	if (aliases?.length > 0) {
-		commandEmbed.addField("**Aliases**", aliases.join(", "));
+	if (aliases?.length as number > 0) {
+		commandEmbed.addField("**Aliases**", aliases?.join(", "));
 	}
 
 	if (permission) {

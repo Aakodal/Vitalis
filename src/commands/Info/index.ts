@@ -15,18 +15,18 @@ export default class Info extends Command {
 
 	async run(message: Message, args: string[], client: Client): Promise<void> {
 		const packageJsonPath = await getPackageJsonPath();
-		const packageJson = await import(packageJsonPath);
+		const packageJson = await import(packageJsonPath as string);
 		const {
-			author, version, description, homepage, dependencies, devDependencies,
+			author, version, description, homepage, dependencies,
 		} = packageJson;
 		const invite = "https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=8&scope=bot";
 
 		const embed = new MessageEmbed()
-			.setAuthor("Vitalis - Informations", client.user.displayAvatarURL({ dynamic: true }), homepage)
+			.setAuthor("Vitalis - Informations", client.user?.displayAvatarURL({ dynamic: true }), homepage)
 			.setColor(COLORS.gold)
 			.addField("**Author**", author, true)
 			.addField("**Version**", version, true)
-			.addField("**Language**", `TypeScript ${devDependencies.typescript}`, true)
+			.addField("**Language**", `TypeScript ${dependencies.typescript}`, true)
 			.addField("**GitHub Repo**", `[Link](${homepage})`, true)
 			.addField("**Library**", `[discord.js](https://discord.js.org/#/) ${dependencies["discord.js"]}`, true)
 			.addField("**Invite link**", `[Click here!](${invite})`, true)

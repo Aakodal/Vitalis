@@ -12,7 +12,7 @@ export async function unsanction(
 	server: Guild,
 	sanction: string,
 	forced = false,
-): Promise<number | NodeJS.Timeout> {
+): Promise<number | NodeJS.Timeout | void> {
 	await verifUserInDB(id, server);
 	const user = (await db.from("users").where({ server_id: server.id, discord_id: id, actual_sanction: sanction }))[0];
 
@@ -30,7 +30,7 @@ export async function unsanction(
 	}
 
 	const baseEmbed = new MessageEmbed()
-		.setAuthor("Moderation", server.iconURL({ dynamic: true }))
+		.setAuthor("Moderation", server.iconURL({ dynamic: true }) as string)
 		.setColor(COLORS.lightGreen)
 		.setTimestamp();
 
@@ -58,7 +58,7 @@ export async function unsanction(
 		const unmuteEmbed = new MessageEmbed(baseEmbed)
 			.setTitle("Unmute")
 			.setDescription(`You have been unmuted from ${server.name}.`);
-		await member.send(unmuteEmbed);
+		await user.send(unmuteEmbed);
 
 		if (!forced) {
 			await log("mod_log", autoEmbed, server);
