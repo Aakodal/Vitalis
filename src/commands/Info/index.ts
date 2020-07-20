@@ -19,7 +19,7 @@ export default class Info extends Command {
 		const {
 			author, version, description, homepage, dependencies,
 		} = packageJson;
-		const invite = "https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=8&scope=bot";
+		const invite = "https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=2113797879&scope=bot";
 
 		const embed = new MessageEmbed()
 			.setAuthor("Vitalis - Informations", client.user?.displayAvatarURL({ dynamic: true }), homepage)
