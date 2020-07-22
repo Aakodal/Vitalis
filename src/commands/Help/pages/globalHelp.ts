@@ -102,7 +102,7 @@ export async function globalHelp(
 		&& !user.bot
 		&& ["⏮️", "⬅", "➡", "⏭", "❌"].includes(reaction.emoji.name);
 
-	const reactions: { [index: string]: () => (number | void) } = {
+	const reactions: Record<string, () => void> = {
 		"⏮": (): number => (currentPage = 0),
 		"⬅": (): number => currentPage--,
 		"➡": (): number => currentPage++,

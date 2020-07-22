@@ -17,7 +17,7 @@ export function getDurationFromString(durationString: string): number | null {
 		return end - now;
 	}
 
-	const timeToMS: { [index: string]: number } = {
+	const timeToMS: Record<string, number> = {
 		s: 1000,
 		m: 60 * 1000,
 		h: 60 * 60 * 1000,
