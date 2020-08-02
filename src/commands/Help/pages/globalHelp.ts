@@ -14,7 +14,7 @@ export async function globalHelp(
 	pageNumber: number,
 	prefix: string,
 ): Promise<void> {
-	const commands: { category: string | undefined; name: string }[] = [];
+	const commands: { category: string; name: string }[] = [];
 	const stockEmbeds: MessageEmbed[] = [];
 
 	let embed = new MessageEmbed()
@@ -50,8 +50,8 @@ export async function globalHelp(
 	}
 
 	commands.sort((a, b) => {
-		const categoryA = a.category as string;
-		const categoryB = b.category as string;
+		const categoryA = a.category;
+		const categoryB = b.category;
 		if (categoryA < categoryB) {
 			return -1;
 		}

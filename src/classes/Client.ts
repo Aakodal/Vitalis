@@ -127,8 +127,9 @@ class Client extends DiscordClient {
 		}
 
 		for (const alias of command.informations.aliases) {
-			if (this.aliases.has(alias)) {
-				console.warn(`Alias ${alias} already exist for command ${this.aliases.get(alias)?.informations.name}.`);
+			const double = this.aliases.get(alias) || this.commands.get(alias);
+			if (double) {
+				console.warn(`Alias ${alias} already exist for command ${double.informations.name}.`);
 				continue;
 			}
 			this.aliases.set(alias, command);
@@ -177,7 +178,9 @@ class Client extends DiscordClient {
 		try {
 			await getMuteRole(server);
 		} catch {
-			await server.owner?.send(`[${server.name}] Vitalis doesn't have sufficent permissions to work.`);
+			try {
+				await server.owner?.send(`[${server.name}] Vitalis doesn't have sufficent permissions to work.`);
+			} catch {}
 		}
 	}
 }

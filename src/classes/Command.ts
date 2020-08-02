@@ -4,7 +4,7 @@ import { Client } from "./Client";
 type CommandInformations = {
 	name: string;
 	description?: string;
-	category?: string;
+	category: string;
 	usage?: (prefix: string) => string;
 	aliases?: string[];
 	permission?: PermissionResolvable | "BOT_OWNER";
