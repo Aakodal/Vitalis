@@ -20,10 +20,14 @@ export default class Purge extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client): Promise<void> {
-		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+		if (!message.guild) {
+			return;
+		}
+
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[0]) {
-			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage(prefix)}`);
+			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage?.(prefix)}`);
 		}
 
 		let amount = Number(args[0]);

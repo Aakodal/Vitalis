@@ -1,5 +1,6 @@
 import * as knex from "knex";
 import * as path from "path";
+import { Snowflake } from "discord.js";
 
 const dbPath = path.join(__dirname, "../db.db");
 
@@ -21,6 +22,27 @@ export const defaultServerConfig = {
 	leaving_message_active: false,
 	leaving_message_text: "{USER} left the server :'(",
 };
+
+export interface Infraction {
+	id: number;
+	discord_id: Snowflake;
+	infraction: string;
+	type: "warn" | "mute" | "kick" | "ban";
+	created: number;
+	expiration: number;
+	duration: string;
+	moderator: string;
+}
+
+export interface DbUser {
+	server_id: Snowflake;
+	discord_id: Snowflake;
+	pseudo: string;
+	last_warn: number;
+	actual_sanction: "muted" | "banned";
+	created: number;
+	expiration: number;
+}
 
 export async function databaseCheck(): Promise<void> {
 	const infractionsTableExists = await db.schema.hasTable("infractions");

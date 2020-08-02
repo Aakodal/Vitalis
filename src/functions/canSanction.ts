@@ -1,4 +1,6 @@
-import { GuildMember, Snowflake, User } from "discord.js";
+import {
+	ClientUser, GuildMember, Role, Snowflake, User,
+} from "discord.js";
 import { client } from "../index";
 import { fetchMember } from "./fetchMember";
 import { ArgumentError } from "../exceptions/ArgumentError";
@@ -30,10 +32,10 @@ export async function canSanction(
 		throw new MemberError(`Member not found.`);
 	}
 
-	const clientMember = await fetchMember(author.guild, client.user);
+	const clientMember = await fetchMember(author.guild, client.user as ClientUser);
 
 	if (
-		member?.roles.highest.comparePositionTo(clientMember.roles.highest) >= 0
+		member?.roles.highest.comparePositionTo(clientMember?.roles.highest as Role) >= 0
 		|| member?.roles.highest.comparePositionTo(author.roles.highest) >= 0
 	) {
 		throw new PermissionError(`You can't ${sanction} someone who is superior or equal to you or to me.`);

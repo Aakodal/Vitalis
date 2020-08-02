@@ -18,9 +18,13 @@ export default class ServerInfo extends Command {
 	async run(message: Message, args: string[], client: Client): Promise<void> {
 		const { guild } = message;
 
+		if (!guild) {
+			return;
+		}
+
 		const embed = new MessageEmbed()
 			.setAuthor(guild.name)
-			.setThumbnail(guild.iconURL({ dynamic: true }))
+			.setThumbnail(guild.iconURL({ dynamic: true }) as string)
 			.setColor(COLORS.gold)
 			.setFooter(`Asked by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 

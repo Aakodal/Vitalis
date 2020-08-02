@@ -25,14 +25,18 @@ export default class Warn extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client): Promise<void> {
-		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+		if (!message.guild || !message.member) {
+			return;
+		}
+
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[1]) {
-			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage(prefix)}`);
+			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage?.(prefix)}`);
 		}
 
 		const memberSnowflake = getUserIdFromString(args[0]);
-		const member = await fetchMember(message.guild, memberSnowflake);
+		const member = await fetchMember(message.guild, memberSnowflake as string);
 
 		if (!member) {
 			throw new MemberError();
@@ -49,7 +53,7 @@ export default class Warn extends Command {
 		}
 
 		const warnEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild.iconURL({ dynamic: true }))
+			.setAuthor("Moderation", message.guild?.iconURL({ dynamic: true }) as string)
 			.setColor(COLORS.lightGreen)
 			.setTitle("Warning")
 			.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`)
@@ -61,7 +65,7 @@ export default class Warn extends Command {
 		await log("mod_log", warnEmbed, message.guild);
 
 		warnEmbed.setDescription(
-			`You have been warned from ${message.guild.name} for the following reasion:\n\n${reason}`,
+			`You have been warned from ${message.guild?.name} for the following reasion:\n\n${reason}`,
 		);
 		await member.user.send(warnEmbed);
 
@@ -69,7 +73,7 @@ export default class Warn extends Command {
 
 		await db
 			.insert({
-				server_id: message.guild.id,
+				server_id: message.guild?.id,
 				discord_id: memberID,
 				infraction: reason,
 				type: "warn",
@@ -86,6 +90,6 @@ export default class Warn extends Command {
 				last_warn: Date.now(),
 			})
 			.into("users")
-			.where({ server_id: message.guild.id, discord_id: memberID });
+			.where({ server_id: message.guild?.id, discord_id: memberID });
 	}
 }

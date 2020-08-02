@@ -4,7 +4,7 @@ import { Client } from "./Client";
 type CommandInformations = {
 	name: string;
 	description?: string;
-	category?: string;
+	category: string;
 	usage?: (prefix: string) => string;
 	aliases?: string[];
 	permission?: PermissionResolvable | "BOT_OWNER";
@@ -30,5 +30,5 @@ export abstract class Command {
 		return this._informations;
 	}
 
-	abstract run(message: Message, args: string[], client: Client);
+	abstract run(message: Message, args: string[], client: Client): void | Promise<void>;
 }

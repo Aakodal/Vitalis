@@ -1,13 +1,13 @@
 import {
-	GuildChannel, DMChannel, MessageEmbed, TextChannel,
+	GuildChannel, MessageEmbed, TextChannel, Channel,
 } from "discord.js";
 import { client } from "../../index";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
 import { COLORS } from "../../lib/constants";
 
-client.on("channelUpdate", async (oldChannel: GuildChannel | DMChannel, newChannel: GuildChannel | DMChannel) => {
-	if (!client.operational || oldChannel.type === "dm" || newChannel.type === "dm") {
+client.on("channelUpdate", async (oldChannel: Channel, newChannel: Channel) => {
+	if (!client.operational || !(oldChannel instanceof GuildChannel) || !(newChannel instanceof GuildChannel)) {
 		return;
 	}
 
@@ -25,7 +25,7 @@ client.on("channelUpdate", async (oldChannel: GuildChannel | DMChannel, newChann
 		: newChannel.name;
 
 	const embed = new MessageEmbed()
-		.setAuthor("Channel Updated", newChannel.guild.iconURL({ dynamic: true }))
+		.setAuthor("Channel Updated", newChannel.guild.iconURL({ dynamic: true }) as string)
 		.setColor(COLORS.gold)
 		.addField("**Channel**", channelReference, true)
 		.addField("**Type**", newChannel.type, true)

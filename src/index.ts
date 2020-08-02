@@ -33,6 +33,10 @@ client.on("message", async (message) => {
 		await message.author.fetch();
 	}
 
+	if (message.member?.partial) {
+		await message.member.fetch();
+	}
+
 	const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
 
 	if (!message.content.startsWith(prefix)) {
@@ -41,11 +45,12 @@ client.on("message", async (message) => {
 
 	const [commandName, ...args] = message.content.slice(prefix.length).split(/\s+/);
 	const commandNameLower = commandName.toLowerCase();
-	if (!client.commands.has(commandNameLower) && !client.aliases.has(commandNameLower)) {
-		return;
-	}
 
 	const command = client.commands.get(commandNameLower) || client.aliases.get(commandNameLower);
+
+	if (!command) {
+		return;
+	}
 
 	const isOwner =	command.informations.permission
 		&& (command.informations.permission as string).toUpperCase() === "BOT_OWNER"
@@ -54,7 +59,7 @@ client.on("message", async (message) => {
 	if (
 		!command.informations.permission
 		|| isOwner
-		|| message.member.hasPermission(command.informations.permission as PermissionResolvable)
+		|| message.member?.hasPermission(command.informations.permission as PermissionResolvable)
 	) {
 		try {
 			await message.delete();

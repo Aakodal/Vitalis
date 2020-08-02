@@ -1,10 +1,10 @@
-import { Guild, Role } from "discord.js";
+import { ClientUser, Guild, Role } from "discord.js";
 import { client } from "../index";
 import { pushValueInDB } from "./pushValueInDB";
 
 export async function createMuteRole(server: Guild): Promise<Role> {
-	const botRole = server.member(client.user).roles.highest;
-	const botHighestRolePosition = botRole.position;
+	const botRole = server.member(client.user as ClientUser)?.roles.highest;
+	const botHighestRolePosition = botRole?.position;
 	const muteRole = await server.roles.create({
 		data: {
 			name: "Muted",

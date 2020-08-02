@@ -6,7 +6,7 @@ export async function collectReaction(
 	message: Message,
 	filter: (reaction: MessageReaction, user: User) => boolean,
 	options: AwaitReactionsOptions = { max: 1 },
-): Promise<MessageReaction> {
+): Promise<MessageReaction | void> {
 	const collected = await message.awaitReactions(filter, options);
 	const reaction = collected.first();
 

@@ -6,7 +6,7 @@ export async function changePage(target: EmbedMessage): Promise<void> {
 	const {
 		message, embed, reactions,
 	} = target;
-	await message.edit("", { embed: await embed(message) });
+	await message.edit("", await embed(message));
 
 	await message.reactions.removeAll();
 	await react(reactions, message);

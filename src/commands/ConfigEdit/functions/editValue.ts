@@ -6,9 +6,9 @@ import { sendError } from "../../../functions/sendError";
 
 export async function editValue(
 	source: EmbedMessage,
-	filter: (message?: Message) => boolean,
+	filter: (message: Message) => boolean,
 	column: string,
-	transformation?: (value: string) => string,
+	transformation?: (value: string) => string | undefined,
 ): Promise<void> {
 	const collectorFilter = (message: Message): boolean => message.channel === source.message.channel
 		&& message.author === source.author
@@ -37,7 +37,7 @@ export async function editValue(
 		await pushValueInDB<string>(
 			"servers",
 			column,
-			message.guild.id,
+			message.guild?.id as string,
 			transformation?.(message.content) || message.content,
 		);
 	} catch (error) {

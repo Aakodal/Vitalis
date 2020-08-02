@@ -1,23 +1,20 @@
 # Vitalis
 Multi-tasks bot made by Neshell (AKA Aakodal). Successor of Luminis.
 ## Adding to your server
-Simply use [this link](https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=8&scope=bot).
-## Downloading
-Just clone this repository. That's all.
-## Prerequisites
+Simply use [this link](https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=2113797879&scope=bot).
+## Hosting your own
 ### Node.JS
-Before using Vitalis, you need to install [Node.JS](https://nodejs.org) on your computer. Please use a recent version of Node.JS (>= v12.X.X, v13 recommended). Also, you need windows-build-tools, so if Node.JS installer asks you if you want to install them, please, say yes.
-### TypeScript
-You may see that Vitalis is completly written in [TypeScript](https://www.typescriptlang.org/). However, TypeScript code is not executable. You first need to install the `typescript` module (version 3.8.3 minimum).
-
-Then, at the bot's root, just make a wonderful `npm run build`; a folder named `build` will appear, and will contain the transpiled code in JavaScript! Hooray!
+Before using Vitalis, you need to install [Node.JS](https://nodejs.org) on your computer. Please use a recent version of Node.JS (^12.0.0). Also, you will need [different tools to make node-gyp work](https://github.com/nodejs/node-gyp#installation), so please, install them.
 ### Node modules
-After compiling from TypeScript, go to your fresh `build` folder, and execute
-```md
+You need to install the required modules; so, just make a nice
+```
 npm i
+# or whatever you use as package manager
 ```
 And *voilà*!
+### Building
+At the bot's root, just make a wonderful `npm run build`; a folder named `build` will appear, and will contain the transpiled code in JavaScript! Hooray!
 ### Configuring
-Edit your `config.json` in your `build` folder, and change the `token` and the `botOwner` values by your own. Don't forget to add the bot to your server ; it needs the "administrator" permission and needs to be high-placed in your roles.
+Edit your `config.json` in your `build` folder, and change the `token` and the `botOwner` values by your own. Don't forget to add the bot to your server; it needs the same permissions as in its invite link and needs to be high-placed in your roles.
 ## Using
-After installing node modules, always in your `build` folder, just execute `npm run start` (or `node .` if you prefer). And that's it! Your bot is on!
+After installing node modules, always in your `build` folder, just execute the `start` script (with npm with `npm start` or whatever). And that's it! Your bot is on!

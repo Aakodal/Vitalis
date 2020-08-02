@@ -16,7 +16,7 @@ export default class Help extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client): Promise<void> {
-		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		const pageNumber = Number(args[0]);
 

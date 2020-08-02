@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Guild, Message, MessageEmbed } from "discord.js";
 import { Command } from "../../classes/Command";
 import { Client } from "../../classes/Client";
 import { COLORS } from "../../lib/constants";
@@ -30,14 +30,18 @@ export default class Mute extends Command {
 	}
 
 	async run(message: Message, args: string[], client: Client): Promise<void> {
-		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild.id });
+		if (!message.guild || !message.member) {
+			return;
+		}
+
+		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[1]) {
-			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage(prefix)}`);
+			throw new ArgumentError(`Argument missing. Usage: ${this.informations.usage?.(prefix)}`);
 		}
 
 		const memberSnowflake = getUserIdFromString(args[0]);
-		const member = await fetchMember(message.guild, memberSnowflake);
+		const member = await fetchMember(message.guild, memberSnowflake as string);
 
 		if (!member) {
 			throw new MemberError();
@@ -66,11 +70,11 @@ export default class Mute extends Command {
 		const durationNumber = Number(duration);
 
 		if (durationNumber && !args[2]) {
-			throw new UsageError(`Wrong command usage. Usage: ${this.informations.usage(prefix)}`);
+			throw new UsageError(`Wrong command usage. Usage: ${this.informations.usage?.(prefix)}`);
 		}
 
 		const muteEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild.iconURL({ dynamic: true }))
+			.setAuthor("Moderation", message.guild?.iconURL({ dynamic: true }) as string)
 			.setColor(COLORS.lightGreen)
 			.setTitle("Mute")
 			.setDescription(embedDescription)
@@ -101,7 +105,7 @@ export default class Mute extends Command {
 
 		await db
 			.insert({
-				server_id: message.guild.id,
+				server_id: message.guild?.id,
 				discord_id: memberID,
 				infraction: reason,
 				type: "mute",
@@ -122,14 +126,14 @@ export default class Mute extends Command {
 				expiration,
 			})
 			.into("users")
-			.where({ server_id: message.guild.id, discord_id: memberID });
+			.where({ server_id: message.guild?.id, discord_id: memberID });
 
-		if (!duration) {
+		if (!expiration) {
 			return;
 		}
 
 		longTimeout(async () => {
-			await unsanction(memberID, message.guild, "muted", false);
+			await unsanction(memberID, message.guild as Guild, "muted", false);
 		}, expiration - created);
 	}
 }

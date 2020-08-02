@@ -5,7 +5,9 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import { Command } from "./Command";
 import { stringNormalize } from "../functions/stringNormalize";
-import { databaseCheck, db, defaultServerConfig } from "../lib/database";
+import {
+	databaseCheck, db, DbUser, defaultServerConfig,
+} from "../lib/database";
 import * as config from "../config.json";
 import { DatabaseError } from "../exceptions/DatabaseError";
 import { CommandError } from "../exceptions/CommandError";
@@ -47,7 +49,7 @@ class Client extends DiscordClient {
 			try {
 				await this.loadCommand(commandPath);
 			} catch (error) {
-				console.error(`Could not load command in ${folder}; ${error.message}\n${error.stackTrace}`);
+				console.error(`Could not load command in ${folder};\n${error.stackTrace}`);
 			}
 		}
 
@@ -59,7 +61,7 @@ class Client extends DiscordClient {
 		}
 
 		await this.login(config.token);
-		await this.user.setPresence({
+		await this.user?.setPresence({
 			activity: {
 				name: "starting...",
 				type: "PLAYING",
@@ -74,12 +76,18 @@ class Client extends DiscordClient {
 				await this.initServer(server);
 			}
 
-			const sanctionned = await db.from("users").whereIn("actual_sanction", ["muted", "banned"]);
+			const sanctionned: DbUser[] = await db.from("users").whereIn("actual_sanction", ["muted", "banned"]);
 			for (const user of sanctionned) {
-				if (user.expiration) {
-					const guild = this.guilds.cache.get(user.server_id);
-					await unsanction(user.discord_id, guild, user.actual_sanction);
+				if (!user.expiration) {
+					return;
 				}
+
+				const guild = this.guilds.cache.get(user.server_id);
+				if (!guild) {
+					return;
+				}
+
+				await unsanction(user.discord_id, guild, user.actual_sanction);
 			}
 		}
 
@@ -108,7 +116,7 @@ class Client extends DiscordClient {
 
 		this.commands.set(command.informations.name, command);
 
-		const category = stringNormalize(command.informations.category) || "Misc";
+		const category = stringNormalize(command.informations.category || "Misc");
 		command.setCategory(category);
 		command.setPath(filePath);
 
@@ -119,8 +127,9 @@ class Client extends DiscordClient {
 		}
 
 		for (const alias of command.informations.aliases) {
-			if (this.aliases.has(alias)) {
-				console.warn(`Alias ${alias} already exist for command ${this.aliases.get(alias).informations.name}.`);
+			const double = this.aliases.get(alias) || this.commands.get(alias);
+			if (double) {
+				console.warn(`Alias ${alias} already exist for command ${double.informations.name}.`);
 				continue;
 			}
 			this.aliases.set(alias, command);
@@ -136,9 +145,9 @@ class Client extends DiscordClient {
 
 		try {
 			this.commands.delete(command.informations.name);
-			delete require.cache[require.resolve(command.informations.path)];
+			delete require.cache[require.resolve(command.informations.path as string)];
 
-			return this.loadCommand(command.informations.path);
+			return this.loadCommand(command.informations.path as string);
 		} catch (error) {
 			throw new CommandError(`Could not reload command ${command.informations.name}; ${error}`);
 		}
@@ -155,9 +164,9 @@ class Client extends DiscordClient {
 		};
 
 		if (active) {
-			await this.user.setPresence(presence);
+			await this.user?.setPresence(presence);
 		}
-		await this.user.setStatus((configUpdated.status as PresenceStatusData) || "online");
+		await this.user?.setStatus((configUpdated.status as PresenceStatusData) || "online");
 	}
 
 	async initServer(server: Guild): Promise<void> {
@@ -169,7 +178,9 @@ class Client extends DiscordClient {
 		try {
 			await getMuteRole(server);
 		} catch {
-			await server.owner?.send(`[${server.name}] Vitalis doesn't have sufficent permissions to work.`);
+			try {
+				await server.owner?.send(`[${server.name}] Vitalis doesn't have sufficent permissions to work.`);
+			} catch {}
 		}
 	}
 }

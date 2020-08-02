@@ -3,7 +3,7 @@ import { COLORS } from "../../../../lib/constants";
 
 export function getMainEmbed(message: Message): MessageEmbed {
 	return new MessageEmbed()
-		.setAuthor("Configuration Editor - Main page", message.guild.iconURL({ dynamic: true }))
+		.setAuthor("Configuration Editor - Main page", message.guild?.iconURL({ dynamic: true }) as string)
 		.setColor(COLORS.purple)
 		.setTitle("React with any of the below emojis to edit the configuration.")
 		.addField("❗ Prefix", "Change prefix", true)
