@@ -66,8 +66,8 @@ export default class Unban extends Command {
 			throw new SanctionError(`For some reason, this user couldn't have been unbanned; ${error.message}`);
 		}
 
-		await message.channel.send(unbanEmbed);
-
 		await log("mod_log", unbanEmbed, message.guild);
+
+		await message.channel.send(unbanEmbed);
 	}
 }

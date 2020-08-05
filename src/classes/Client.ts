@@ -1,5 +1,5 @@
 import {
-	ActivityType, Client as DiscordClient, ClientOptions, Guild, PresenceData, PresenceStatusData,
+	ActivityType, Client as DiscordClient, ClientOptions, Guild, PresenceData, PresenceStatusData, Snowflake,
 } from "discord.js";
 import { promises as fs } from "fs";
 import * as path from "path";

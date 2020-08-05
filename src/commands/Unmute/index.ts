@@ -67,8 +67,8 @@ export default class Unmute extends Command {
 			throw new SanctionError(`For some reason, this user couldn't have been unmuted; ${error.message}`);
 		}
 
-		await message.channel.send(unmuteEmbed);
-
 		await log("mod_log", unmuteEmbed, message.guild);
+
+		await message.channel.send(unmuteEmbed);
 	}
 }

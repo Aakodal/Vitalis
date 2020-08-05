@@ -89,11 +89,9 @@ export default class Mute extends Command {
 			throw new SanctionError(`For some reason, this member couldn't have been muted; ${error.message}`);
 		}
 
-		await message.channel.send(muteEmbed);
-
-		await log("mod_log", muteEmbed, message.guild);
-
-		await member.user.send(userEmbed);
+		try {
+			await member.user.send(userEmbed);
+		} catch {}
 
 		const memberID = member.user.id;
 
@@ -127,6 +125,10 @@ export default class Mute extends Command {
 			})
 			.into("users")
 			.where({ server_id: message.guild?.id, discord_id: memberID });
+
+		await log("mod_log", muteEmbed, message.guild);
+
+		await message.channel.send(muteEmbed);
 
 		if (!expiration) {
 			return;
