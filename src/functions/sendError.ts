@@ -12,7 +12,12 @@ export async function sendError(message: Message, error: Error): Promise<void> {
 		.setColor(COLORS.darkRed)
 		.setDescription(error);
 
-	const errorMessage = await message.channel.send(embed);
+	const errorMessage = await message.channel.send(embed).catch(() => {});
+
+	if (!errorMessage) {
+		return;
+	}
+
 	await react("🔍", errorMessage);
 
 	const filter = (reaction: MessageReaction, user: User): boolean => reaction.message.id === errorMessage.id
@@ -28,12 +33,6 @@ export async function sendError(message: Message, error: Error): Promise<void> {
 	if (!reaction) {
 		await errorMessage.reactions.removeAll();
 		return;
-	}
-	if (reaction.partial) {
-		await reaction.fetch();
-	}
-	if (reaction.message.partial) {
-		await reaction.message.fetch();
 	}
 
 	// V8 actually writes error.message inside error.stack, so I remove it

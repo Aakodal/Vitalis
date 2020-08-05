@@ -64,13 +64,11 @@ export default class Kick extends Command {
 			throw new SanctionError("For some reason, this member can not be kicked.");
 		}
 
-		await member.user.send(userEmbed);
+		try {
+			await member.user.send(userEmbed);
+		} catch {}
 
 		await member.kick(reason);
-
-		await message.channel.send(kickEmbed);
-
-		await log("mod_log", kickEmbed, message.guild);
 
 		const memberID = member.user.id;
 
@@ -86,5 +84,9 @@ export default class Kick extends Command {
 			.into("infractions");
 
 		await verifUserInDB(memberID, message.guild);
+
+		await log("mod_log", kickEmbed, message.guild);
+
+		await message.channel.send(kickEmbed);
 	}
 }

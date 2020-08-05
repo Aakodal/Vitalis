@@ -52,23 +52,6 @@ export default class Warn extends Command {
 			return;
 		}
 
-		const warnEmbed = new MessageEmbed()
-			.setAuthor("Moderation", message.guild?.iconURL({ dynamic: true }) as string)
-			.setColor(COLORS.lightGreen)
-			.setTitle("Warning")
-			.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`)
-			.setTimestamp()
-			.setFooter(`Moderator: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
-
-		await message.channel.send(warnEmbed);
-
-		await log("mod_log", warnEmbed, message.guild);
-
-		warnEmbed.setDescription(
-			`You have been warned from ${message.guild?.name} for the following reasion:\n\n${reason}`,
-		);
-		await member.user.send(warnEmbed);
-
 		const memberID = member.user.id;
 
 		await db
@@ -91,5 +74,25 @@ export default class Warn extends Command {
 			})
 			.into("users")
 			.where({ server_id: message.guild?.id, discord_id: memberID });
+
+		const warnEmbed = new MessageEmbed()
+			.setAuthor("Moderation", message.guild?.iconURL({ dynamic: true }) as string)
+			.setColor(COLORS.lightGreen)
+			.setTitle("Warning")
+			.setDescription(
+				`You have been warned from ${message.guild?.name} for the following reasion:\n\n${reason}`,
+			)
+			.setTimestamp()
+			.setFooter(`Moderator: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
+
+		try {
+			await member.user.send(warnEmbed);
+		} catch {}
+
+		warnEmbed.setDescription(`${member.user} has been warned for the following reason:\n\n${reason}`);
+
+		await log("mod_log", warnEmbed, message.guild);
+
+		await message.channel.send(warnEmbed);
 	}
 }

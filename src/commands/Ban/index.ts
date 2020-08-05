@@ -51,9 +51,9 @@ export default class Ban extends Command {
 			return;
 		}
 
-		const banned = await message.guild?.fetchBans();
+		const banned = await message.guild.fetchBans();
 
-		if (banned?.get(user.id)) {
+		if (banned.get(user.id)) {
 			throw new SanctionError("This user is already banned.");
 		}
 
@@ -95,15 +95,11 @@ export default class Ban extends Command {
 			throw new SanctionError(`This user couldn't have been banned; ${error.message}`);
 		}
 
-		try {
-			if (member) {
+		if (member) {
+			try {
 				await user.send(userEmbed);
-			}
-		} catch {}
-
-		await message.channel.send(banEmbed);
-
-		await log("mod_log", banEmbed, message.guild);
+			} catch {}
+		}
 
 		const userID = user.id;
 
@@ -137,6 +133,10 @@ export default class Ban extends Command {
 			})
 			.into("users")
 			.where({ server_id: message.guild?.id, discord_id: userID });
+
+		await log("mod_log", banEmbed, message.guild);
+
+		await message.channel.send(banEmbed);
 
 		if (!expiration) {
 			return;

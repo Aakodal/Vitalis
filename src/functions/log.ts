@@ -5,11 +5,13 @@ import { getValueFromDB } from "./getValueFromDB";
 export async function log(type: "log" | "mod_log", embed: MessageEmbed, server: Guild): Promise<void> {
 	const channelId = await getValueFromDB<string>("servers", `${type}s_channel`, { server_id: server.id });
 	const isActive = await getValueFromDB<boolean>("servers", `${type}s_active`, { server_id: server.id });
+
 	if (!channelId || !isActive) {
 		return;
 	}
 
 	const channel = (await client.channels.fetch(channelId)) as TextChannel;
+
 	if (!channel) {
 		return;
 	}
@@ -23,7 +25,5 @@ export async function log(type: "log" | "mod_log", embed: MessageEmbed, server: 
 
 	try {
 		await channel.send(embed);
-	} catch (error) {
-		console.error(`Error when trying to log; ${error}`);
-	}
+	} catch {}
 }
