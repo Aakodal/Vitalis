@@ -8,7 +8,7 @@ import { COLORS } from "../../lib/constants";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class DeleteInfraction extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "deleteinfraction",
 			description: "Remove an infraction from database with its ID",
@@ -16,10 +16,10 @@ export default class DeleteInfraction extends Command {
 			usage: (prefix) => `${prefix}deleteinfraction <infraction ID>`,
 			aliases: ["removeinfraction"],
 			permission: "BAN_MEMBERS",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[0]) {

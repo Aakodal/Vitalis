@@ -19,17 +19,17 @@ import { UsageError } from "../../exceptions/UsageError";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Mute extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "mute",
 			description: "Mute a member with a specified reason",
 			category: "Moderation",
 			usage: (prefix) => `${prefix}mute <member ID | member mention> [duration] <reason>`,
 			permission: "MUTE_MEMBERS",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		if (!message.guild || !message.member) {
 			return;
 		}

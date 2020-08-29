@@ -5,16 +5,16 @@ import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { fetchMember } from "../../functions/fetchMember";
 
 export default class UserInfo extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "userinfo",
 			description: "Get user's informations",
 			category: "Misc",
 			usage: (prefix) => `${prefix}userinfo [user mention|user id]`,
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		if (!message.guild || !message.member) {
 			return;
 		}

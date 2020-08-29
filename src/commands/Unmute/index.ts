@@ -14,7 +14,7 @@ import { SanctionError } from "../../exceptions/SanctionError";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Unmute extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "unmute",
 			description: "Unmute a member",
@@ -22,10 +22,10 @@ export default class Unmute extends Command {
 			usage: (prefix) => `${prefix}unmute <member ID | member mention>`,
 			aliases: ["demute"],
 			permission: "MUTE_MEMBERS",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		if (!message.guild || !message.member) {
 			return;
 		}

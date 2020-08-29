@@ -7,17 +7,17 @@ import { COLORS } from "../../lib/constants";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Reload extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "reload",
 			description: "Reload a command",
 			category: "Bot owner",
 			usage: (prefix) => `${prefix}reload <command>`,
 			permission: "BOT_OWNER",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[0]) {
@@ -26,14 +26,14 @@ export default class Reload extends Command {
 
 		const commandName = args[0].toLowerCase();
 
-		const command = client.commands.get(commandName) || client.aliases.get(commandName);
+		const command = this.client.commands.get(commandName) || this.client.aliases.get(commandName);
 
 		if (!command) {
 			throw new CommandError(`Command \`${args[0]}\` not found.`);
 		}
 
 		try {
-			await client.reloadCommand(command);
+			await this.client.reloadCommand(command);
 		} catch (error) {
 			throw new CommandError(error.message);
 		}

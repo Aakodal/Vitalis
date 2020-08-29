@@ -10,7 +10,7 @@ import { getList } from "./functions/getList";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Infractions extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "infractions",
 			description: "See a member's infractions",
@@ -18,10 +18,10 @@ export default class Infractions extends Command {
 			usage: (prefix) => `${prefix}infractions <member ID | member mention> [warn|kick|mute|ban]`,
 			aliases: ["sanctions"],
 			permission: "VIEW_AUDIT_LOG",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[0]) {
