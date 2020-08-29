@@ -14,17 +14,17 @@ import { SanctionError } from "../../exceptions/SanctionError";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Kick extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "kick",
 			description: "Kick a member with a specified reason",
 			category: "Moderation",
 			usage: (prefix) => `${prefix}kick <member ID | member mention> <reason>`,
 			permission: "KICK_MEMBERS",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		if (!message.guild || !message.member) {
 			return;
 		}

@@ -19,17 +19,17 @@ import { UsageError } from "../../exceptions/UsageError";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Ban extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "ban",
 			description: "Ban a member with a specified reason",
 			category: "Moderation",
 			usage: (prefix) => `${prefix}ban <user ID | user mention> [duration] <reason>`,
 			permission: "BAN_MEMBERS",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });
 
 		if (!args[1]) {

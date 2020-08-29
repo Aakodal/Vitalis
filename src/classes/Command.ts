@@ -14,8 +14,11 @@ type CommandInformations = {
 export abstract class Command {
 	private readonly _informations: CommandInformations;
 
-	protected constructor(informations: CommandInformations) {
+	protected readonly client: Client;
+
+	protected constructor(informations: CommandInformations, client: Client) {
 		this._informations = informations;
+		this.client = client;
 	}
 
 	setCategory(category: string): void {
@@ -30,5 +33,5 @@ export abstract class Command {
 		return this._informations;
 	}
 
-	abstract run(message: Message, args: string[], client: Client): void | Promise<void>;
+	abstract run(message: Message, args: string[]): void | Promise<void>;
 }

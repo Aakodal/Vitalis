@@ -7,15 +7,15 @@ import { COLORS } from "../../lib/constants";
 const boostObjective = ["/2", "/15", "/30", ""];
 
 export default class ServerInfo extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "serverinfo",
 			description: "Get server's informations",
 			category: "Misc",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		const { guild } = message;
 
 		if (!guild) {

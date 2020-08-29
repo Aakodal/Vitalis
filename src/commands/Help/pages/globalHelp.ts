@@ -10,8 +10,8 @@ import { Client } from "../../../classes/Client";
 
 export async function globalHelp(
 	message: Message,
-	client: Client,
 	pageNumber: number,
+	client: Client,
 	prefix: string,
 ): Promise<void> {
 	const commands: { category: string; name: string }[] = [];

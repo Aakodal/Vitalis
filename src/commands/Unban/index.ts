@@ -13,7 +13,7 @@ import { SanctionError } from "../../exceptions/SanctionError";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Unban extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "unban",
 			description: "Unban a member by its ID",
@@ -21,10 +21,10 @@ export default class Unban extends Command {
 			usage: (prefix) => `${prefix}unban <user ID | user mention>`,
 			aliases: ["deban"],
 			permission: "BAN_MEMBERS",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		if (!message.guild || !message.member) {
 			return;
 		}

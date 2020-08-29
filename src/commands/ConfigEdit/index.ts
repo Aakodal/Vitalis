@@ -27,17 +27,17 @@ export function getMainEmbedMessage(message: Message, author: User): EmbedMessag
 }
 
 export default class ConfigEdit extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "configedit",
 			description: "Edit configuration",
 			category: "Administration",
 			aliases: ["editconfig"],
 			permission: "ADMINISTRATOR",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		const mainEmbed = getMainEmbed(message);
 		const embedMessage = await message.channel.send(mainEmbed);
 		const mainEmbedMessage = getMainEmbedMessage(embedMessage, message.author);

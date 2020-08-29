@@ -8,7 +8,7 @@ import { COLORS } from "../../lib/constants";
 import { log } from "../../functions/log";
 
 export default class Purge extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "purge",
 			description: "Delete a specified amount of messages inside the channel",
@@ -16,11 +16,11 @@ export default class Purge extends Command {
 			usage: (prefix) => `${prefix}purge <number>`,
 			aliases: ["bulk"],
 			permission: "MANAGE_MESSAGES",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
-		if (!message.guild) {
+	async run(message: Message, args: string[]): Promise<void> {
+		if (!message.guild || message.channel.type === "dm") {
 			return;
 		}
 

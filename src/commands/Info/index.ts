@@ -5,15 +5,15 @@ import { COLORS } from "../../lib/constants";
 import { getPackageJsonPath } from "./functions/getPackageJsonPath";
 
 export default class Info extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "info",
 			description: "Get bot's informations",
 			category: "Misc",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		const packageJsonPath = await getPackageJsonPath();
 		const packageJson = await import(packageJsonPath as string);
 		const {
@@ -23,7 +23,7 @@ export default class Info extends Command {
 		const invite = "https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=2113797879&scope=bot";
 
 		const embed = new MessageEmbed()
-			.setAuthor("Vitalis - Informations", client.user?.displayAvatarURL({ dynamic: true }), homepage)
+			.setAuthor("Vitalis - Informations", this.client.user?.displayAvatarURL({ dynamic: true }), homepage)
 			.setColor(COLORS.gold)
 			.addField("**Author**", author, true)
 			.addField("**Version**", version, true)
@@ -31,7 +31,7 @@ export default class Info extends Command {
 			.addField("**GitHub Repo**", `[Link](${homepage})`, true)
 			.addField("**Library**", `[discord.js](https://discord.js.org/#/) ${dependencies["discord.js"]}`, true)
 			.addField("**Invite link**", `[Click here!](${invite})`, true)
-			.addField("**Servers count**", client.guilds.cache.size, true)
+			.addField("**Servers count**", this.client.guilds.cache.size, true)
 			.addField("**Description**", description)
 			.setFooter(
 				`Vitalis - ${author} | AGPLv3 license. Asked by ${message.author.tag}`,

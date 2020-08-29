@@ -14,6 +14,7 @@ import { CommandError } from "../exceptions/CommandError";
 import { getMuteRole } from "../functions/getMuteRole";
 import { unsanction } from "../functions/unsanction";
 import { formatDate } from "../functions/formatDate";
+import { Event } from "./Event";
 
 class Client extends DiscordClient {
 	commands: Map<string, Command>;
@@ -57,7 +58,11 @@ class Client extends DiscordClient {
 		const eventsFolders = await fs.readdir(eventsPath);
 		for (const folder of eventsFolders) {
 			const eventPath = path.join(eventsPath, folder);
-			import(eventPath);
+			try {
+				await this.loadEvent(eventPath, folder);
+			} catch (error) {
+				console.error(`Could not load event in ${folder};\n${error.stackTrace}`);
+			}
 		}
 
 		await this.login(config.token);
@@ -91,6 +96,13 @@ class Client extends DiscordClient {
 			}
 		}
 
+		this.on("guildCreate", this.initServer);
+		this.on("guildDelete", async (guild) => {
+			for (const table of ["infractions", "users", "servers"]) {
+				await db.from(table).where({ server_id: guild.id }).delete();
+			}
+		});
+
 		this.operational = true;
 
 		try {
@@ -104,10 +116,10 @@ class Client extends DiscordClient {
 	private async loadCommand(filePath: string): Promise<void> {
 		// eslint-disable-next-line @typescript-eslint/naming-convention
 		const { default: CommandClass } = await import(filePath);
-		const command: Command = new CommandClass();
+		const command: Command = new CommandClass(this);
 
 		if (!command.informations.name) {
-			return console.log(`Command in '${filePath}' does not have any name. Skipping...`);
+			return console.info(`Command in '${filePath}' does not have any name. Skipping...`);
 		}
 
 		if (this.commands.has(command.informations.name)) {
@@ -134,6 +146,16 @@ class Client extends DiscordClient {
 			}
 			this.aliases.set(alias, command);
 		}
+	}
+
+	private async loadEvent(eventPath: string, name: string): Promise<void> {
+		// eslint-disable-next-line @typescript-eslint/naming-convention
+		const { default: EventClass } = await import(eventPath);
+		const event: Event = new EventClass(this);
+
+		this.on(event.event, event.listener.bind(event));
+
+		console.info(`Event ${name} (${event.event}) loaded.`);
 	}
 
 	reloadCommand(command: Command): Promise<void> {

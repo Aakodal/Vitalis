@@ -4,15 +4,15 @@ import { Client } from "../../classes/Client";
 import { DiscordError } from "../../exceptions/DiscordError";
 
 export default class Ping extends Command {
-	constructor() {
+	constructor(client: Client) {
 		super({
 			name: "ping",
 			description: "Check bot's ping",
 			category: "Misc",
-		});
+		}, client);
 	}
 
-	async run(message: Message, args: string[], client: Client): Promise<void> {
+	async run(message: Message, args: string[]): Promise<void> {
 		const messageCreatedAt = message.createdTimestamp;
 		const reply = await message.channel.send("Ping?");
 
