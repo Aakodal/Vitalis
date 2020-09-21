@@ -1,6 +1,6 @@
-import { EmbedMessage } from "../index";
-import { getEmojiFilter } from "../filters/emojis";
 import { collectReaction } from "../../../functions/collectReaction";
+import { getEmojiFilter } from "../filters/emojis";
+import { EmbedMessage } from "../index";
 
 export async function reactionsHandler(embedMessage: EmbedMessage): Promise<void> {
 	const { message, reactionsEffects, author } = embedMessage;

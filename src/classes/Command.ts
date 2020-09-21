@@ -1,4 +1,5 @@
 import { Message, PermissionResolvable } from "discord.js";
+
 import { Client } from "./Client";
 
 type CommandInformations = {

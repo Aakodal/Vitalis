@@ -1,6 +1,6 @@
+import { Snowflake } from "discord.js";
 import * as knex from "knex";
 import * as path from "path";
-import { Snowflake } from "discord.js";
 
 const dbPath = path.join(__dirname, "../db.db");
 

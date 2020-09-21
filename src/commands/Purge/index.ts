@@ -1,22 +1,26 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { getValueFromDB } from "../../functions/getValueFromDB";
+import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { UsageError } from "../../exceptions/UsageError";
-import { COLORS } from "../../lib/constants";
+import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
+import { COLORS } from "../../lib/constants";
 
 export default class Purge extends Command {
 	constructor(client: Client) {
-		super({
-			name: "purge",
-			description: "Delete a specified amount of messages inside the channel",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}purge <number>`,
-			aliases: ["bulk"],
-			permission: "MANAGE_MESSAGES",
-		}, client);
+		super(
+			{
+				name: "purge",
+				description: "Delete a specified amount of messages inside the channel",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}purge <number>`,
+				aliases: ["bulk"],
+				permission: "MANAGE_MESSAGES",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {
@@ -37,9 +41,7 @@ export default class Purge extends Command {
 
 		let deleted = 0;
 		while (amount !== 0) {
-			const iterationAmount = amount > 100
-				? 100
-				: amount;
+			const iterationAmount = amount > 100 ? 100 : amount;
 
 			try {
 				const deletedMessages = (await message.channel.bulkDelete(iterationAmount, true)).size;

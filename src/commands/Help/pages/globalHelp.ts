@@ -1,19 +1,13 @@
-import {
-	Message, MessageEmbed, MessageReaction, User,
-} from "discord.js";
-import * as config from "../../../config.json";
+import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
+
+import { Client } from "../../../classes/Client";
 import { Command } from "../../../classes/Command";
+import * as config from "../../../config.json";
+import { collectReaction } from "../../../functions/collectReaction";
 import { COLORS } from "../../../lib/constants";
 import { updateReactions } from "../functions/updateReactions";
-import { collectReaction } from "../../../functions/collectReaction";
-import { Client } from "../../../classes/Client";
 
-export async function globalHelp(
-	message: Message,
-	pageNumber: number,
-	client: Client,
-	prefix: string,
-): Promise<void> {
+export async function globalHelp(message: Message, pageNumber: number, client: Client, prefix: string): Promise<void> {
 	const commands: { category: string; name: string }[] = [];
 	const stockEmbeds: MessageEmbed[] = [];
 
@@ -86,21 +80,18 @@ export async function globalHelp(
 		page.setAuthor(`Commands available - Page ${index + 1} on ${stockEmbeds.length}`);
 	}
 
-	const page = pageNumber > 0
-		? pageNumber - 1
-		: 0;
+	const page = pageNumber > 0 ? pageNumber - 1 : 0;
 
-	let currentPage = page > stockEmbeds.length - 1
-		? stockEmbeds.length - 1
-		: page;
+	let currentPage = page > stockEmbeds.length - 1 ? stockEmbeds.length - 1 : page;
 
 	const embedMessage = await message.channel.send(stockEmbeds[currentPage]);
 	await updateReactions(embedMessage, stockEmbeds, currentPage);
 
-	const filter = (reaction: MessageReaction, user: User): boolean => reaction.message.id === embedMessage.id
-		&& user === message.author
-		&& !user.bot
-		&& ["⏮️", "⬅", "➡", "⏭", "❌"].includes(reaction.emoji.name);
+	const filter = (reaction: MessageReaction, user: User): boolean =>
+		reaction.message.id === embedMessage.id &&
+		user === message.author &&
+		!user.bot &&
+		["⏮️", "⬅", "➡", "⏭", "❌"].includes(reaction.emoji.name);
 
 	const reactions: Record<string, () => void> = {
 		"⏮": (): number => (currentPage = 0),

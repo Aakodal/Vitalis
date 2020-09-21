@@ -1,17 +1,21 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
+import { Command } from "../../classes/Command";
 import { fetchMember } from "../../functions/fetchMember";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 
 export default class UserInfo extends Command {
 	constructor(client: Client) {
-		super({
-			name: "userinfo",
-			description: "Get user's informations",
-			category: "Misc",
-			usage: (prefix) => `${prefix}userinfo [user mention|user id]`,
-		}, client);
+		super(
+			{
+				name: "userinfo",
+				description: "Get user's informations",
+				category: "Misc",
+				usage: (prefix) => `${prefix}userinfo [user mention|user id]`,
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {
@@ -41,9 +45,7 @@ export default class UserInfo extends Command {
 
 		const rolesArray = member.roles.cache.array().sort((a, b) => b.position - a.position);
 		rolesArray.pop();
-		const rolesString = rolesArray.length !== 0
-			? rolesArray.join(" ")
-			: "No role";
+		const rolesString = rolesArray.length !== 0 ? rolesArray.join(" ") : "No role";
 		embed.addField("Roles", rolesString);
 
 		await message.channel.send(embed);

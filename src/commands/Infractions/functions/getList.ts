@@ -1,11 +1,13 @@
 import { Message, MessageEmbed, User } from "discord.js";
+
 import { db, Infraction } from "../../../lib/database";
 import { writeInfractions } from "./writeInfractions";
 
 export async function getList(message: Message, user: User, embed: MessageEmbed, type?: string): Promise<void> {
-	const infractions: Infraction[] = type !== "infraction"
-		? await db.from("infractions").where({ server_id: message.guild?.id, discord_id: user.id, type })
-		: await db.from("infractions").where({ server_id: message.guild?.id, discord_id: user.id });
+	const infractions: Infraction[] =
+		type !== "infraction"
+			? await db.from("infractions").where({ server_id: message.guild?.id, discord_id: user.id, type })
+			: await db.from("infractions").where({ server_id: message.guild?.id, discord_id: user.id });
 
 	const infractionsNumber = infractions.length;
 

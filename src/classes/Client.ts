@@ -1,19 +1,23 @@
 import {
-	ActivityType, Client as DiscordClient, ClientOptions, Guild, PresenceData, PresenceStatusData,
+	ActivityType,
+	Client as DiscordClient,
+	ClientOptions,
+	Guild,
+	PresenceData,
+	PresenceStatusData,
 } from "discord.js";
 import { promises as fs } from "fs";
 import * as path from "path";
-import { Command } from "./Command";
-import { stringNormalize } from "../functions/stringNormalize";
-import {
-	databaseCheck, db, DbUser, defaultServerConfig,
-} from "../lib/database";
+
 import * as config from "../config.json";
-import { DatabaseError } from "../exceptions/DatabaseError";
 import { CommandError } from "../exceptions/CommandError";
-import { getMuteRole } from "../functions/getMuteRole";
-import { unsanction } from "../functions/unsanction";
+import { DatabaseError } from "../exceptions/DatabaseError";
 import { formatDate } from "../functions/formatDate";
+import { getMuteRole } from "../functions/getMuteRole";
+import { stringNormalize } from "../functions/stringNormalize";
+import { unsanction } from "../functions/unsanction";
+import { databaseCheck, db, DbUser, defaultServerConfig } from "../lib/database";
+import { Command } from "./Command";
 import { Event } from "./Event";
 
 class Client extends DiscordClient {

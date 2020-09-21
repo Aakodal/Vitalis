@@ -1,32 +1,36 @@
 import { Guild, Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
+import { Command } from "../../classes/Command";
+import { ArgumentError } from "../../exceptions/ArgumentError";
+import { SanctionError } from "../../exceptions/SanctionError";
+import { UsageError } from "../../exceptions/UsageError";
+import { UserError } from "../../exceptions/UserError";
+import { canSanction } from "../../functions/canSanction";
+import { fetchMember } from "../../functions/fetchMember";
+import { fetchUser } from "../../functions/fetchUser";
+import { getSanctionValues } from "../../functions/getSanctionValues";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
+import { getValueFromDB } from "../../functions/getValueFromDB";
+import { log } from "../../functions/log";
+import { longTimeout } from "../../functions/longTimeout";
+import { unsanction } from "../../functions/unsanction";
+import { verifUserInDB } from "../../functions/verifUserInDB";
 import { COLORS } from "../../lib/constants";
 import { db } from "../../lib/database";
-import { log } from "../../functions/log";
-import { getSanctionValues } from "../../functions/getSanctionValues";
-import { verifUserInDB } from "../../functions/verifUserInDB";
-import { unsanction } from "../../functions/unsanction";
-import { canSanction } from "../../functions/canSanction";
-import { longTimeout } from "../../functions/longTimeout";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { fetchUser } from "../../functions/fetchUser";
-import { ArgumentError } from "../../exceptions/ArgumentError";
-import { UserError } from "../../exceptions/UserError";
-import { SanctionError } from "../../exceptions/SanctionError";
-import { fetchMember } from "../../functions/fetchMember";
-import { UsageError } from "../../exceptions/UsageError";
-import { getValueFromDB } from "../../functions/getValueFromDB";
 
 export default class Ban extends Command {
 	constructor(client: Client) {
-		super({
-			name: "ban",
-			description: "Ban a member with a specified reason",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}ban <user ID | user mention> [duration] <reason>`,
-			permission: "BAN_MEMBERS",
-		}, client);
+		super(
+			{
+				name: "ban",
+				description: "Ban a member with a specified reason",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}ban <user ID | user mention> [duration] <reason>`,
+				permission: "BAN_MEMBERS",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {
@@ -105,9 +109,7 @@ export default class Ban extends Command {
 
 		const created = Date.now();
 
-		const expiration = duration
-			? created + durationNumber
-			: null;
+		const expiration = duration ? created + durationNumber : null;
 
 		await db
 			.insert({

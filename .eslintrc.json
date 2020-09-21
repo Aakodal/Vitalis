@@ -7,7 +7,9 @@
 		"airbnb-typescript/base",
 		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended",
-        "plugin:json/recommended"
+		"plugin:json/recommended",
+		"plugin:prettier/recommended",
+		"prettier/@typescript-eslint"
 	],
 	"globals": {
 		"Atomics": "readonly",
@@ -21,13 +23,15 @@
 	},
 	"plugins": [
 		"@typescript-eslint",
-		"import"
+		"import",
+		"simple-import-sort",
+		"prettier"
 	],
 	"rules": {
-		"multiline-ternary": [
-			"error",
-			"always"
-		],
+		"prettier/prettier": "error",
+		"simple-import-sort/sort": "error",
+		"sort-imports": "off",
+    	"import/order": "off",
 		"@typescript-eslint/indent": [
 			"error",
 			"tab",

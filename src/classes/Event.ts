@@ -1,4 +1,5 @@
 import { ClientEvents } from "discord.js";
+
 import { Client } from "./Client";
 
 export abstract class Event {

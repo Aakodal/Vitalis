@@ -1,6 +1,7 @@
 import { Guild, Message, MessageEmbed } from "discord.js";
-import { COLORS } from "../../../../lib/constants";
+
 import { getValueFromDB } from "../../../../functions/getValueFromDB";
+import { COLORS } from "../../../../lib/constants";
 import { fetchRole } from "../../functions/fetchRole";
 
 export async function getJoiningRoleEmbed(message: Message): Promise<MessageEmbed> {

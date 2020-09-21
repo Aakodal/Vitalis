@@ -1,6 +1,6 @@
-import { EmbedMessage } from "../index";
 import { getValueFromDB } from "../../../functions/getValueFromDB";
 import { pushValueInDB } from "../../../functions/pushValueInDB";
+import { EmbedMessage } from "../index";
 import { reactionsHandler } from "./reactionsHandler";
 
 export async function toggleValue(source: EmbedMessage, column: string): Promise<void> {

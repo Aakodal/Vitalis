@@ -1,18 +1,22 @@
 /* eslint-disable multiline-ternary */
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
+import { Command } from "../../classes/Command";
 import { COLORS } from "../../lib/constants";
 
 const boostObjective = ["/2", "/15", "/30", ""];
 
 export default class ServerInfo extends Command {
 	constructor(client: Client) {
-		super({
-			name: "serverinfo",
-			description: "Get server's informations",
-			category: "Misc",
-		}, client);
+		super(
+			{
+				name: "serverinfo",
+				description: "Get server's informations",
+				category: "Misc",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {

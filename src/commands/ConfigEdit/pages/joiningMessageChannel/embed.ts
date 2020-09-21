@@ -1,14 +1,13 @@
 import { Guild, Message, MessageEmbed } from "discord.js";
-import { COLORS } from "../../../../lib/constants";
+
 import { getValueFromDB } from "../../../../functions/getValueFromDB";
+import { COLORS } from "../../../../lib/constants";
 import { fetchGuildChannel } from "../../functions/fetchGuildChannel";
 
 export async function getJoiningMessageChannelEmbed(message: Message): Promise<MessageEmbed> {
-	const channelId = await getValueFromDB<string>(
-		"servers",
-		"joining_message_channel",
-		{ server_id: message.guild?.id },
-	);
+	const channelId = await getValueFromDB<string>("servers", "joining_message_channel", {
+		server_id: message.guild?.id,
+	});
 	const channel = fetchGuildChannel(message.guild as Guild, channelId) || "<no channel defined>";
 	return new MessageEmbed()
 		.setAuthor(

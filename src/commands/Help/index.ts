@@ -1,18 +1,22 @@
 import { Message } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
+import { Command } from "../../classes/Command";
 import { getValueFromDB } from "../../functions/getValueFromDB";
-import { globalHelp } from "./pages/globalHelp";
 import { commandHelp } from "./pages/commandHelp";
+import { globalHelp } from "./pages/globalHelp";
 
 export default class Help extends Command {
 	constructor(client: Client) {
-		super({
-			name: "help",
-			description: "Get commands help",
-			category: "Utility",
-			usage: (prefix) => `${prefix}help [command|page number]`,
-		}, client);
+		super(
+			{
+				name: "help",
+				description: "Get commands help",
+				category: "Utility",
+				usage: (prefix) => `${prefix}help [command|page number]`,
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {

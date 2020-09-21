@@ -1,9 +1,10 @@
-import { GuildChannel, MessageEmbed, Channel } from "discord.js";
+import { Channel, GuildChannel, MessageEmbed } from "discord.js";
+
+import { Client } from "../../classes/Client";
+import { Event } from "../../classes/Event";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
 import { COLORS } from "../../lib/constants";
-import { Event } from "../../classes/Event";
-import { Client } from "../../classes/Client";
 
 export default class Command extends Event {
 	constructor(client: Client) {

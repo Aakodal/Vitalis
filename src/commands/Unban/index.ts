@@ -1,27 +1,31 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { COLORS } from "../../lib/constants";
+import { Command } from "../../classes/Command";
+import { ArgumentError } from "../../exceptions/ArgumentError";
+import { SanctionError } from "../../exceptions/SanctionError";
+import { UserError } from "../../exceptions/UserError";
+import { canSanction } from "../../functions/canSanction";
+import { fetchUser } from "../../functions/fetchUser";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
+import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
 import { unsanction } from "../../functions/unsanction";
-import { canSanction } from "../../functions/canSanction";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { fetchUser } from "../../functions/fetchUser";
-import { ArgumentError } from "../../exceptions/ArgumentError";
-import { UserError } from "../../exceptions/UserError";
-import { SanctionError } from "../../exceptions/SanctionError";
-import { getValueFromDB } from "../../functions/getValueFromDB";
+import { COLORS } from "../../lib/constants";
 
 export default class Unban extends Command {
 	constructor(client: Client) {
-		super({
-			name: "unban",
-			description: "Unban a member by its ID",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}unban <user ID | user mention>`,
-			aliases: ["deban"],
-			permission: "BAN_MEMBERS",
-		}, client);
+		super(
+			{
+				name: "unban",
+				description: "Unban a member by its ID",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}unban <user ID | user mention>`,
+				aliases: ["deban"],
+				permission: "BAN_MEMBERS",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {

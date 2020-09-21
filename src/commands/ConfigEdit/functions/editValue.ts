@@ -1,8 +1,9 @@
 import { Message } from "discord.js";
-import { changePage } from "./changePage";
-import { EmbedMessage } from "../index";
+
 import { pushValueInDB } from "../../../functions/pushValueInDB";
 import { sendError } from "../../../functions/sendError";
+import { EmbedMessage } from "../index";
+import { changePage } from "./changePage";
 
 export async function editValue(
 	source: EmbedMessage,
@@ -10,9 +11,8 @@ export async function editValue(
 	column: string,
 	transformation?: (value: string) => string | undefined,
 ): Promise<void> {
-	const collectorFilter = (message: Message): boolean => message.channel === source.message.channel
-		&& message.author === source.author
-		&& !message.author.bot;
+	const collectorFilter = (message: Message): boolean =>
+		message.channel === source.message.channel && message.author === source.author && !message.author.bot;
 
 	await source.message.reactions.removeAll();
 	await source.message.edit("You have 30 seconds to input the value you want. Type `$cancel` to cancel.");
@@ -25,9 +25,9 @@ export async function editValue(
 		return changePage(source);
 	}
 	if (!filter(message)) {
-		(await message.channel.send(
-			"Provided value is not valid (maybe it's too long or not the right type?).",
-		)).delete({
+		(
+			await message.channel.send("Provided value is not valid (maybe it's too long or not the right type?).")
+		).delete({
 			timeout: 5000,
 		});
 		return changePage(source);

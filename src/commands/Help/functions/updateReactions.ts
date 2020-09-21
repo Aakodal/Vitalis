@@ -1,4 +1,5 @@
 import { Message, MessageEmbed } from "discord.js";
+
 import { react } from "../../../functions/react";
 
 export async function updateReactions(message: Message, embeds: MessageEmbed[], page: number): Promise<void> {

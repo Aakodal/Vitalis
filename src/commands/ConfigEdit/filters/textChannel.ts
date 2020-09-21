@@ -1,4 +1,5 @@
 import { Guild, Message } from "discord.js";
+
 import { fetchGuildChannel } from "../functions/fetchGuildChannel";
 import { getChannelIdFromString } from "../functions/getChannelIdFromString";
 import { EmbedMessage } from "../index";

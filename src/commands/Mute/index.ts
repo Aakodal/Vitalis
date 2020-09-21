@@ -1,32 +1,36 @@
 import { Guild, Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { COLORS } from "../../lib/constants";
-import { db } from "../../lib/database";
-import { log } from "../../functions/log";
-import { getSanctionValues } from "../../functions/getSanctionValues";
-import { verifUserInDB } from "../../functions/verifUserInDB";
-import { unsanction } from "../../functions/unsanction";
-import { getMuteRole } from "../../functions/getMuteRole";
-import { canSanction } from "../../functions/canSanction";
-import { longTimeout } from "../../functions/longTimeout";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { fetchMember } from "../../functions/fetchMember";
+import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
 import { UsageError } from "../../exceptions/UsageError";
+import { canSanction } from "../../functions/canSanction";
+import { fetchMember } from "../../functions/fetchMember";
+import { getMuteRole } from "../../functions/getMuteRole";
+import { getSanctionValues } from "../../functions/getSanctionValues";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { getValueFromDB } from "../../functions/getValueFromDB";
+import { log } from "../../functions/log";
+import { longTimeout } from "../../functions/longTimeout";
+import { unsanction } from "../../functions/unsanction";
+import { verifUserInDB } from "../../functions/verifUserInDB";
+import { COLORS } from "../../lib/constants";
+import { db } from "../../lib/database";
 
 export default class Mute extends Command {
 	constructor(client: Client) {
-		super({
-			name: "mute",
-			description: "Mute a member with a specified reason",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}mute <member ID | member mention> [duration] <reason>`,
-			permission: "MUTE_MEMBERS",
-		}, client);
+		super(
+			{
+				name: "mute",
+				description: "Mute a member with a specified reason",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}mute <member ID | member mention> [duration] <reason>`,
+				permission: "MUTE_MEMBERS",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {
@@ -97,9 +101,7 @@ export default class Mute extends Command {
 
 		const created = Date.now();
 
-		const expiration = duration
-			? created + durationNumber
-			: null;
+		const expiration = duration ? created + durationNumber : null;
 
 		await db
 			.insert({

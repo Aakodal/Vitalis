@@ -1,26 +1,29 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
+import { Command } from "../../classes/Command";
 import { COLORS } from "../../lib/constants";
 import { getPackageJsonPath } from "./functions/getPackageJsonPath";
 
 export default class Info extends Command {
 	constructor(client: Client) {
-		super({
-			name: "info",
-			description: "Get bot's informations",
-			category: "Misc",
-		}, client);
+		super(
+			{
+				name: "info",
+				description: "Get bot's informations",
+				category: "Misc",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {
 		const packageJsonPath = await getPackageJsonPath();
 		const packageJson = await import(packageJsonPath as string);
-		const {
-			author, version, description, homepage, dependencies,
-		} = packageJson;
+		const { author, version, description, homepage, dependencies } = packageJson;
 		// eslint-disable-next-line max-len
-		const invite = "https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=2113797879&scope=bot";
+		const invite =
+			"https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=2113797879&scope=bot";
 
 		const embed = new MessageEmbed()
 			.setAuthor("Vitalis - Informations", this.client.user?.displayAvatarURL({ dynamic: true }), homepage)

@@ -1,20 +1,24 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { CommandError } from "../../exceptions/CommandError";
+import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
-import { COLORS } from "../../lib/constants";
+import { CommandError } from "../../exceptions/CommandError";
 import { getValueFromDB } from "../../functions/getValueFromDB";
+import { COLORS } from "../../lib/constants";
 
 export default class Reload extends Command {
 	constructor(client: Client) {
-		super({
-			name: "reload",
-			description: "Reload a command",
-			category: "Bot owner",
-			usage: (prefix) => `${prefix}reload <command>`,
-			permission: "BOT_OWNER",
-		}, client);
+		super(
+			{
+				name: "reload",
+				description: "Reload a command",
+				category: "Bot owner",
+				usage: (prefix) => `${prefix}reload <command>`,
+				permission: "BOT_OWNER",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {

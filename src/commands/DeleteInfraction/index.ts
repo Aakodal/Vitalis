@@ -1,22 +1,26 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
+import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
-import { db } from "../../lib/database";
 import { DatabaseError } from "../../exceptions/DatabaseError";
-import { COLORS } from "../../lib/constants";
 import { getValueFromDB } from "../../functions/getValueFromDB";
+import { COLORS } from "../../lib/constants";
+import { db } from "../../lib/database";
 
 export default class DeleteInfraction extends Command {
 	constructor(client: Client) {
-		super({
-			name: "deleteinfraction",
-			description: "Remove an infraction from database with its ID",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}deleteinfraction <infraction ID>`,
-			aliases: ["removeinfraction"],
-			permission: "BAN_MEMBERS",
-		}, client);
+		super(
+			{
+				name: "deleteinfraction",
+				description: "Remove an infraction from database with its ID",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}deleteinfraction <infraction ID>`,
+				aliases: ["removeinfraction"],
+				permission: "BAN_MEMBERS",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {

@@ -1,10 +1,9 @@
-import {
-	Message, MessageEmbed, MessageReaction, User,
-} from "discord.js";
+import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
+
 import { client } from "../index";
 import { COLORS } from "../lib/constants";
-import { react } from "./react";
 import { collectReaction } from "./collectReaction";
+import { react } from "./react";
 
 export async function sendError(message: Message, error: Error): Promise<void> {
 	const embed = new MessageEmbed()
@@ -20,10 +19,8 @@ export async function sendError(message: Message, error: Error): Promise<void> {
 
 	await react("🔍", errorMessage);
 
-	const filter = (reaction: MessageReaction, user: User): boolean => reaction.message.id === errorMessage.id
-		&& user === message.author
-		&& !user.bot
-		&& reaction.emoji.name === "🔍";
+	const filter = (reaction: MessageReaction, user: User): boolean =>
+		reaction.message.id === errorMessage.id && user === message.author && !user.bot && reaction.emoji.name === "🔍";
 
 	const reaction = await collectReaction(errorMessage, filter, {
 		max: 1,

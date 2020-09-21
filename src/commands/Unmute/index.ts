@@ -1,28 +1,32 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { COLORS } from "../../lib/constants";
-import { log } from "../../functions/log";
-import { unsanction } from "../../functions/unsanction";
-import { getMuteRole } from "../../functions/getMuteRole";
-import { canSanction } from "../../functions/canSanction";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { fetchMember } from "../../functions/fetchMember";
+import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
+import { canSanction } from "../../functions/canSanction";
+import { fetchMember } from "../../functions/fetchMember";
+import { getMuteRole } from "../../functions/getMuteRole";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { getValueFromDB } from "../../functions/getValueFromDB";
+import { log } from "../../functions/log";
+import { unsanction } from "../../functions/unsanction";
+import { COLORS } from "../../lib/constants";
 
 export default class Unmute extends Command {
 	constructor(client: Client) {
-		super({
-			name: "unmute",
-			description: "Unmute a member",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}unmute <member ID | member mention>`,
-			aliases: ["demute"],
-			permission: "MUTE_MEMBERS",
-		}, client);
+		super(
+			{
+				name: "unmute",
+				description: "Unmute a member",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}unmute <member ID | member mention>`,
+				aliases: ["demute"],
+				permission: "MUTE_MEMBERS",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {

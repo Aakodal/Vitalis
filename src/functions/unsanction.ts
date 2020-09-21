@@ -1,11 +1,12 @@
 import { Guild, MessageEmbed, Snowflake } from "discord.js";
-import { db } from "../lib/database";
+
 import { COLORS } from "../lib/constants";
-import { log } from "./log";
-import { verifUserInDB } from "./verifUserInDB";
-import { getMuteRole } from "./getMuteRole";
-import { longTimeout } from "./longTimeout";
+import { db } from "../lib/database";
 import { fetchMember } from "./fetchMember";
+import { getMuteRole } from "./getMuteRole";
+import { log } from "./log";
+import { longTimeout } from "./longTimeout";
+import { verifUserInDB } from "./verifUserInDB";
 
 export async function unsanction(
 	id: Snowflake,

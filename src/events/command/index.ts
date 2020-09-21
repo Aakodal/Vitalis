@@ -1,9 +1,10 @@
 import { Message, PermissionResolvable } from "discord.js";
-import { Event } from "../../classes/Event";
-import { getValueFromDB } from "../../functions/getValueFromDB";
-import * as config from "../../config.json";
-import { sendError } from "../../functions/sendError";
+
 import { Client } from "../../classes/Client";
+import { Event } from "../../classes/Event";
+import * as config from "../../config.json";
+import { getValueFromDB } from "../../functions/getValueFromDB";
+import { sendError } from "../../functions/sendError";
 
 export default class Command extends Event {
 	constructor(client: Client) {
@@ -38,14 +39,15 @@ export default class Command extends Event {
 			return;
 		}
 
-		const isOwner =	command.informations.permission
-			&& (command.informations.permission as string).toUpperCase() === "BOT_OWNER"
-			&& message.author.id === config.botOwner;
+		const isOwner =
+			command.informations.permission &&
+			(command.informations.permission as string).toUpperCase() === "BOT_OWNER" &&
+			message.author.id === config.botOwner;
 
 		if (
-			!command.informations.permission
-			|| isOwner
-			|| message.member?.hasPermission(command.informations.permission as PermissionResolvable)
+			!command.informations.permission ||
+			isOwner ||
+			message.member?.hasPermission(command.informations.permission as PermissionResolvable)
 		) {
 			try {
 				await message.delete();

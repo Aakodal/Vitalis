@@ -1,11 +1,10 @@
-import {
-	GuildChannel, MessageEmbed, TextChannel, Channel,
-} from "discord.js";
+import { Channel, GuildChannel, MessageEmbed, TextChannel } from "discord.js";
+
+import { Client } from "../../classes/Client";
+import { Event } from "../../classes/Event";
 import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
 import { COLORS } from "../../lib/constants";
-import { Event } from "../../classes/Event";
-import { Client } from "../../classes/Client";
 
 export default class Command extends Event {
 	constructor(client: Client) {
@@ -14,9 +13,9 @@ export default class Command extends Event {
 
 	async listener(oldChannel: Channel, newChannel: Channel): Promise<void> {
 		if (
-			!this.client.operational
-			|| !(oldChannel instanceof GuildChannel)
-			|| !(newChannel instanceof GuildChannel)
+			!this.client.operational ||
+			!(oldChannel instanceof GuildChannel) ||
+			!(newChannel instanceof GuildChannel)
 		) {
 			return;
 		}
@@ -30,9 +29,8 @@ export default class Command extends Event {
 		const newTextChannel = newChannel as TextChannel;
 		const oldTextChannel = oldChannel as TextChannel;
 
-		const channelReference = newChannel.type !== "voice" && newChannel.type !== "category"
-			? newChannel
-			: newChannel.name;
+		const channelReference =
+			newChannel.type !== "voice" && newChannel.type !== "category" ? newChannel : newChannel.name;
 
 		const embed = new MessageEmbed()
 			.setAuthor("Channel Updated", newChannel.guild.iconURL({ dynamic: true }) as string)

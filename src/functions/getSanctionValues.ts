@@ -1,4 +1,5 @@
 import { Guild, User } from "discord.js";
+
 import { getDurationFromString } from "./getDurationFromString";
 
 export function getSanctionValues(
@@ -9,17 +10,11 @@ export function getSanctionValues(
 ): (string | number | null)[] {
 	const isPermanent = !args[1].match(/^[1-9]+([smhdwy]|mo)$/i);
 
-	const durationString = isPermanent
-		? null
-		: args.slice(1, 2).toString().toLowerCase();
+	const durationString = isPermanent ? null : args.slice(1, 2).toString().toLowerCase();
 
-	const duration = durationString
-		? getDurationFromString(durationString)
-		: null;
+	const duration = durationString ? getDurationFromString(durationString) : null;
 
-	const reason = duration
-		? args.slice(2).join(" ")
-		: args.slice(1).join(" ");
+	const reason = duration ? args.slice(2).join(" ") : args.slice(1).join(" ");
 
 	const embedDescription = duration
 		? `${member} has been ${sanction} for ${durationString} for the following reason:\n\n${reason}`

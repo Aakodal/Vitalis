@@ -1,27 +1,31 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { COLORS } from "../../lib/constants";
-import { db } from "../../lib/database";
-import { log } from "../../functions/log";
-import { verifUserInDB } from "../../functions/verifUserInDB";
-import { canSanction } from "../../functions/canSanction";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { fetchMember } from "../../functions/fetchMember";
+import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
+import { canSanction } from "../../functions/canSanction";
+import { fetchMember } from "../../functions/fetchMember";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { getValueFromDB } from "../../functions/getValueFromDB";
+import { log } from "../../functions/log";
+import { verifUserInDB } from "../../functions/verifUserInDB";
+import { COLORS } from "../../lib/constants";
+import { db } from "../../lib/database";
 
 export default class Warn extends Command {
 	constructor(client: Client) {
-		super({
-			name: "warn",
-			description: "Warn a member with a specified reason",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}warn <member ID | member mention> <reason>`,
-			permission: "KICK_MEMBERS",
-		}, client);
+		super(
+			{
+				name: "warn",
+				description: "Warn a member with a specified reason",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}warn <member ID | member mention> <reason>`,
+				permission: "KICK_MEMBERS",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {
@@ -79,9 +83,7 @@ export default class Warn extends Command {
 			.setAuthor("Moderation", message.guild?.iconURL({ dynamic: true }) as string)
 			.setColor(COLORS.lightGreen)
 			.setTitle("Warning")
-			.setDescription(
-				`You have been warned from ${message.guild?.name} for the following reasion:\n\n${reason}`,
-			)
+			.setDescription(`You have been warned from ${message.guild?.name} for the following reasion:\n\n${reason}`)
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 

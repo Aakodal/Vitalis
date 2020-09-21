@@ -10,8 +10,12 @@ devDependencies:
   '@typescript-eslint/parser': 3.10.1_eslint@7.7.0+typescript@3.9.7
   eslint: 7.7.0
   eslint-config-airbnb-typescript: 9.0.0_94ff52a4c5b9281a7d82149aa2e337e3
+  eslint-config-prettier: 6.11.0_eslint@7.7.0
   eslint-plugin-import: 2.22.0_eslint@7.7.0
   eslint-plugin-json: 2.1.2
+  eslint-plugin-prettier: 3.1.4_eslint@7.7.0+prettier@2.1.2
+  eslint-plugin-simple-import-sort: 5.0.3_eslint@7.7.0
+  prettier: 2.1.2
 lockfileVersion: 5.1
 packages:
   /@babel/code-frame/7.10.4:
@@ -748,6 +752,16 @@ packages:
       eslint-plugin-react-hooks: ^4 || ^3 || ^2.3.0 || ^1.7.0
     resolution:
       integrity: sha512-Fz4JIUKkrhO0du2cg5opdyPKQXOI2MvF8KUvN2710nJMT6jaRUpRE2swrJftAjVGL7T1otLM5ieo5RqS1v9Udg==
+  /eslint-config-prettier/6.11.0_eslint@7.7.0:
+    dependencies:
+      eslint: 7.7.0
+      get-stdin: 6.0.0
+    dev: true
+    hasBin: true
+    peerDependencies:
+      eslint: '>=3.14.1'
+    resolution:
+      integrity: sha512-oB8cpLWSAjOVFEJhhyMZh6NOEOtBVziaqdDQ86+qhDHFbZXoRTM7pNSvFRfW/W/L/LrQ38C99J5CGuRBBzBsdA==
   /eslint-import-resolver-node/0.3.4:
     dependencies:
       debug: 2.6.9
@@ -796,6 +810,27 @@ packages:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-isM/fsUxS4wN1+nLsWoV5T4gLgBQnsql3nMTr8u+cEls1bL8rRQO5CP5GtxJxaOfbcKqnz401styw+H/P+e78Q==
+  /eslint-plugin-prettier/3.1.4_eslint@7.7.0+prettier@2.1.2:
+    dependencies:
+      eslint: 7.7.0
+      prettier: 2.1.2
+      prettier-linter-helpers: 1.0.0
+    dev: true
+    engines:
+      node: '>=6.0.0'
+    peerDependencies:
+      eslint: '>=5.0.0'
+      prettier: '>=1.13.0'
+    resolution:
+      integrity: sha512-jZDa8z76klRqo+TdGDTFJSavwbnWK2ZpqGKNZ+VvweMW516pDUMmQ2koXvxEE4JhzNvTv+radye/bWGBmA6jmg==
+  /eslint-plugin-simple-import-sort/5.0.3_eslint@7.7.0:
+    dependencies:
+      eslint: 7.7.0
+    dev: true
+    peerDependencies:
+      eslint: '>=5.0.0'
+    resolution:
+      integrity: sha512-1rf3AWiHeWNCQdAq0iXNnlccnH1UDnelGgrPbjBBHE8d2hXVtOudcmy0vTF4hri3iJ0MKz8jBhmH6lJ0ZWZLHQ==
   /eslint-scope/5.1.0:
     dependencies:
       esrecurse: 4.2.1
@@ -988,6 +1023,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==
+  /fast-diff/1.2.0:
+    dev: true
+    resolution:
+      integrity: sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w==
   /fast-json-stable-stringify/2.1.0:
     dev: true
     resolution:
@@ -1118,6 +1157,12 @@ packages:
     dev: false
     resolution:
       integrity: sha1-LANAXHU4w51+s3sxcCLjJfsBi/c=
+  /get-stdin/6.0.0:
+    dev: true
+    engines:
+      node: '>=4'
+    resolution:
+      integrity: sha512-jp4tHawyV7+fkkSKyvjuLZswblUtz+SQKzSWnBbii16BuZksJlU1wuBYXY75r+duh/llF1ur6oNwi+2ZzjKZ7g==
   /get-value/2.0.6:
     dev: false
     engines:
@@ -2129,6 +2174,21 @@ packages:
       node: '>= 0.8.0'
     resolution:
       integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
+  /prettier-linter-helpers/1.0.0:
+    dependencies:
+      fast-diff: 1.2.0
+    dev: true
+    engines:
+      node: '>=6.0.0'
+    resolution:
+      integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==
+  /prettier/2.1.2:
+    dev: true
+    engines:
+      node: '>=10.13.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-16c7K+x4qVlJg9rEbXl7HEGmQyZlG4R9AgP+oHKRMsMsuk8s+ATStlf1NpDqyBI1HpVyfjLOeMhH2LvuNvV5Vg==
   /prism-media/1.2.2:
     dev: false
     peerDependencies:
@@ -2852,15 +2912,19 @@ packages:
     resolution:
       integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==
 specifiers:
-  '@types/node': 14.6.0
+  '@types/node': ^14.6.0
   '@typescript-eslint/eslint-plugin': ^3.10.1
   '@typescript-eslint/parser': ^3.10.1
   discord.js: ^12.3.1
   eslint: ^7.7.0
   eslint-config-airbnb-typescript: ^9.0.0
+  eslint-config-prettier: ^6.11.0
   eslint-plugin-import: ^2.22.0
   eslint-plugin-json: ^2.1.2
+  eslint-plugin-prettier: ^3.1.4
+  eslint-plugin-simple-import-sort: ^5.0.3
   knex: ^0.20.15
+  prettier: ^2.1.2
   source-map-support: ^0.5.19
   sqlite3: ^4.2.0
   typescript: ^3.9.7

@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
-import { COLORS } from "../../../../lib/constants";
+
 import { getValueFromDB } from "../../../../functions/getValueFromDB";
+import { COLORS } from "../../../../lib/constants";
 
 export async function getPrefixEmbed(message: Message): Promise<MessageEmbed> {
 	const prefix = await getValueFromDB<string>("servers", "prefix", { server_id: message.guild?.id });

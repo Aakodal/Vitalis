@@ -1,6 +1,4 @@
-import {
-	AwaitReactionsOptions, Message, MessageReaction, User,
-} from "discord.js";
+import { AwaitReactionsOptions, Message, MessageReaction, User } from "discord.js";
 
 export async function collectReaction(
 	message: Message,

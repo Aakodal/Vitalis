@@ -1,15 +1,19 @@
 import { Message } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
+import { Command } from "../../classes/Command";
 import { DiscordError } from "../../exceptions/DiscordError";
 
 export default class Ping extends Command {
 	constructor(client: Client) {
-		super({
-			name: "ping",
-			description: "Check bot's ping",
-			category: "Misc",
-		}, client);
+		super(
+			{
+				name: "ping",
+				description: "Check bot's ping",
+				category: "Misc",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {

@@ -10,7 +10,8 @@ export function getDurationFromString(durationString: string): number | null {
 		return null;
 	}
 
-	if (time === "mo") { // month
+	if (time === "mo") {
+		// month
 		const now = Date.now();
 		const end = new Date(now).setMonth(new Date(now).getMonth() + integer);
 
@@ -28,7 +29,5 @@ export function getDurationFromString(durationString: string): number | null {
 
 	const duration = integer * timeToMS[time as string];
 
-	return duration > Number.MAX_SAFE_INTEGER
-		? Number.MAX_SAFE_INTEGER
-		: duration;
+	return duration > Number.MAX_SAFE_INTEGER ? Number.MAX_SAFE_INTEGER : duration;
 }

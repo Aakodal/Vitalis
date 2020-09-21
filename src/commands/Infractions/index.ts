@@ -1,24 +1,28 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { COLORS } from "../../lib/constants";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { fetchUser } from "../../functions/fetchUser";
+import { Command } from "../../classes/Command";
 import { CommandError } from "../../exceptions/CommandError";
 import { UserError } from "../../exceptions/UserError";
-import { getList } from "./functions/getList";
+import { fetchUser } from "../../functions/fetchUser";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { getValueFromDB } from "../../functions/getValueFromDB";
+import { COLORS } from "../../lib/constants";
+import { getList } from "./functions/getList";
 
 export default class Infractions extends Command {
 	constructor(client: Client) {
-		super({
-			name: "infractions",
-			description: "See a member's infractions",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}infractions <member ID | member mention> [warn|kick|mute|ban]`,
-			aliases: ["sanctions"],
-			permission: "VIEW_AUDIT_LOG",
-		}, client);
+		super(
+			{
+				name: "infractions",
+				description: "See a member's infractions",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}infractions <member ID | member mention> [warn|kick|mute|ban]`,
+				aliases: ["sanctions"],
+				permission: "VIEW_AUDIT_LOG",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {

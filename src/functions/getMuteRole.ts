@@ -1,7 +1,8 @@
 import { Guild, Role } from "discord.js";
-import { getValueFromDB } from "./getValueFromDB";
-import { createMuteRole } from "./createMuteRole";
+
 import { configMuteRole } from "./configMuteRole";
+import { createMuteRole } from "./createMuteRole";
+import { getValueFromDB } from "./getValueFromDB";
 
 export async function getMuteRole(server: Guild): Promise<Role> {
 	const muteRoleDB = await server.roles.fetch(

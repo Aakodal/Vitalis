@@ -1,27 +1,31 @@
 import { Message, MessageEmbed } from "discord.js";
-import { Command } from "../../classes/Command";
+
 import { Client } from "../../classes/Client";
-import { COLORS } from "../../lib/constants";
-import { db } from "../../lib/database";
-import { log } from "../../functions/log";
-import { verifUserInDB } from "../../functions/verifUserInDB";
-import { canSanction } from "../../functions/canSanction";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { fetchMember } from "../../functions/fetchMember";
+import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
+import { canSanction } from "../../functions/canSanction";
+import { fetchMember } from "../../functions/fetchMember";
+import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { getValueFromDB } from "../../functions/getValueFromDB";
+import { log } from "../../functions/log";
+import { verifUserInDB } from "../../functions/verifUserInDB";
+import { COLORS } from "../../lib/constants";
+import { db } from "../../lib/database";
 
 export default class Kick extends Command {
 	constructor(client: Client) {
-		super({
-			name: "kick",
-			description: "Kick a member with a specified reason",
-			category: "Moderation",
-			usage: (prefix) => `${prefix}kick <member ID | member mention> <reason>`,
-			permission: "KICK_MEMBERS",
-		}, client);
+		super(
+			{
+				name: "kick",
+				description: "Kick a member with a specified reason",
+				category: "Moderation",
+				usage: (prefix) => `${prefix}kick <member ID | member mention> <reason>`,
+				permission: "KICK_MEMBERS",
+			},
+			client,
+		);
 	}
 
 	async run(message: Message, args: string[]): Promise<void> {
