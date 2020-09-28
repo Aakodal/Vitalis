@@ -12,9 +12,9 @@ import * as path from "path";
 import * as config from "../config.json";
 import { CommandError } from "../exceptions/CommandError";
 import { DatabaseError } from "../exceptions/DatabaseError";
+import { capitalize } from "../functions/capitalize";
 import { formatDate } from "../functions/formatDate";
 import { getMuteRole } from "../functions/getMuteRole";
-import { stringNormalize } from "../functions/stringNormalize";
 import { unsanction } from "../functions/unsanction";
 import { databaseCheck, db, DbUser, defaultServerConfig } from "../lib/database";
 import { Command } from "./Command";
@@ -132,7 +132,7 @@ class Client extends DiscordClient {
 
 		this.commands.set(command.informations.name, command);
 
-		const category = stringNormalize(command.informations.category || "Misc");
+		const category = capitalize(command.informations.category || "Misc");
 		command.setCategory(category);
 		command.setPath(filePath);
 

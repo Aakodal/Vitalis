@@ -10,6 +10,7 @@ const client = new Client({
 			"GUILD_MESSAGES",
 			"GUILD_MESSAGE_REACTIONS",
 			"GUILD_EMOJIS",
+			"GUILD_INVITES",
 		],
 	},
 });

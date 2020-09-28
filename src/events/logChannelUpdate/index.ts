@@ -6,9 +6,9 @@ import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
 import { COLORS } from "../../lib/constants";
 
-export default class Command extends Event {
+export default class ChannelUpdate extends Event {
 	constructor(client: Client) {
-		super("channelCreate", client);
+		super("channelUpdate", client);
 	}
 
 	async listener(oldChannel: Channel, newChannel: Channel): Promise<void> {

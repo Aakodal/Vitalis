@@ -6,7 +6,7 @@ import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
 import { COLORS } from "../../lib/constants";
 
-export default class Command extends Event {
+export default class ChannelCreate extends Event {
 	constructor(client: Client) {
 		super("channelCreate", client);
 	}
