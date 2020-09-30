@@ -52,7 +52,10 @@
 		],
 		"eqeqeq": [
 			"error",
-			"always"
+			"always",
+			{
+				"null": "ignore"
+			}
 		],
 		"no-else-return": [
 			"error",

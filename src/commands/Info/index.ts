@@ -17,6 +17,7 @@ export default class Info extends Command {
 		);
 	}
 
+	// noinspection JSUnusedLocalSymbols,JSUnusedLocalSymbols
 	async run(message: Message, args: string[]): Promise<void> {
 		const packageJsonPath = await getPackageJsonPath();
 		const packageJson = await import(packageJsonPath as string);

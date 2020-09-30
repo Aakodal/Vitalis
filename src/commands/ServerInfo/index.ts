@@ -19,6 +19,7 @@ export default class ServerInfo extends Command {
 		);
 	}
 
+	// noinspection JSUnusedLocalSymbols
 	async run(message: Message, args: string[]): Promise<void> {
 		const { guild } = message;
 

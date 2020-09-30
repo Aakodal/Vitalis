@@ -62,7 +62,7 @@ export default class Purge extends Command {
 			.setTimestamp()
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
-		(await message.channel.send(embed)).delete({ timeout: 5000 });
+		(await message.channel.send(embed)).delete({ timeout: 5000 }).catch(() => {});
 
 		const logEmbed = new MessageEmbed(embed).setTitle(`Deleted ${deleted} messages inside ${message.channel}`);
 

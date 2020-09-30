@@ -41,6 +41,7 @@ export default class ConfigEdit extends Command {
 		);
 	}
 
+	// noinspection JSUnusedLocalSymbols
 	async run(message: Message, args: string[]): Promise<void> {
 		const mainEmbed = getMainEmbed(message);
 		const embedMessage = await message.channel.send(mainEmbed);

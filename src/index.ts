@@ -15,6 +15,8 @@ const client = new Client({
 	},
 });
 
-client.init();
+client.init().catch((error) => {
+	throw error; // intended thrown error
+});
 
 export { client };
