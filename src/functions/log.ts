@@ -26,7 +26,5 @@ from your server ${server.name} (${server.id}). Please update bot's configuratio
 			.catch(() => {});
 	}
 
-	try {
-		await channel.send(message);
-	} catch {}
+	channel.send(message).catch(() => {});
 }
