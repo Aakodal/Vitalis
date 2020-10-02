@@ -1,7 +1,7 @@
 import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
 
 import { client } from "../index";
-import { COLORS } from "../lib/constants";
+import { COLORS } from "../misc/constants";
 import { collectReaction } from "./collectReaction";
 import { react } from "./react";
 

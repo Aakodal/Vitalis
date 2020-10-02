@@ -6,18 +6,14 @@ import { ArgumentError } from "../../exceptions/ArgumentError";
 import { SanctionError } from "../../exceptions/SanctionError";
 import { UsageError } from "../../exceptions/UsageError";
 import { UserError } from "../../exceptions/UserError";
-import { canSanction } from "../../functions/canSanction";
 import { fetchMember } from "../../functions/fetchMember";
 import { fetchUser } from "../../functions/fetchUser";
-import { getSanctionValues } from "../../functions/getSanctionValues";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
 import { longTimeout } from "../../functions/longTimeout";
-import { unsanction } from "../../functions/unsanction";
-import { verifUserInDB } from "../../functions/verifUserInDB";
-import { COLORS } from "../../lib/constants";
-import { db } from "../../lib/database";
+import { canSanction, getSanctionValues, unsanction } from "../../functions/sanction";
+import { COLORS } from "../../misc/constants";
+import { db, getValueFromDB, userExistsInDB } from "../../misc/database";
 
 export default class Ban extends Command {
 	constructor(client: Client) {
@@ -124,7 +120,7 @@ export default class Ban extends Command {
 			})
 			.into("infractions");
 
-		await verifUserInDB(userID, message.guild);
+		await userExistsInDB(userID, message.guild);
 
 		await db
 			.update({

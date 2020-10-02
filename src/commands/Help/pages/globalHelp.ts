@@ -4,7 +4,7 @@ import { Client } from "../../../classes/Client";
 import { Command } from "../../../classes/Command";
 import * as config from "../../../config.json";
 import { collectReaction } from "../../../functions/collectReaction";
-import { COLORS } from "../../../lib/constants";
+import { COLORS } from "../../../misc/constants";
 import { updateReactions } from "../functions/updateReactions";
 
 export async function globalHelp(message: Message, pageNumber: number, client: Client, prefix: string): Promise<void> {

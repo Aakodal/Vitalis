@@ -5,13 +5,12 @@ import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { SanctionError } from "../../exceptions/SanctionError";
 import { UserError } from "../../exceptions/UserError";
-import { canSanction } from "../../functions/canSanction";
 import { fetchUser } from "../../functions/fetchUser";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
-import { unsanction } from "../../functions/unsanction";
-import { COLORS } from "../../lib/constants";
+import { canSanction, unsanction } from "../../functions/sanction";
+import { COLORS } from "../../misc/constants";
+import { getValueFromDB } from "../../misc/database";
 
 export default class Unban extends Command {
 	constructor(client: Client) {

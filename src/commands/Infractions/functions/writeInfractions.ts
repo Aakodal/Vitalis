@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
 
 import { formatDate } from "../../../functions/formatDate";
-import { Infraction } from "../../../lib/database";
+import { Infraction } from "../../../misc/database";
 
 export function writeInfractions(infractions: Infraction[], embed: MessageEmbed): void {
 	const lastInfractions = infractions.slice(0, 10);

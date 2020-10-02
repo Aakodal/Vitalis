@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 
-import { getValueFromDB } from "../../../../functions/getValueFromDB";
-import { COLORS } from "../../../../lib/constants";
+import { COLORS } from "../../../../misc/constants";
+import { getValueFromDB } from "../../../../misc/database";
 
 export async function getLeavingMessageEmbed(message: Message): Promise<MessageEmbed> {
 	const text = await getValueFromDB<string>("servers", "leaving_message_text", { server_id: message.guild?.id });

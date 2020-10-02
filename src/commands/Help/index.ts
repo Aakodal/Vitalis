@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 
 import { Client } from "../../classes/Client";
 import { Command } from "../../classes/Command";
-import { getValueFromDB } from "../../functions/getValueFromDB";
+import { getValueFromDB } from "../../misc/database";
 import { commandHelp } from "./pages/commandHelp";
 import { globalHelp } from "./pages/globalHelp";
 

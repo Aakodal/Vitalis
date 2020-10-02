@@ -1,7 +1,7 @@
 import { Guild, Message, MessageEmbed } from "discord.js";
 
-import { getValueFromDB } from "../../../../functions/getValueFromDB";
-import { COLORS } from "../../../../lib/constants";
+import { COLORS } from "../../../../misc/constants";
+import { getValueFromDB } from "../../../../misc/database";
 import { fetchRole } from "../../functions/fetchRole";
 
 export async function getMuteRoleEmbed(message: Message): Promise<MessageEmbed> {

@@ -1,6 +1,6 @@
 import { Message, MessageEmbed, User } from "discord.js";
 
-import { db, Infraction } from "../../../lib/database";
+import { db, Infraction } from "../../../misc/database";
 import { writeInfractions } from "./writeInfractions";
 
 export async function getList(message: Message, user: User, embed: MessageEmbed, type?: string): Promise<void> {

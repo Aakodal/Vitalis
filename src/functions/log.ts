@@ -1,7 +1,7 @@
 import { Guild, Message, MessageEmbed, TextChannel } from "discord.js";
 
 import { client } from "../index";
-import { getValueFromDB } from "./getValueFromDB";
+import { getValueFromDB } from "../misc/database";
 
 export async function log(type: "log" | "mod_log", message: Message | MessageEmbed, server: Guild): Promise<void> {
 	const channelId = await getValueFromDB<string>("servers", `${type}s_channel`, { server_id: server.id });

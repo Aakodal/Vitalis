@@ -3,9 +3,9 @@ import { Invite, MessageEmbed } from "discord.js";
 import { Client } from "../../classes/Client";
 import { Event } from "../../classes/Event";
 import { formatDate } from "../../functions/formatDate";
-import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
-import { COLORS } from "../../lib/constants";
+import { COLORS } from "../../misc/constants";
+import { getValueFromDB } from "../../misc/database";
 
 export default class InviteCreate extends Event {
 	constructor(client: Client) {

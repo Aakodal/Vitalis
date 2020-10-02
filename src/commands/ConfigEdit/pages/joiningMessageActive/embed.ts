@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 
-import { getValueFromDB } from "../../../../functions/getValueFromDB";
-import { COLORS } from "../../../../lib/constants";
+import { COLORS } from "../../../../misc/constants";
+import { getValueFromDB } from "../../../../misc/database";
 
 export async function getJoiningMessageActiveEmbed(message: Message): Promise<MessageEmbed> {
 	const active = await getValueFromDB<number>("servers", "joining_message_active", { server_id: message.guild?.id });

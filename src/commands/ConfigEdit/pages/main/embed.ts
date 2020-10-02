@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 
-import { COLORS } from "../../../../lib/constants";
+import { COLORS } from "../../../../misc/constants";
 
 export function getMainEmbed(message: Message): MessageEmbed {
 	return new MessageEmbed()

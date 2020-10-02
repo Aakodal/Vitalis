@@ -1,7 +1,7 @@
 import { Guild, Message, MessageEmbed } from "discord.js";
 
-import { getValueFromDB } from "../../../../functions/getValueFromDB";
-import { COLORS } from "../../../../lib/constants";
+import { COLORS } from "../../../../misc/constants";
+import { getValueFromDB } from "../../../../misc/database";
 import { fetchGuildChannel } from "../../functions/fetchGuildChannel";
 
 export async function getLogsChannelEmbed(message: Message): Promise<MessageEmbed> {

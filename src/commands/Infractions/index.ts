@@ -6,8 +6,8 @@ import { CommandError } from "../../exceptions/CommandError";
 import { UserError } from "../../exceptions/UserError";
 import { fetchUser } from "../../functions/fetchUser";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { getValueFromDB } from "../../functions/getValueFromDB";
-import { COLORS } from "../../lib/constants";
+import { COLORS } from "../../misc/constants";
+import { getValueFromDB } from "../../misc/database";
 import { getList } from "./functions/getList";
 
 export default class Infractions extends Command {

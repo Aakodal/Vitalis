@@ -1,6 +1,9 @@
-import { Snowflake } from "discord.js";
+import { Guild, Snowflake } from "discord.js";
 import * as knex from "knex";
+import { DbRecord } from "knex";
 import * as path from "path";
+
+import { client } from "../index";
 
 const dbPath = path.join(__dirname, "../db.db");
 
@@ -107,5 +110,33 @@ export async function databaseCheck(): Promise<void> {
 			table.string("mute_role_id");
 		});
 		console.info("Servers table created successfully.");
+	}
+}
+
+export async function getValueFromDB<T>(table: string, column: string, where?: DbRecord<unknown>): Promise<T> {
+	const result = where ? await db.select(column).from(table).where(where) : await db.select(column).from(table);
+	return result[0]?.[column];
+}
+
+export async function pushValueInDB<T>(table: string, column: string, serverId: string, value: T): Promise<void> {
+	await db
+		.update({ [column]: value })
+		.into(table)
+		.where({ server_id: serverId });
+}
+
+export async function userExistsInDB(userID: Snowflake, server: Guild): Promise<void> {
+	const user = await client.users.fetch(userID);
+
+	const userInDB = await db.from("users").where({ server_id: server.id, discord_id: userID });
+
+	if (!userInDB[0]) {
+		await db
+			.insert({
+				server_id: server.id,
+				discord_id: userID,
+				pseudo: user.tag,
+			})
+			.into("users");
 	}
 }

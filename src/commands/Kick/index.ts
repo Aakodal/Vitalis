@@ -5,14 +5,12 @@ import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
-import { canSanction } from "../../functions/canSanction";
 import { fetchMember } from "../../functions/fetchMember";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
-import { verifUserInDB } from "../../functions/verifUserInDB";
-import { COLORS } from "../../lib/constants";
-import { db } from "../../lib/database";
+import { canSanction } from "../../functions/sanction";
+import { COLORS } from "../../misc/constants";
+import { db, getValueFromDB, userExistsInDB } from "../../misc/database";
 
 export default class Kick extends Command {
 	constructor(client: Client) {
@@ -87,7 +85,7 @@ export default class Kick extends Command {
 			})
 			.into("infractions");
 
-		await verifUserInDB(memberID, message.guild);
+		await userExistsInDB(memberID, message.guild);
 
 		await log("mod_log", kickEmbed, message.guild);
 

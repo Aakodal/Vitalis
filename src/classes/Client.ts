@@ -14,9 +14,9 @@ import { CommandError } from "../exceptions/CommandError";
 import { DatabaseError } from "../exceptions/DatabaseError";
 import { capitalize } from "../functions/capitalize";
 import { formatDate } from "../functions/formatDate";
-import { getMuteRole } from "../functions/getMuteRole";
-import { unsanction } from "../functions/unsanction";
-import { databaseCheck, db, DbUser, defaultServerConfig } from "../lib/database";
+import { getMuteRole } from "../functions/muteRole";
+import { unsanction } from "../functions/sanction";
+import { databaseCheck, db, DbUser, defaultServerConfig } from "../misc/database";
 import { Command } from "./Command";
 import { Event } from "./Event";
 

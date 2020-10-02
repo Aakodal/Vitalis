@@ -1,5 +1,4 @@
-import { getValueFromDB } from "../../../functions/getValueFromDB";
-import { pushValueInDB } from "../../../functions/pushValueInDB";
+import { getValueFromDB, pushValueInDB } from "../../../misc/database";
 import { EmbedMessage } from "../index";
 import { reactionsHandler } from "./reactionsHandler";
 

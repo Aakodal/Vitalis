@@ -4,9 +4,8 @@ import { Client } from "../../classes/Client";
 import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { DatabaseError } from "../../exceptions/DatabaseError";
-import { getValueFromDB } from "../../functions/getValueFromDB";
-import { COLORS } from "../../lib/constants";
-import { db } from "../../lib/database";
+import { COLORS } from "../../misc/constants";
+import { db, getValueFromDB } from "../../misc/database";
 
 export default class DeleteInfraction extends Command {
 	constructor(client: Client) {

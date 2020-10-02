@@ -2,9 +2,9 @@ import { Channel, GuildChannel, MessageEmbed, TextChannel } from "discord.js";
 
 import { Client } from "../../classes/Client";
 import { Event } from "../../classes/Event";
-import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
-import { COLORS } from "../../lib/constants";
+import { COLORS } from "../../misc/constants";
+import { getValueFromDB } from "../../misc/database";
 
 export default class ChannelUpdate extends Event {
 	constructor(client: Client) {

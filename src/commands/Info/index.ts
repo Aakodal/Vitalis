@@ -2,7 +2,7 @@ import { Message, MessageEmbed } from "discord.js";
 
 import { Client } from "../../classes/Client";
 import { Command } from "../../classes/Command";
-import { COLORS } from "../../lib/constants";
+import { COLORS } from "../../misc/constants";
 import { getPackageJsonPath } from "./functions/getPackageJsonPath";
 
 export default class Info extends Command {

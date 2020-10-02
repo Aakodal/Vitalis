@@ -4,7 +4,7 @@ import { Client } from "../../../classes/Client";
 import * as config from "../../../config.json";
 import { CommandError } from "../../../exceptions/CommandError";
 import { PermissionError } from "../../../exceptions/PermissionError";
-import { COLORS } from "../../../lib/constants";
+import { COLORS } from "../../../misc/constants";
 
 export async function commandHelp(message: Message, args: string[], client: Client, prefix: string): Promise<void> {
 	const command = client.commands.get(args[0].toLowerCase());

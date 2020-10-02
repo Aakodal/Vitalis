@@ -5,14 +5,13 @@ import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
-import { canSanction } from "../../functions/canSanction";
 import { fetchMember } from "../../functions/fetchMember";
-import { getMuteRole } from "../../functions/getMuteRole";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { getValueFromDB } from "../../functions/getValueFromDB";
 import { log } from "../../functions/log";
-import { unsanction } from "../../functions/unsanction";
-import { COLORS } from "../../lib/constants";
+import { getMuteRole } from "../../functions/muteRole";
+import { canSanction, unsanction } from "../../functions/sanction";
+import { COLORS } from "../../misc/constants";
+import { getValueFromDB } from "../../misc/database";
 
 export default class Unmute extends Command {
 	constructor(client: Client) {

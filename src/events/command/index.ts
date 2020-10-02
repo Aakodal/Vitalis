@@ -3,8 +3,8 @@ import { Message, PermissionResolvable } from "discord.js";
 import { Client } from "../../classes/Client";
 import { Event } from "../../classes/Event";
 import * as config from "../../config.json";
-import { getValueFromDB } from "../../functions/getValueFromDB";
 import { sendError } from "../../functions/sendError";
+import { getValueFromDB } from "../../misc/database";
 
 export default class Command extends Event {
 	constructor(client: Client) {

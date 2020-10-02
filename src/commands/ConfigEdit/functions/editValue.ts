@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 
-import { pushValueInDB } from "../../../functions/pushValueInDB";
 import { sendError } from "../../../functions/sendError";
+import { pushValueInDB } from "../../../misc/database";
 import { EmbedMessage } from "../index";
 import { changePage } from "./changePage";
 

@@ -4,8 +4,8 @@ import { Client } from "../../classes/Client";
 import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { CommandError } from "../../exceptions/CommandError";
-import { getValueFromDB } from "../../functions/getValueFromDB";
-import { COLORS } from "../../lib/constants";
+import { COLORS } from "../../misc/constants";
+import { getValueFromDB } from "../../misc/database";
 
 export default class Reload extends Command {
 	constructor(client: Client) {
