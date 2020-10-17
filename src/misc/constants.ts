@@ -17,4 +17,7 @@ const COLORS = {
 	magenta: 0xe500e5,
 };
 
-export { COLORS };
+// eslint-disable-next-line max-len
+const DURATION_REGEXP = /^(?<integer>[1-9][0-9]*)(?<time>s(econds?)?|m(in(ute)?s?)?|h(ours?)?|d(ays?)?|w(eeks?)?|mo(nths?)?|y(ears?)?)$/i;
+
+export { COLORS, DURATION_REGEXP };

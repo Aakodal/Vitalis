@@ -5,8 +5,8 @@ import { MemberError } from "../exceptions/MemberError";
 import { PermissionError } from "../exceptions/PermissionError";
 import { UsageError } from "../exceptions/UsageError";
 import { client } from "../index";
-import { COLORS } from "../misc/constants";
-import { db, userExistsInDB } from "../misc/database";
+import { COLORS, DURATION_REGEXP } from "../misc/constants";
+import { db, DbUser, userExistsInDB } from "../misc/database";
 import { fetchMember } from "./fetchMember";
 import { getDurationFromString } from "./getDurationFromString";
 import { log } from "./log";
@@ -55,9 +55,9 @@ export function getSanctionValues(
 	member: User,
 	guild: Guild,
 ): (string | number | null)[] {
-	const isPermanent = !args[1].match(/^[1-9]+([smhdwy]|mo)$/i);
+	const isPermanent = !args[1].match(DURATION_REGEXP);
 
-	const durationString = isPermanent ? null : args.slice(1, 2).toString().toLowerCase();
+	const durationString = isPermanent ? null : args[1].toLowerCase();
 
 	const duration = durationString ? getDurationFromString(durationString) : null;
 
@@ -81,7 +81,9 @@ export async function unsanction(
 	forced = false,
 ): Promise<number | NodeJS.Timeout | void> {
 	await userExistsInDB(id, server);
-	const user = (await db.from("users").where({ server_id: server.id, discord_id: id, actual_sanction: sanction }))[0];
+	const user = (
+		await db.from("users").where({ server_id: server.id, discord_id: id, actual_sanction: sanction })
+	)[0] as DbUser;
 
 	if (!user) {
 		return;
@@ -125,7 +127,7 @@ export async function unsanction(
 		const unmuteEmbed = new MessageEmbed(baseEmbed)
 			.setTitle("Unmute")
 			.setDescription(`You have been unmuted from ${server.name}.`);
-		await user.send(unmuteEmbed);
+		await member?.send(unmuteEmbed).catch(() => {});
 
 		if (!forced) {
 			await log("mod_log", autoEmbed, server);
