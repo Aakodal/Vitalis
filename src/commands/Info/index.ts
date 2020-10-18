@@ -1,4 +1,5 @@
 import { Message, MessageEmbed } from "discord.js";
+import { promises as fs } from "fs";
 
 import { Client } from "../../classes/Client";
 import { Command } from "../../classes/Command";
@@ -17,12 +18,10 @@ export default class Info extends Command {
 		);
 	}
 
-	// noinspection JSUnusedLocalSymbols,JSUnusedLocalSymbols
 	async run(message: Message, args: string[]): Promise<void> {
 		const packageJsonPath = await getPackageJsonPath();
-		const packageJson = await import(packageJsonPath as string);
+		const packageJson = JSON.parse(await fs.readFile(packageJsonPath as string, "utf-8"));
 		const { author, version, description, homepage, dependencies } = packageJson;
-		// eslint-disable-next-line max-len
 		const invite =
 			"https://discord.com/api/oauth2/authorize?client_id=647787304550924300&permissions=2113797879&scope=bot";
 

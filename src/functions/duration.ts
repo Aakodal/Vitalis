@@ -1,11 +1,16 @@
 import { DURATION_REGEXP } from "../misc/constants";
 
-export function getDurationFromString(durationString: string): number | null {
-	if (!durationString) {
+type TimeObject = {
+	integer: number;
+	time: string;
+};
+
+export function getTimeFromString(timeString: string): TimeObject | null {
+	if (!timeString) {
 		return null;
 	}
 
-	const matches = durationString.match(DURATION_REGEXP);
+	const matches = timeString.match(DURATION_REGEXP);
 
 	if (!matches) {
 		return null;
@@ -13,8 +18,25 @@ export function getDurationFromString(durationString: string): number | null {
 
 	const integer = Number(matches.groups?.integer);
 
-	const time =
-		matches.groups?.time.slice(0, 2).toLowerCase() === "mo" ? "mo" : matches.groups?.time.slice(0, 1).toLowerCase();
+	const time = (matches.groups?.time.slice(0, 2).toLowerCase() === "mo"
+		? "mo"
+		: matches.groups?.time.slice(0, 1).toLowerCase()) as string;
+
+	return { integer, time };
+}
+
+export function getDuration(durationString: string): number | null {
+	if (!durationString) {
+		return null;
+	}
+
+	const timeString = getTimeFromString(durationString);
+
+	if (!timeString) {
+		return null;
+	}
+
+	const { integer, time } = timeString;
 
 	if (time === "mo") {
 		// month

@@ -180,7 +180,8 @@ class Client extends DiscordClient {
 	}
 
 	async updatePresence(): Promise<void> {
-		const configUpdated = await import("../config.json");
+		const configPath = path.join(__dirname, "../config.json");
+		const configUpdated = JSON.parse(await fs.readFile(configPath, "utf-8"));
 		const { active, name, type } = configUpdated.game;
 		const presence: PresenceData = {
 			activity: {

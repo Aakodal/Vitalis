@@ -7,8 +7,8 @@ import { UsageError } from "../exceptions/UsageError";
 import { client } from "../index";
 import { COLORS, DURATION_REGEXP } from "../misc/constants";
 import { db, DbUser, userExistsInDB } from "../misc/database";
+import { getDuration, getTimeFromString } from "./duration";
 import { fetchMember } from "./fetchMember";
-import { getDurationFromString } from "./getDurationFromString";
 import { log } from "./log";
 import { longTimeout } from "./longTimeout";
 import { getMuteRole } from "./muteRole";
@@ -57,9 +57,10 @@ export function getSanctionValues(
 ): (string | number | null)[] {
 	const isPermanent = !args[1].match(DURATION_REGEXP);
 
-	const durationString = isPermanent ? null : args[1].toLowerCase();
+	const timeString = getTimeFromString(args[1]);
+	const durationString = isPermanent ? null : `${timeString?.integer}${timeString?.time}`;
 
-	const duration = durationString ? getDurationFromString(durationString) : null;
+	const duration = durationString ? getDuration(durationString) : null;
 
 	const reason = duration ? args.slice(2).join(" ") : args.slice(1).join(" ");
 
