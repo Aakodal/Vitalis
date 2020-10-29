@@ -48,24 +48,28 @@ class Client extends DiscordClient {
 		}
 
 		const commandsPath = path.join(__dirname, "../commands/");
-		const commandsFolders = await fs.readdir(commandsPath);
-		for (const folder of commandsFolders) {
-			const commandPath = path.join(commandsPath, folder);
-			try {
-				await this.loadCommand(commandPath);
-			} catch (error) {
-				console.error(`Could not load command in ${folder};\n${error.stackTrace}`);
+		const commandsFolders = await fs.readdir(commandsPath).catch(() => null);
+		if (commandsFolders) {
+			for (const folder of commandsFolders) {
+				const commandPath = path.join(commandsPath, folder);
+				try {
+					await this.loadCommand(commandPath);
+				} catch (error) {
+					console.error(`Could not load command in ${folder};\n${error.stackTrace}`);
+				}
 			}
 		}
 
 		const eventsPath = path.join(__dirname, "../events/");
-		const eventsFolders = await fs.readdir(eventsPath);
-		for (const folder of eventsFolders) {
-			const eventPath = path.join(eventsPath, folder);
-			try {
-				await this.loadEvent(eventPath, folder);
-			} catch (error) {
-				console.error(`Could not load event in ${folder};\n${error.stackTrace}`);
+		const eventsFolders = await fs.readdir(eventsPath).catch(() => null);
+		if (eventsFolders) {
+			for (const folder of eventsFolders) {
+				const eventPath = path.join(eventsPath, folder);
+				try {
+					await this.loadEvent(eventPath, folder);
+				} catch (error) {
+					console.error(`Could not load event in ${folder};\n${error.stackTrace}`);
+				}
 			}
 		}
 
