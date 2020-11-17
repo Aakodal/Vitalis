@@ -118,7 +118,7 @@ export default class Ban extends Command {
 			})
 			.into("infractions");
 
-		await userExistsInDB(userID, message.guild);
+		await userExistsInDB(userID, message.guild, this.client);
 
 		await db
 			.update({

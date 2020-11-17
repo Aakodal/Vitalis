@@ -40,7 +40,7 @@ export default class Command extends Event {
 			return;
 		}
 
-		const configPath = path.join(__dirname, "../config.json");
+		const configPath = path.join(__dirname, "../../config.json");
 		const config = JSON.parse(await readFile(configPath, "utf-8"));
 
 		const isOwner =

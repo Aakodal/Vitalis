@@ -66,7 +66,7 @@ export default class Warn extends Command {
 			})
 			.into("infractions");
 
-		await userExistsInDB(memberID, message.guild);
+		await userExistsInDB(memberID, message.guild, this.client);
 
 		await db
 			.update({

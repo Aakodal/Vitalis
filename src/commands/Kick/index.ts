@@ -84,7 +84,7 @@ export default class Kick extends Command {
 			})
 			.into("infractions");
 
-		await userExistsInDB(memberID, message.guild);
+		await userExistsInDB(memberID, message.guild, this.client);
 
 		await log("mod_log", kickEmbed, message.guild, this.client);
 
