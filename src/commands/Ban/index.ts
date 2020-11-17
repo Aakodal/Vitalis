@@ -6,12 +6,10 @@ import { ArgumentError } from "../../exceptions/ArgumentError";
 import { SanctionError } from "../../exceptions/SanctionError";
 import { UsageError } from "../../exceptions/UsageError";
 import { UserError } from "../../exceptions/UserError";
-import { fetchMember } from "../../functions/fetchMember";
-import { fetchUser } from "../../functions/fetchUser";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { log } from "../../functions/log";
 import { longTimeout } from "../../functions/longTimeout";
-import { canSanction, getSanctionValues, unsanction } from "../../functions/sanction";
+import { canSanction, getSanctionValues } from "../../functions/sanction";
 import { COLORS } from "../../misc/constants";
 import { db, getValueFromDB, userExistsInDB } from "../../misc/database";
 
@@ -37,7 +35,7 @@ export default class Ban extends Command {
 		}
 
 		const userSnowflake = getUserIdFromString(args[0]);
-		const user = await fetchUser(userSnowflake as string);
+		const user = await this.client.fetchUser(userSnowflake as string);
 
 		if (!user) {
 			throw new UserError();
@@ -47,7 +45,7 @@ export default class Ban extends Command {
 			return;
 		}
 
-		if (!(await canSanction(user, message.member, "ban"))) {
+		if (!(await canSanction(user, message.member, "ban", this.client))) {
 			return;
 		}
 
@@ -80,10 +78,16 @@ export default class Ban extends Command {
 
 		const userEmbed = new MessageEmbed(banEmbed).setDescription(dmDescription);
 
-		const member = await fetchMember(message.guild, user);
+		const member = await this.client.fetchMember(message.guild, user);
 
 		if (member && !member.bannable) {
 			throw new SanctionError("For some reason, this member can not be banned.");
+		}
+
+		if (member) {
+			try {
+				await user.send(userEmbed);
+			} catch {}
 		}
 
 		try {
@@ -93,12 +97,6 @@ export default class Ban extends Command {
 			});
 		} catch (error) {
 			throw new SanctionError(`This user couldn't have been banned; ${error.message}`);
-		}
-
-		if (member) {
-			try {
-				await user.send(userEmbed);
-			} catch {}
 		}
 
 		const userID = user.id;
@@ -132,7 +130,7 @@ export default class Ban extends Command {
 			.into("users")
 			.where({ server_id: message.guild?.id, discord_id: userID });
 
-		await log("mod_log", banEmbed, message.guild);
+		await log("mod_log", banEmbed, message.guild, this.client);
 
 		await message.channel.send(banEmbed);
 
@@ -141,7 +139,7 @@ export default class Ban extends Command {
 		}
 
 		longTimeout(async () => {
-			await unsanction(userID, message.guild as Guild, "banned", false);
+			await this.client.unsanction(userID, message.guild as Guild, "banned", false);
 		}, expiration - created);
 	}
 }

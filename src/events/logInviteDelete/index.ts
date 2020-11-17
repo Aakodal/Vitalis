@@ -28,6 +28,6 @@ export default class InviteDelete extends Event {
 			.addField("**Code**", invite.code, true)
 			.setTimestamp(Date.now());
 
-		await log("log", embed, invite.guild);
+		await log("log", embed, invite.guild, this.client);
 	}
 }

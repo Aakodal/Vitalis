@@ -29,6 +29,6 @@ export default class ChannelDelete extends Event {
 			.addField("**Type**", channel.type, true)
 			.setTimestamp(Date.now());
 
-		await log("log", embed, channel.guild);
+		await log("log", embed, channel.guild, this.client);
 	}
 }

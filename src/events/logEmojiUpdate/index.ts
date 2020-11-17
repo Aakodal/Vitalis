@@ -30,6 +30,6 @@ export default class EmojiUpdate extends Event {
 			.addField("**New name**", newEmoji.name, true)
 			.setTimestamp(Date.now());
 
-		await log("log", embed, newEmoji.guild);
+		await log("log", embed, newEmoji.guild, this.client);
 	}
 }

@@ -56,6 +56,6 @@ export default class MessageUpdate extends Event {
 			embed.addField(`**New content**`, newContent, false);
 		}
 
-		await log("log", embed, newMessage.guild);
+		await log("log", embed, newMessage.guild, this.client);
 	}
 }

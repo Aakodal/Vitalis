@@ -1,10 +1,10 @@
-import { promises as fs } from "fs";
+import { readdir } from "fs/promises";
 import * as path from "path";
 
 export async function getPackageJsonPath(): Promise<string | void> {
 	for (const modulePath of module.paths) {
 		const folderPath = path.join(modulePath, "../");
-		const files = await fs.readdir(folderPath);
+		const files = await readdir(folderPath);
 		const filesMatching = files.filter((file) => file === "package.json");
 
 		if (!filesMatching[0]) {

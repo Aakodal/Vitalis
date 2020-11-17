@@ -28,6 +28,6 @@ export default class RoleDelete extends Event {
 			.setTitle(role.name)
 			.setTimestamp(Date.now());
 
-		await log("log", embed, role.guild);
+		await log("log", embed, role.guild, this.client);
 	}
 }

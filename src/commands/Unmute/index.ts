@@ -5,11 +5,10 @@ import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
-import { fetchMember } from "../../functions/fetchMember";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { log } from "../../functions/log";
 import { getMuteRole } from "../../functions/muteRole";
-import { canSanction, unsanction } from "../../functions/sanction";
+import { canSanction } from "../../functions/sanction";
 import { COLORS } from "../../misc/constants";
 import { getValueFromDB } from "../../misc/database";
 
@@ -40,15 +39,15 @@ export default class Unmute extends Command {
 		}
 
 		const memberSnowflake = getUserIdFromString(args[0]);
-		const member = await fetchMember(message.guild, memberSnowflake as string);
+		const member = await this.client.fetchMember(message.guild, memberSnowflake as string);
 
 		if (!member) {
 			throw new MemberError();
 		}
 
-		const muteRole = await getMuteRole(message.guild);
+		const muteRole = await getMuteRole(message.guild, this.client);
 
-		if (!(await canSanction(member, message.member, "unmute"))) {
+		if (!(await canSanction(member, message.member, "unmute", this.client))) {
 			return;
 		}
 
@@ -65,12 +64,12 @@ export default class Unmute extends Command {
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
 		try {
-			await unsanction(member.id, message.guild, "muted", true);
+			await this.client.unsanction(member.id, message.guild, "muted", true);
 		} catch (error) {
 			throw new SanctionError(`For some reason, this user couldn't have been unmuted; ${error.message}`);
 		}
 
-		await log("mod_log", unmuteEmbed, message.guild);
+		await log("mod_log", unmuteEmbed, message.guild, this.client);
 
 		await message.channel.send(unmuteEmbed);
 	}

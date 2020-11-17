@@ -32,6 +32,6 @@ export default class InviteCreate extends Event {
 			.addField("**Expires**", invite.expiresAt ? formatDate(invite.expiresAt) : "Never", true)
 			.setTimestamp(Date.now());
 
-		await log("log", embed, invite.guild);
+		await log("log", embed, invite.guild, this.client);
 	}
 }

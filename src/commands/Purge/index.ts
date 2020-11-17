@@ -66,6 +66,6 @@ export default class Purge extends Command {
 
 		const logEmbed = new MessageEmbed(embed).setTitle(`Deleted ${deleted} messages inside ${message.channel}`);
 
-		await log("log", logEmbed, message.guild);
+		await log("log", logEmbed, message.guild, this.client);
 	}
 }

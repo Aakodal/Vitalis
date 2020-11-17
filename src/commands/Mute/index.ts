@@ -6,12 +6,11 @@ import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
 import { UsageError } from "../../exceptions/UsageError";
-import { fetchMember } from "../../functions/fetchMember";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { log } from "../../functions/log";
 import { longTimeout } from "../../functions/longTimeout";
 import { getMuteRole } from "../../functions/muteRole";
-import { canSanction, getSanctionValues, unsanction } from "../../functions/sanction";
+import { canSanction, getSanctionValues } from "../../functions/sanction";
 import { COLORS } from "../../misc/constants";
 import { db, getValueFromDB, userExistsInDB } from "../../misc/database";
 
@@ -41,19 +40,19 @@ export default class Mute extends Command {
 		}
 
 		const memberSnowflake = getUserIdFromString(args[0]);
-		const member = await fetchMember(message.guild, memberSnowflake as string);
+		const member = await this.client.fetchMember(message.guild, memberSnowflake as string);
 
 		if (!member) {
 			throw new MemberError();
 		}
 
-		const muteRole = await getMuteRole(message.guild);
+		const muteRole = await getMuteRole(message.guild, this.client);
 
 		if (member.user.bot) {
 			throw new SanctionError("You can't mute a bot.");
 		}
 
-		if (!(await canSanction(member, message.member, "mute"))) {
+		if (!(await canSanction(member, message.member, "mute", this.client))) {
 			return;
 		}
 
@@ -124,7 +123,7 @@ export default class Mute extends Command {
 			.into("users")
 			.where({ server_id: message.guild?.id, discord_id: memberID });
 
-		await log("mod_log", muteEmbed, message.guild);
+		await log("mod_log", muteEmbed, message.guild, this.client);
 
 		await message.channel.send(muteEmbed);
 
@@ -133,7 +132,7 @@ export default class Mute extends Command {
 		}
 
 		longTimeout(async () => {
-			await unsanction(memberID, message.guild as Guild, "muted", false);
+			await this.client.unsanction(memberID, message.guild as Guild, "muted", false);
 		}, expiration - created);
 	}
 }

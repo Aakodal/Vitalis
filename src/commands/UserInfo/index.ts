@@ -2,7 +2,6 @@ import { Message, MessageEmbed } from "discord.js";
 
 import { Client } from "../../classes/Client";
 import { Command } from "../../classes/Command";
-import { fetchMember } from "../../functions/fetchMember";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
 
 export default class UserInfo extends Command {
@@ -24,7 +23,7 @@ export default class UserInfo extends Command {
 		}
 
 		const memberSnowflake = getUserIdFromString(args[0]);
-		const memberArg = await fetchMember(message.guild, memberSnowflake as string);
+		const memberArg = await this.client.fetchMember(message.guild, memberSnowflake as string);
 
 		const member = memberArg || message.member;
 		const { user } = member;

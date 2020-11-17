@@ -3,7 +3,7 @@ import * as knex from "knex";
 import { DbRecord } from "knex";
 import * as path from "path";
 
-import { client } from "../index";
+import { Client } from "../classes/Client";
 
 const dbPath = path.join(__dirname, "../db.db");
 
@@ -125,8 +125,12 @@ export async function pushValueInDB<T>(table: string, column: string, serverId: 
 		.where({ server_id: serverId });
 }
 
-export async function userExistsInDB(userID: Snowflake, server: Guild): Promise<void> {
+export async function userExistsInDB(userID: Snowflake, server: Guild, client: Client): Promise<void> {
 	const user = await client.users.fetch(userID);
+
+	if (!user) {
+		return;
+	}
 
 	const userInDB = await db.from("users").where({ server_id: server.id, discord_id: userID });
 

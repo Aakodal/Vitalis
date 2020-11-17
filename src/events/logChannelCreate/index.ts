@@ -31,6 +31,6 @@ export default class ChannelCreate extends Event {
 			.addField("**Type**", channel.type, true)
 			.setTimestamp(Date.now());
 
-		await log("log", embed, channel.guild);
+		await log("log", embed, channel.guild, this.client);
 	}
 }

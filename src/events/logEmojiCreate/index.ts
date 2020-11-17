@@ -30,6 +30,6 @@ export default class EmojiCreate extends Event {
 			.addField("**Author**", (await emoji.fetchAuthor())?.toString() || "Unknown", true)
 			.setTimestamp(Date.now());
 
-		await log("log", embed, emoji.guild);
+		await log("log", embed, emoji.guild, this.client);
 	}
 }

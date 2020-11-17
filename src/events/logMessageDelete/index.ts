@@ -42,6 +42,6 @@ export default class MessageDelete extends Event {
 			);
 		}
 
-		await log("log", embed, message.guild);
+		await log("log", embed, message.guild, this.client);
 	}
 }

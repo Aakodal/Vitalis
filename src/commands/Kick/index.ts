@@ -5,7 +5,6 @@ import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { MemberError } from "../../exceptions/MemberError";
 import { SanctionError } from "../../exceptions/SanctionError";
-import { fetchMember } from "../../functions/fetchMember";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { log } from "../../functions/log";
 import { canSanction } from "../../functions/sanction";
@@ -38,7 +37,7 @@ export default class Kick extends Command {
 		}
 
 		const memberSnowflake = getUserIdFromString(args[0]);
-		const member = await fetchMember(message.guild, memberSnowflake as string);
+		const member = await this.client.fetchMember(message.guild, memberSnowflake as string);
 
 		if (!member) {
 			throw new MemberError();
@@ -46,7 +45,7 @@ export default class Kick extends Command {
 
 		const reason = args.slice(1).join(" ");
 
-		if (!(await canSanction(member, message.member, "kick"))) {
+		if (!(await canSanction(member, message.member, "kick", this.client))) {
 			return;
 		}
 
@@ -87,7 +86,7 @@ export default class Kick extends Command {
 
 		await userExistsInDB(memberID, message.guild);
 
-		await log("mod_log", kickEmbed, message.guild);
+		await log("mod_log", kickEmbed, message.guild, this.client);
 
 		await message.channel.send(kickEmbed);
 	}

@@ -1,6 +1,6 @@
 import { ClientUser, Guild, Role } from "discord.js";
 
-import { client } from "../index";
+import { Client } from "../classes/Client";
 import { getValueFromDB, pushValueInDB } from "../misc/database";
 
 export async function configMuteRole(server: Guild, muteRole: Role): Promise<void> {
@@ -27,7 +27,7 @@ export async function configMuteRole(server: Guild, muteRole: Role): Promise<voi
 	}
 }
 
-export async function createMuteRole(server: Guild): Promise<Role> {
+export async function createMuteRole(server: Guild, client: Client): Promise<Role> {
 	const botRole = server.member(client.user as ClientUser)?.roles.highest;
 	const botHighestRolePosition = botRole?.position;
 	const muteRole = await server.roles.create({
@@ -46,12 +46,12 @@ export async function createMuteRole(server: Guild): Promise<Role> {
 	return muteRole;
 }
 
-export async function getMuteRole(server: Guild): Promise<Role> {
+export async function getMuteRole(server: Guild, client: Client): Promise<Role> {
 	const muteRoleDB = await server.roles.fetch(
 		(await getValueFromDB("servers", "mute_role_id", { server_id: server.id })) || "1",
 	);
 
-	const muteRole = muteRoleDB || (await createMuteRole(server));
+	const muteRole = muteRoleDB || (await createMuteRole(server, client));
 	await configMuteRole(server, muteRole);
 
 	return muteRole;

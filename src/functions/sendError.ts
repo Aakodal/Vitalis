@@ -1,11 +1,11 @@
 import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
 
-import { client } from "../index";
+import { Client } from "../classes/Client";
 import { COLORS } from "../misc/constants";
 import { collectReaction } from "./collectReaction";
 import { react } from "./react";
 
-export async function sendError(message: Message, error: Error): Promise<void> {
+export async function sendError(message: Message, error: Error, client: Client): Promise<void> {
 	const embed = new MessageEmbed()
 		.setAuthor("Error", client.user?.displayAvatarURL({ dynamic: true }))
 		.setColor(COLORS.darkRed)

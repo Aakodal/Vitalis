@@ -49,16 +49,12 @@ export default class Command extends Event {
 			isOwner ||
 			message.member?.hasPermission(command.informations.permission as PermissionResolvable)
 		) {
-			try {
-				await message.delete();
-			} catch {}
+			await message.delete().catch(() => {});
 
 			try {
 				await command.run(message, args);
 			} catch (error) {
-				try {
-					await sendError(message, error);
-				} catch {}
+				await sendError(message, error, this.client).catch(() => {});
 			}
 		}
 	}

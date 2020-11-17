@@ -1,22 +1,18 @@
-import { ClientUser, Guild, GuildMember, MessageEmbed, Role, Snowflake, User } from "discord.js";
+import { ClientUser, Guild, GuildMember, Role, Snowflake, User } from "discord.js";
 
+import { Client } from "../classes/Client";
 import { ArgumentError } from "../exceptions/ArgumentError";
 import { MemberError } from "../exceptions/MemberError";
 import { PermissionError } from "../exceptions/PermissionError";
 import { UsageError } from "../exceptions/UsageError";
-import { client } from "../index";
-import { COLORS, DURATION_REGEXP } from "../misc/constants";
-import { db, DbUser, userExistsInDB } from "../misc/database";
+import { DURATION_REGEXP } from "../misc/constants";
 import { getDuration, getTimeFromString } from "./duration";
-import { fetchMember } from "./fetchMember";
-import { log } from "./log";
-import { longTimeout } from "./longTimeout";
-import { getMuteRole } from "./muteRole";
 
 export async function canSanction(
 	user: GuildMember | User | Snowflake,
 	author: GuildMember,
 	sanction: string,
+	client: Client,
 ): Promise<boolean> {
 	if (!user) {
 		throw new ArgumentError("Please mention the user or provide their ID. Note that they must be on the server.");
@@ -31,13 +27,13 @@ export async function canSanction(
 	}
 	// return since ban and unban are two commands which can be used on non-guildmembers
 
-	const member = await fetchMember(author.guild, user);
+	const member = await client.fetchMember(author.guild, user);
 
 	if (!member) {
 		throw new MemberError(`Member not found.`);
 	}
 
-	const clientMember = await fetchMember(author.guild, client.user as ClientUser);
+	const clientMember = await client.fetchMember(author.guild, client.user as ClientUser);
 
 	if (
 		member?.roles.highest.comparePositionTo(clientMember?.roles.highest as Role) >= 0 ||
@@ -73,86 +69,4 @@ export function getSanctionValues(
 		: `You have been permanently ${sanction} from ${guild.name} for the following reason:\n\n${reason}`;
 
 	return [durationString, duration, reason, embedDescription, dmDescription];
-}
-
-export async function unsanction(
-	id: Snowflake,
-	server: Guild,
-	sanction: string,
-	forced = false,
-): Promise<number | NodeJS.Timeout | void> {
-	await userExistsInDB(id, server);
-	const user = (
-		await db.from("users").where({ server_id: server.id, discord_id: id, actual_sanction: sanction })
-	)[0] as DbUser;
-
-	if (!user) {
-		return;
-	}
-
-	const { expiration } = user;
-	const now = Date.now();
-
-	if (expiration && now < expiration && !forced) {
-		return longTimeout(() => {
-			unsanction(id, server, sanction);
-		}, expiration - now);
-	}
-
-	const baseEmbed = new MessageEmbed()
-		.setAuthor("Moderation", server.iconURL({ dynamic: true }) as string)
-		.setColor(COLORS.lightGreen)
-		.setTimestamp();
-
-	const autoEmbed = new MessageEmbed(baseEmbed)
-		.setColor(COLORS.gold)
-		.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout).`);
-
-	if (sanction === "muted") {
-		const member = await fetchMember(server, id);
-		const muteRole = await getMuteRole(server);
-
-		if (member && muteRole && member.roles.cache.get(muteRole.id)) {
-			await member.roles.remove(muteRole);
-		}
-
-		await db
-			.update({
-				actual_sanction: null,
-				created: null,
-				expiration: null,
-			})
-			.into("users")
-			.where({ server_id: server.id, discord_id: id });
-
-		const unmuteEmbed = new MessageEmbed(baseEmbed)
-			.setTitle("Unmute")
-			.setDescription(`You have been unmuted from ${server.name}.`);
-		await member?.send(unmuteEmbed).catch(() => {});
-
-		if (!forced) {
-			await log("mod_log", autoEmbed, server);
-		}
-
-		return;
-	}
-	// else
-	const bans = await server.fetchBans();
-	if (!bans.get(id)) {
-		return;
-	}
-
-	await server.members.unban(id, "[AUTO] Sanction finished.");
-	await db
-		.update({
-			actual_sanction: null,
-			created: null,
-			expiration: null,
-		})
-		.into("users")
-		.where({ server_id: server.id, discord_id: id });
-
-	if (!forced) {
-		await log("mod_log", autoEmbed, server);
-	}
 }

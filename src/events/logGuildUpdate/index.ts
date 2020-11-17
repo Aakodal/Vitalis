@@ -98,6 +98,6 @@ export default class GuildUpdate extends Event {
 			embed.addField("**New icon**", newGuild.iconURL({ dynamic: true }) || "None");
 		}
 
-		await log("log", embed, newGuild);
+		await log("log", embed, newGuild, this.client);
 	}
 }

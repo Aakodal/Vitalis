@@ -38,6 +38,6 @@ export default class GuildMemberAdd extends Event {
 			.setDescription(user.toString())
 			.setTimestamp(Date.now());
 
-		await log("log", embed, member.guild);
+		await log("log", embed, member.guild, this.client);
 	}
 }

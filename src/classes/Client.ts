@@ -3,20 +3,26 @@ import {
 	Client as DiscordClient,
 	ClientOptions,
 	Guild,
+	GuildMember,
+	MessageEmbed,
 	PresenceData,
 	PresenceStatusData,
+	Snowflake,
+	User,
+	UserResolvable,
 } from "discord.js";
-import { promises as fs } from "fs";
+import { readdir, readFile } from "fs/promises";
 import * as path from "path";
 
-import * as config from "../config.json";
 import { CommandError } from "../exceptions/CommandError";
 import { DatabaseError } from "../exceptions/DatabaseError";
 import { capitalize } from "../functions/capitalize";
 import { formatDate } from "../functions/formatDate";
+import { log } from "../functions/log";
+import { longTimeout } from "../functions/longTimeout";
 import { getMuteRole } from "../functions/muteRole";
-import { unsanction } from "../functions/sanction";
-import { databaseCheck, db, DbUser, defaultServerConfig } from "../misc/database";
+import { COLORS } from "../misc/constants";
+import { databaseCheck, db, DbUser, defaultServerConfig, userExistsInDB } from "../misc/database";
 import { Command } from "./Command";
 import { Event } from "./Event";
 
@@ -37,6 +43,9 @@ class Client extends DiscordClient {
 	}
 
 	async init(): Promise<void> {
+		const configPath = path.join(__dirname, "../config.json");
+		const config = JSON.parse(await readFile(configPath, "utf-8"));
+
 		if (!config.botOwner || !config.botOwner.match(/^\d+$/)) {
 			console.warn(`Owner's ID is undefined or invalid.`);
 		}
@@ -48,7 +57,7 @@ class Client extends DiscordClient {
 		}
 
 		const commandsPath = path.join(__dirname, "../commands/");
-		const commandsFolders = await fs.readdir(commandsPath).catch(() => null);
+		const commandsFolders = await readdir(commandsPath).catch(() => null);
 		if (commandsFolders) {
 			for (const folder of commandsFolders) {
 				const commandPath = path.join(commandsPath, folder);
@@ -61,7 +70,7 @@ class Client extends DiscordClient {
 		}
 
 		const eventsPath = path.join(__dirname, "../events/");
-		const eventsFolders = await fs.readdir(eventsPath).catch(() => null);
+		const eventsFolders = await readdir(eventsPath).catch(() => null);
 		if (eventsFolders) {
 			for (const folder of eventsFolders) {
 				const eventPath = path.join(eventsPath, folder);
@@ -100,7 +109,7 @@ class Client extends DiscordClient {
 					continue;
 				}
 
-				await unsanction(user.discord_id, guild, user.actual_sanction);
+				await this.unsanction(user.discord_id, guild, user.actual_sanction);
 			}
 		}
 
@@ -185,8 +194,8 @@ class Client extends DiscordClient {
 
 	async updatePresence(): Promise<void> {
 		const configPath = path.join(__dirname, "../config.json");
-		const configUpdated = JSON.parse(await fs.readFile(configPath, "utf-8"));
-		const { active, name, type } = configUpdated.game;
+		const config = JSON.parse(await readFile(configPath, "utf-8"));
+		const { active, name, type } = config.game;
 		const presence: PresenceData = {
 			activity: {
 				name,
@@ -197,7 +206,7 @@ class Client extends DiscordClient {
 		if (active) {
 			await this.user?.setPresence(presence);
 		}
-		await this.user?.setStatus((configUpdated.status as PresenceStatusData) || "online");
+		await this.user?.setStatus((config.status as PresenceStatusData) || "online");
 	}
 
 	async initServer(server: Guild): Promise<void> {
@@ -207,11 +216,105 @@ class Client extends DiscordClient {
 		}
 
 		try {
-			await getMuteRole(server);
+			await getMuteRole(server, this);
 		} catch {
 			try {
 				await server.owner?.send(`[${server.name}] Vitalis doesn't have sufficent permissions to work.`);
 			} catch {}
+		}
+	}
+
+	async fetchMember(guild: Guild, user: UserResolvable): Promise<GuildMember | undefined> {
+		try {
+			return await guild.members.fetch(user || "1");
+		} catch {}
+	}
+
+	async fetchUser(id: Snowflake | string): Promise<User | undefined> {
+		try {
+			return await this.users.fetch(id);
+		} catch {}
+	}
+
+	async unsanction(
+		id: Snowflake,
+		server: Guild,
+		sanction: string,
+		forced = false,
+	): Promise<number | NodeJS.Timeout | void> {
+		await userExistsInDB(id, server, this);
+		const user = (
+			await db.from("users").where({ server_id: server.id, discord_id: id, actual_sanction: sanction })
+		)[0] as DbUser;
+
+		if (!user) {
+			return;
+		}
+
+		const { expiration } = user;
+		const now = Date.now();
+
+		if (expiration && now < expiration && !forced) {
+			return longTimeout(() => {
+				this.unsanction(id, server, sanction);
+			}, expiration - now);
+		}
+
+		const baseEmbed = new MessageEmbed()
+			.setAuthor("Moderation", server.iconURL({ dynamic: true }) as string)
+			.setColor(COLORS.lightGreen)
+			.setTimestamp();
+
+		const autoEmbed = new MessageEmbed(baseEmbed)
+			.setColor(COLORS.gold)
+			.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout).`);
+
+		if (sanction === "muted") {
+			const member = await this.fetchMember(server, id);
+			const muteRole = await getMuteRole(server, this);
+
+			if (member && muteRole && member.roles.cache.get(muteRole.id)) {
+				await member.roles.remove(muteRole);
+			}
+
+			await db
+				.update({
+					actual_sanction: null,
+					created: null,
+					expiration: null,
+				})
+				.into("users")
+				.where({ server_id: server.id, discord_id: id });
+
+			const unmuteEmbed = new MessageEmbed(baseEmbed)
+				.setTitle("Unmute")
+				.setDescription(`You have been unmuted from ${server.name}.`);
+			await member?.send(unmuteEmbed).catch(() => {});
+
+			if (!forced) {
+				await log("mod_log", autoEmbed, server, this);
+			}
+
+			return;
+		}
+		// else
+		const bans = await server.fetchBans();
+		if (!bans.get(id)) {
+			return;
+		}
+
+		await server.members.unban(id, "[AUTO] Sanction finished.");
+		await db
+			.update({
+				actual_sanction: null,
+				created: null,
+				expiration: null,
+			})
+			.into("users")
+			.where({ server_id: server.id, discord_id: id });
+
+		if (!forced) {
+			await log("mod_log", autoEmbed, server, this);
 		}
 	}
 }

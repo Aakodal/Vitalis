@@ -5,10 +5,9 @@ import { Command } from "../../classes/Command";
 import { ArgumentError } from "../../exceptions/ArgumentError";
 import { SanctionError } from "../../exceptions/SanctionError";
 import { UserError } from "../../exceptions/UserError";
-import { fetchUser } from "../../functions/fetchUser";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { log } from "../../functions/log";
-import { canSanction, unsanction } from "../../functions/sanction";
+import { canSanction } from "../../functions/sanction";
 import { COLORS } from "../../misc/constants";
 import { getValueFromDB } from "../../misc/database";
 
@@ -39,13 +38,13 @@ export default class Unban extends Command {
 		}
 
 		const userSnowflake = getUserIdFromString(args[0]);
-		const user = await fetchUser(userSnowflake as string);
+		const user = await this.client.fetchUser(userSnowflake as string);
 
 		if (!user) {
 			throw new UserError();
 		}
 
-		if (!(await canSanction(user, message.member, "unban"))) {
+		if (!(await canSanction(user, message.member, "unban", this.client))) {
 			return;
 		}
 
@@ -64,12 +63,12 @@ export default class Unban extends Command {
 			.setFooter(`Moderator: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
 		try {
-			await unsanction(user.id, message.guild, "banned", true);
+			await this.client.unsanction(user.id, message.guild, "banned", true);
 		} catch (error) {
 			throw new SanctionError(`For some reason, this user couldn't have been unbanned; ${error.message}`);
 		}
 
-		await log("mod_log", unbanEmbed, message.guild);
+		await log("mod_log", unbanEmbed, message.guild, this.client);
 
 		await message.channel.send(unbanEmbed);
 	}

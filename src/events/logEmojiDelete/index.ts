@@ -29,6 +29,6 @@ export default class EmojiDelete extends Event {
 			.addField("**Name**", emoji.name, true)
 			.setTimestamp(Date.now());
 
-		await log("log", embed, emoji.guild);
+		await log("log", embed, emoji.guild, this.client);
 	}
 }

@@ -55,6 +55,6 @@ export default class GuildMemberUpdate extends Event {
 			embed.addField(fieldName, roleUpdated, false);
 		}
 
-		await log("log", embed, newMember.guild);
+		await log("log", embed, newMember.guild, this.client);
 	}
 }

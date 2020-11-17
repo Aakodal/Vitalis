@@ -4,7 +4,6 @@ import { Client } from "../../classes/Client";
 import { Command } from "../../classes/Command";
 import { CommandError } from "../../exceptions/CommandError";
 import { UserError } from "../../exceptions/UserError";
-import { fetchUser } from "../../functions/fetchUser";
 import { getUserIdFromString } from "../../functions/getUserIdFromString";
 import { COLORS } from "../../misc/constants";
 import { getValueFromDB } from "../../misc/database";
@@ -33,7 +32,7 @@ export default class Infractions extends Command {
 		}
 
 		const userSnowflake = getUserIdFromString(args[0]);
-		const user = await fetchUser(userSnowflake as string);
+		const user = await this.client.fetchUser(userSnowflake as string);
 
 		if (!user) {
 			throw new UserError();

@@ -68,6 +68,6 @@ export default class ChannelUpdate extends Event {
 			return;
 		}
 
-		await log("log", embed, newChannel.guild);
+		await log("log", embed, newChannel.guild, this.client);
 	}
 }

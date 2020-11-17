@@ -1,9 +1,14 @@
 import { Guild, MessageOptions, TextChannel } from "discord.js";
 
-import { client } from "../index";
+import { Client } from "../classes/Client";
 import { getValueFromDB } from "../misc/database";
 
-export async function log(type: "log" | "mod_log", message: MessageOptions, server: Guild): Promise<void> {
+export async function log(
+	type: "log" | "mod_log",
+	message: MessageOptions,
+	server: Guild,
+	client: Client,
+): Promise<void> {
 	const channelId = await getValueFromDB<string>("servers", `${type}s_channel`, { server_id: server.id });
 	const isActive = await getValueFromDB<boolean>("servers", `${type}s_active`, { server_id: server.id });
 
