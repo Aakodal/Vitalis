@@ -1,8 +1,9 @@
 import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
+import { readFile } from "fs/promises";
+import * as path from "path";
 
 import { Client } from "../../../classes/Client";
 import { Command } from "../../../classes/Command";
-import * as config from "../../../config.json";
 import { collectReaction } from "../../../functions/collectReaction";
 import { COLORS } from "../../../misc/constants";
 import { updateReactions } from "../functions/updateReactions";
@@ -15,6 +16,9 @@ export async function globalHelp(message: Message, pageNumber: number, client: C
 		.setColor(COLORS.lightGreen)
 		.setThumbnail(client.user?.displayAvatarURL({ dynamic: true }) as string)
 		.setFooter(`Asked by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
+
+	const configPath = path.join(__dirname, "../config.json");
+	const config = JSON.parse(await readFile(configPath, "utf-8"));
 
 	for (const [, command] of client.commands) {
 		const { category, name, permission } = command.informations;

@@ -1,7 +1,8 @@
 import { Message, MessageEmbed, PermissionString } from "discord.js";
+import { readFile } from "fs/promises";
+import * as path from "path";
 
 import { Client } from "../../../classes/Client";
-import * as config from "../../../config.json";
 import { CommandError } from "../../../exceptions/CommandError";
 import { PermissionError } from "../../../exceptions/PermissionError";
 import { COLORS } from "../../../misc/constants";
@@ -13,6 +14,9 @@ export async function commandHelp(message: Message, args: string[], client: Clie
 	}
 
 	const { name, description, usage, aliases, permission, category } = command.informations;
+
+	const configPath = path.join(__dirname, "../config.json");
+	const config = JSON.parse(await readFile(configPath, "utf-8"));
 
 	if (permission === "BOT_OWNER" && message.author.id !== config.botOwner) {
 		throw new PermissionError("You do not have permission to see this command.");

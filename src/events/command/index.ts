@@ -1,8 +1,9 @@
 import { Message, PermissionResolvable } from "discord.js";
+import { readFile } from "fs/promises";
+import * as path from "path";
 
 import { Client } from "../../classes/Client";
 import { Event } from "../../classes/Event";
-import * as config from "../../config.json";
 import { sendError } from "../../functions/sendError";
 import { getValueFromDB } from "../../misc/database";
 
@@ -38,6 +39,9 @@ export default class Command extends Event {
 		if (!command) {
 			return;
 		}
+
+		const configPath = path.join(__dirname, "../config.json");
+		const config = JSON.parse(await readFile(configPath, "utf-8"));
 
 		const isOwner =
 			command.informations.permission &&
