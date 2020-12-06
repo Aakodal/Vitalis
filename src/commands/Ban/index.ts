@@ -92,11 +92,10 @@ export default class Ban extends Command {
 
 		try {
 			await message.guild?.members.ban(user, {
-				days: 7,
 				reason: reasonText,
 			});
 		} catch (error) {
-			throw new SanctionError(`This user couldn't have been banned; ${error.message}`);
+			throw new SanctionError(`This user could not have been banned; ${error.message}`);
 		}
 
 		const userID = user.id;

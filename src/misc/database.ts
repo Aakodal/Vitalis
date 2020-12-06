@@ -73,6 +73,7 @@ export async function databaseCheck(): Promise<void> {
 			table.string("discord_id");
 			table.primary(["server_id", "discord_id"]);
 			table.string("pseudo");
+			table.string("lang");
 			table.timestamp("last_warn");
 			table.enum("actual_sanction", ["muted", "banned"]);
 			table.timestamp("created");
@@ -106,8 +107,10 @@ export async function databaseCheck(): Promise<void> {
 			table.boolean("leaving_message_active");
 			table.string("leaving_message_channel");
 			table.text("leaving_message_text");
-			// muterole
+			// mute role
 			table.string("mute_role_id");
+			// default lang
+			table.string("default_lang");
 		});
 		console.info("Servers table created successfully.");
 	}

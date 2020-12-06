@@ -97,12 +97,14 @@ export async function globalHelp(message: Message, pageNumber: number, client: C
 		!user.bot &&
 		["⏮️", "⬅", "➡", "⏭", "❌"].includes(reaction.emoji.name);
 
-	const reactions: Record<string, () => void> = {
+	const reactions: Record<string, () => number | void> = {
 		"⏮": (): number => (currentPage = 0),
 		"⬅": (): number => currentPage--,
 		"➡": (): number => currentPage++,
 		"⏭": (): number => (currentPage = stockEmbeds.length - 1),
-		"❌": (): void => void embedMessage.delete(),
+		"❌": (): void => {
+			embedMessage.delete();
+		},
 	};
 
 	while (embedMessage && !embedMessage.deleted) {
