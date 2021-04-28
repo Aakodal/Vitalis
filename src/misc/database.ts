@@ -1,9 +1,9 @@
 import { Guild, Snowflake } from "discord.js";
-import * as knex from "knex";
-import { DbRecord } from "knex";
+import { Knex, knex } from "knex";
 import * as path from "path";
 
 import { Client } from "../classes/Client";
+import DbRecord = Knex.DbRecord;
 
 const dbPath = path.join(__dirname, "../db.db");
 
@@ -24,6 +24,7 @@ export const defaultServerConfig = {
 	joining_role_active: false,
 	leaving_message_active: false,
 	leaving_message_text: "{USER} left the server :'(",
+	default_lang: "en_us",
 };
 
 export interface Infraction {

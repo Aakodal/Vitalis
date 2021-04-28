@@ -50,13 +50,13 @@ export function getSanctionValues(
 	sanction: string,
 	member: User,
 	guild: Guild,
-): (string | number | null)[] {
+): (string | number | undefined)[] {
 	const isPermanent = !args[1].match(DURATION_REGEXP);
 
 	const timeString = getTimeFromString(args[1]);
-	const durationString = isPermanent ? null : `${timeString?.integer}${timeString?.time}`;
+	const durationString = isPermanent ? undefined : `${timeString?.integer}${timeString?.time}`;
 
-	const duration = durationString ? getDuration(durationString) : null;
+	const duration = durationString ? getDuration(durationString) : undefined;
 
 	const reason = duration ? args.slice(2).join(" ") : args.slice(1).join(" ");
 

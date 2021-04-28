@@ -1,0 +1,13 @@
+- [ ] Instaurer un système de modules dans /modules/
+    - [ ] module "Events Logger" qui va chercher tous les logs (cf ci-dessous) dans /modules/loggers/ ?
+- [ ] Continuer les logs (tous les noms dans /events/ doivent commencer par "log" (e.g. "logChannelUpdate"))
+    - [ ] roleCreate
+    - [ ] roleUpdate
+- [ ] regrouper TOUTES les regexps au même endroit
+- [ ] changer le configedit en full commandes (virer le "menu" beaucoup trop lourd et API spammy)
+- [ ] activer/désactiver des logs spécifiques -> configedit
+- [ ] possibilité de désactiver les commandes sur les serveurs -> configedit
+- [ ] possibilité d'alterner entre embeds / messages simples / demi (embed dans le channel de la commande, message simple dans le log channel, et inverse) (hors logs)
+- [ ] commande pour modifier la durée d'une sanction
+- [ ] internationalisation
+- [ ] pour le purge : permettre de mettre l'ID d'un message "limite" au lieu du nombre

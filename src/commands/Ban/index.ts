@@ -6,10 +6,7 @@ import { ArgumentError } from "../../exceptions/ArgumentError";
 import { SanctionError } from "../../exceptions/SanctionError";
 import { UsageError } from "../../exceptions/UsageError";
 import { UserError } from "../../exceptions/UserError";
-import { getUserIdFromString } from "../../functions/getUserIdFromString";
-import { log } from "../../functions/log";
-import { longTimeout } from "../../functions/longTimeout";
-import { canSanction, getSanctionValues } from "../../functions/sanction";
+import { canSanction, getSanctionValues, getUserIdFromString, log, longTimeout } from "../../functions";
 import { COLORS } from "../../misc/constants";
 import { db, getValueFromDB, userExistsInDB } from "../../misc/database";
 

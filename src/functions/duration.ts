@@ -5,15 +5,15 @@ type TimeObject = {
 	time: string;
 };
 
-export function getTimeFromString(timeString: string): TimeObject | null {
+export function getTimeFromString(timeString: string): TimeObject | undefined {
 	if (!timeString) {
-		return null;
+		return undefined;
 	}
 
 	const matches = timeString.match(DURATION_REGEXP);
 
 	if (!matches) {
-		return null;
+		return undefined;
 	}
 
 	const integer = Number(matches.groups?.integer);
@@ -25,15 +25,15 @@ export function getTimeFromString(timeString: string): TimeObject | null {
 	return { integer, time };
 }
 
-export function getDuration(durationString: string): number | null {
+export function getDuration(durationString: string): number | undefined {
 	if (!durationString) {
-		return null;
+		return undefined;
 	}
 
 	const timeString = getTimeFromString(durationString);
 
 	if (!timeString) {
-		return null;
+		return undefined;
 	}
 
 	const { integer, time } = timeString;

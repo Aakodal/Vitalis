@@ -18,6 +18,6 @@ const COLORS = {
 };
 
 // eslint-disable-next-line max-len
-const DURATION_REGEXP = /^(?<integer>[1-9][0-9]*)(?<time>s(econds?)?|m(in(ute)?s?)?|h(ours?)?|d(ays?)?|w(eeks?)?|mo(nths?)?|y(ears?)?)$/i;
+const DURATION_REGEXP = /^(?<integer>0*[1-9][0-9]*)(?<time>s(econds?)?|m(in(ute)?s?)?|h(ours?)?|d(ays?)?|w(eeks?)?|mo(nths?)?|y(ears?)?)$/i;
 
 export { COLORS, DURATION_REGEXP };

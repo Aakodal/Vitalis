@@ -3,7 +3,7 @@ import { ClientEvents } from "discord.js";
 import { Client } from "./Client";
 
 export abstract class Event {
-	readonly event: keyof ClientEvents;
+	public readonly event: keyof ClientEvents;
 
 	protected readonly client: Client;
 

@@ -11,61 +11,55 @@ import {
 	User,
 	UserResolvable,
 } from "discord.js";
-import { readdir, readFile } from "fs/promises";
+import { readdir } from "fs/promises";
+import { get } from "lodash";
 import * as path from "path";
 
-import { CommandError } from "../exceptions/CommandError";
 import { DatabaseError } from "../exceptions/DatabaseError";
-import { capitalize } from "../functions/capitalize";
-import { formatDate } from "../functions/formatDate";
-import { log } from "../functions/log";
-import { longTimeout } from "../functions/longTimeout";
-import { getMuteRole } from "../functions/muteRole";
+import { capitalize, formatDate, getMuteRole, log, longTimeout, validEnv } from "../functions";
+import { FormattedString } from "../i18n";
 import { COLORS } from "../misc/constants";
-import { databaseCheck, db, DbUser, defaultServerConfig, userExistsInDB } from "../misc/database";
+import { databaseCheck, db, DbUser, defaultServerConfig, getValueFromDB, userExistsInDB } from "../misc/database";
 import { Command } from "./Command";
 import { Event } from "./Event";
 
+const classSymbol = Symbol("client");
+
 class Client extends DiscordClient {
-	commands: Map<string, Command>;
+	public commands: Map<string, Command> = new Map();
 
-	aliases: Map<string, Command>;
+	public aliases: Map<string, Command> = new Map();
 
-	operational: boolean;
+	public locales: Map<string, Record<string, unknown>> = new Map();
 
-	constructor(options?: ClientOptions) {
+	public operational = false;
+
+	private constructor(key: symbol, options?: ClientOptions) {
 		super(options);
-
-		this.commands = new Map();
-		this.aliases = new Map();
-
-		this.operational = false;
+		if (key !== classSymbol) {
+			throw new Error("This class cannot be directly instancied");
+		}
 	}
 
-	async init(): Promise<void> {
-		const configPath = path.join(__dirname, "../config.json");
-		const config = JSON.parse(await readFile(configPath, "utf-8"));
-
-		if (!config.botOwner || !config.botOwner.match(/^\d+$/)) {
-			console.warn(`Owner's ID is undefined or invalid.`);
+	static async create(options?: ClientOptions): Promise<void> {
+		if (!validEnv()) {
+			throw new Error("Environment is not valid. Make sure TOKEN and BOT_OWNER variables are set.");
 		}
 
-		try {
-			await databaseCheck();
-		} catch (error) {
+		await databaseCheck().catch((error) => {
 			throw new DatabaseError(`Could not check database; ${error.message}`);
-		}
+		});
+
+		const instance = new Client(classSymbol, options);
 
 		const commandsPath = path.join(__dirname, "../commands/");
 		const commandsFolders = await readdir(commandsPath).catch(() => null);
 		if (commandsFolders) {
 			for (const folder of commandsFolders) {
 				const commandPath = path.join(commandsPath, folder);
-				try {
-					await this.loadCommand(commandPath);
-				} catch (error) {
-					console.error(`Could not load command in ${folder};\n${error.stackTrace}`);
-				}
+				await instance
+					.loadCommand(commandPath)
+					.catch((error) => console.error(`Could not load command in ${folder};\n${error.stackTrace}`));
 			}
 		}
 
@@ -74,28 +68,21 @@ class Client extends DiscordClient {
 		if (eventsFolders) {
 			for (const folder of eventsFolders) {
 				const eventPath = path.join(eventsPath, folder);
-				try {
-					await this.loadEvent(eventPath, folder);
-				} catch (error) {
-					console.error(`Could not load event in ${folder};\n${error.stackTrace}`);
-				}
+				await instance
+					.loadEvent(eventPath, folder)
+					.catch((error) => console.error(`Could not load event in ${folder};\n${error.stackTrace}`));
 			}
 		}
 
-		await this.login(config.token);
-		await this.user?.setPresence({
-			activity: {
-				name: "starting...",
-				type: "PLAYING",
-			},
-			status: "dnd",
-		});
+		await instance.fetchLocales();
 
-		const servers = Array.from(this.guilds.cache.values());
+		await instance.login(process.env.TOKEN!);
+
+		const servers = [...instance.guilds.cache.values()];
 
 		if (servers.length > 0) {
 			for (const server of servers) {
-				await this.initServer(server);
+				await instance.initServer(server);
 			}
 
 			const sanctionned: DbUser[] = await db.from("users").whereIn("actual_sanction", ["muted", "banned"]);
@@ -104,29 +91,27 @@ class Client extends DiscordClient {
 					continue;
 				}
 
-				const guild = this.guilds.cache.get(user.server_id);
+				const guild = instance.guilds.cache.get(user.server_id);
 				if (!guild) {
 					continue;
 				}
 
-				await this.unsanction(user.discord_id, guild, user.actual_sanction);
+				await instance.unsanction(user.discord_id, guild, user.actual_sanction);
 			}
 		}
 
-		this.on("guildCreate", this.initServer);
-		this.on("guildDelete", async (guild) => {
+		instance.on("guildCreate", instance.initServer);
+		instance.on("guildDelete", async (guild) => {
 			for (const table of ["infractions", "users", "servers"]) {
 				await db.from(table).where({ server_id: guild.id }).delete();
 			}
 		});
 
-		this.operational = true;
+		instance.operational = true;
 
-		try {
-			await this.updatePresence();
-		} catch (error) {
-			console.error(`Error while updating bot's presence: invalid config.\n${error}`);
-		}
+		await instance
+			.updatePresence()
+			.catch((error) => console.error(`Error while updating bot's presence: invalid config.\n${error}`));
 		console.log(`Vitalis started at ${formatDate()}.`);
 	}
 
@@ -158,7 +143,10 @@ class Client extends DiscordClient {
 		for (const alias of command.informations.aliases) {
 			const double = this.aliases.get(alias) || this.commands.get(alias);
 			if (double) {
-				console.warn(`Alias ${alias} already exist for command ${double.informations.name}.`);
+				console.warn(
+					// eslint-disable-next-line max-len
+					`Alias ${alias} from ${command.informations.name} already exist for command ${double.informations.name}. Skipping...`,
+				);
 				continue;
 			}
 			this.aliases.set(alias, command);
@@ -175,41 +163,54 @@ class Client extends DiscordClient {
 		console.info(`Event ${name} (${event.event}) loaded.`);
 	}
 
-	reloadCommand(command: Command): Promise<void> {
-		for (const [key, value] of this.aliases) {
-			if (value === command) {
-				this.aliases.delete(key);
+	private async fetchLocales(): Promise<void> {
+		const localesPath = path.join(__dirname, "../i18n/locales/");
+		const localesFiles = await readdir(localesPath).catch(() => null);
+		if (localesFiles) {
+			for (const file of localesFiles) {
+				const { locale } = await import(path.join(localesPath, file));
+				this.locales.set(file.split(".")[0], locale);
 			}
 		}
+	}
 
-		try {
-			this.commands.delete(command.informations.name);
-			delete require.cache[require.resolve(command.informations.path as string)];
-
-			return this.loadCommand(command.informations.path as string);
-		} catch (error) {
-			throw new CommandError(`Could not reload command ${command.informations.name}; ${error}`);
+	getTranslation(
+		locale: string | undefined,
+		key: string,
+		...values: (string | Record<string, unknown>)[]
+	): string | undefined {
+		if (!locale) {
+			return;
 		}
+
+		const translation =
+			(get(this.locales.get(locale), key) as FormattedString) ||
+			(get(this.locales.get("en_us"), key) as FormattedString);
+
+		return typeof translation === "function" ? translation(...values) : translation;
 	}
 
 	async updatePresence(): Promise<void> {
-		const configPath = path.join(__dirname, "../config.json");
-		const config = JSON.parse(await readFile(configPath, "utf-8"));
-		const { active, name, type } = config.game;
+		const [status, active, name, type] = [
+			process.env.STATUS,
+			process.env.GAME_ACTIVE,
+			process.env.GAME_NAME,
+			process.env.GAME_TYPE,
+		];
 		const presence: PresenceData = {
 			activity: {
-				name,
-				type: type as ActivityType,
+				name: name || "users",
+				type: (type as ActivityType) || "LISTENING",
 			},
 		};
 
-		if (active) {
+		if (Number(active)) {
 			await this.user?.setPresence(presence);
 		}
-		await this.user?.setStatus((config.status as PresenceStatusData) || "online");
+		await this.user?.setStatus((status as PresenceStatusData) || "online");
 	}
 
-	async initServer(server: Guild): Promise<void> {
+	private async initServer(server: Guild): Promise<void> {
 		const dbServer = await db.from("servers").where({ server_id: server.id });
 		if (!dbServer[0]) {
 			await db.insert({ ...defaultServerConfig, server_id: server.id }).into("servers");
@@ -218,22 +219,22 @@ class Client extends DiscordClient {
 		try {
 			await getMuteRole(server, this);
 		} catch {
-			try {
-				await server.owner?.send(`[${server.name}] Vitalis doesn't have sufficent permissions to work.`);
-			} catch {}
+			const locale = await getValueFromDB<string>("servers", "default_lang", {
+				server_id: server.id,
+			}).catch(() => undefined);
+			const text = this.getTranslation(locale, "misc.noPermissions", { server: server.name });
+			if (text) {
+				await server.owner?.send(text).catch(() => {});
+			}
 		}
 	}
 
 	async fetchMember(guild: Guild, user: UserResolvable): Promise<GuildMember | undefined> {
-		try {
-			return await guild.members.fetch(user || "1");
-		} catch {}
+		return guild.members.fetch(user || "1").catch(() => undefined);
 	}
 
 	async fetchUser(id: Snowflake | string): Promise<User | undefined> {
-		try {
-			return await this.users.fetch(id);
-		} catch {}
+		return this.users.fetch(id).catch(() => undefined);
 	}
 
 	async unsanction(
@@ -245,7 +246,7 @@ class Client extends DiscordClient {
 		await userExistsInDB(id, server, this);
 		const user = (
 			await db.from("users").where({ server_id: server.id, discord_id: id, actual_sanction: sanction })
-		)[0] as DbUser;
+		)?.[0] as DbUser | undefined;
 
 		if (!user) {
 			return;
@@ -260,14 +261,16 @@ class Client extends DiscordClient {
 			}, expiration - now);
 		}
 
+		const locale = await getValueFromDB<string>("servers", "default_lang", { server_id: server.id });
+
+		const baseAuthor = this.getTranslation(locale, "moderation.name");
 		const baseEmbed = new MessageEmbed()
-			.setAuthor("Moderation", server.iconURL({ dynamic: true }) as string)
+			.setAuthor(baseAuthor, server.iconURL({ dynamic: true }) as string)
 			.setColor(COLORS.lightGreen)
 			.setTimestamp();
 
-		const autoEmbed = new MessageEmbed(baseEmbed)
-			.setColor(COLORS.gold)
-			.setDescription(`[AUTO] ${user.pseudo} has been un${sanction} (sanction timeout).`);
+		const autoDescription = this.getTranslation(locale, `sanction.unsanction.auto.${sanction}`, user.pseudo);
+		const autoEmbed = new MessageEmbed(baseEmbed).setColor(COLORS.gold).setDescription(autoDescription);
 
 		if (sanction === "muted") {
 			const member = await this.fetchMember(server, id);
@@ -286,9 +289,9 @@ class Client extends DiscordClient {
 				.into("users")
 				.where({ server_id: server.id, discord_id: id });
 
-			const unmuteEmbed = new MessageEmbed(baseEmbed)
-				.setTitle("Unmute")
-				.setDescription(`You have been unmuted from ${server.name}.`);
+			const unmuteTitle = this.getTranslation(locale, "sanction.unsanction.unmute");
+			const unmuteDescription = this.getTranslation(locale, `sanction.unsanction.mp.${sanction}`, server.name);
+			const unmuteEmbed = new MessageEmbed(baseEmbed).setTitle(unmuteTitle).setDescription(unmuteDescription);
 			await member?.send(unmuteEmbed).catch(() => {});
 
 			if (!forced) {
@@ -303,7 +306,8 @@ class Client extends DiscordClient {
 			return;
 		}
 
-		await server.members.unban(id, "[AUTO] Sanction finished.");
+		const unbanReason = this.getTranslation(locale, "sanction.unsanction.auto.unbanReason");
+		await server.members.unban(id, unbanReason);
 		await db
 			.update({
 				actual_sanction: null,

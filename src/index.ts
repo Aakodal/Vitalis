@@ -1,6 +1,6 @@
 import { Client } from "./classes/Client";
 
-const client = new Client({
+Client.create({
 	partials: ["USER", "GUILD_MEMBER", "MESSAGE", "REACTION"],
 	ws: {
 		intents: [
@@ -13,8 +13,6 @@ const client = new Client({
 			"GUILD_INVITES",
 		],
 	},
-});
-
-client.init().catch((error) => {
+}).catch((error) => {
 	throw error; // intended thrown error
 });
